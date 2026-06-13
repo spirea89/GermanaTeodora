@@ -997,20 +997,28 @@ function createSchoolGraph(problem, example) {
 }
 
 function getSchoolPoints(operator, steps) {
-  if (operator === "+") {
-    return steps.length === 1
-      ? { startX: 32, endX: 228, segments: [[32, 228]] }
-      : { startX: 32, endX: 228, segments: [[32, 132], [132, 228]] };
-  }
+  const startX = operator === "+" ? 32 : 228;
+  const totalDistance = 196;
+  const totalValue = steps.reduce((sum, step) => sum + getStepValue(step), 0) || 1;
+  let currentX = startX;
+  const segments = steps.map((step) => {
+    const distance = (getStepValue(step) / totalValue) * totalDistance;
+    const nextX = step.direction === "right" ? currentX + distance : currentX - distance;
+    const segment = [currentX, nextX];
+    currentX = nextX;
+    return segment;
+  });
 
-  const usesCompensation = steps[1]?.direction === "right";
-  if (usesCompensation) {
-    return { startX: 228, endX: 110, segments: [[228, 72], [72, 110]] };
-  }
+  return {
+    startX,
+    endX: currentX,
+    segments
+  };
+}
 
-  return steps.length === 1
-    ? { startX: 228, endX: 32, segments: [[228, 32]] }
-    : { startX: 228, endX: 32, segments: [[228, 126], [126, 32]] };
+function getStepValue(step) {
+  const value = Number(step.label.replace(/[^\d]/g, ""));
+  return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
 function createArc(start, end, index, direction) {
