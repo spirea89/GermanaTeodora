@@ -201,6 +201,15 @@ const translations = {
     chooseFeedback: "Choose answer feedback",
     showNow: "Show Instant Results",
     atFinish: "Show results at the end",
+    withTips: "Show Results and Tips",
+    showTip: "Tip",
+    hideTip: "Hide tip",
+    plusTip: (left, right, answer, bridge, rest) => rest === 0
+      ? `Make a ten: ${left} + ${bridge} = ${answer}.`
+      : `Make a ten: ${left} + ${bridge} = ${left + bridge}. Then add ${rest}: ${left + bridge} + ${rest} = ${answer}.`,
+    minusTip: (left, right, answer, bridge, rest) => rest === 0
+      ? `Go down to a ten: ${left} - ${bridge} = ${answer}.`
+      : `Go down to a ten: ${left} - ${bridge} = ${left - bridge}. Then take away ${rest}: ${left - bridge} - ${rest} = ${answer}.`,
     start: "Start",
     mathProgress: "Math progress",
     correct: "Correct",
@@ -257,6 +266,15 @@ const translations = {
     chooseFeedback: "Antwortanzeige auswählen",
     showNow: "Ergebnisse sofort zeigen",
     atFinish: "Ergebnisse am Ende zeigen",
+    withTips: "Ergebnisse und Tipps zeigen",
+    showTip: "Tipp",
+    hideTip: "Tipp ausblenden",
+    plusTip: (left, right, answer, bridge, rest) => rest === 0
+      ? `Erst zum Zehner: ${left} + ${bridge} = ${answer}.`
+      : `Erst zum Zehner: ${left} + ${bridge} = ${left + bridge}. Dann noch ${rest}: ${left + bridge} + ${rest} = ${answer}.`,
+    minusTip: (left, right, answer, bridge, rest) => rest === 0
+      ? `Erst zum Zehner: ${left} - ${bridge} = ${answer}.`
+      : `Erst zum Zehner: ${left} - ${bridge} = ${left - bridge}. Dann noch ${rest} wegnehmen: ${left - bridge} - ${rest} = ${answer}.`,
     start: "Start",
     mathProgress: "Mathe-Fortschritt",
     correct: "Richtig",
@@ -392,6 +410,7 @@ function applyLanguage() {
   elements.startOptions.setAttribute("aria-label", t("chooseFeedback"));
   elements.startOptions.querySelector('[data-feedback="instant"]').textContent = t("showNow");
   elements.startOptions.querySelector('[data-feedback="end"]').textContent = t("atFinish");
+  elements.startOptions.querySelector('[data-feedback="tips"]').textContent = t("withTips");
   elements.startMath.textContent = t("start");
   document.querySelector(".math-progress").setAttribute("aria-label", t("mathProgress"));
   setText(".math-progress div:nth-child(1) .score-label", "correct");
@@ -691,7 +710,8 @@ function makeAdditionProblem() {
     left,
     operator: "+",
     right,
-    answer: left + right
+    answer: left + right,
+    tip: makeMathTip(left, "+", right)
   };
 }
 
@@ -703,8 +723,23 @@ function makeSubtractionProblem() {
     left,
     operator: "-",
     right,
-    answer: left - right
+    answer: left - right,
+    tip: makeMathTip(left, "-", right)
   };
+}
+
+function makeMathTip(left, operator, right) {
+  if (operator === "+") {
+    const bridge = left % 10 === 0 ? 10 : 10 - (left % 10);
+    const usableBridge = Math.min(bridge, right);
+    const rest = right - usableBridge;
+    return () => t("plusTip", left, right, left + right, usableBridge, rest);
+  }
+
+  const bridge = left % 10 === 0 ? 10 : left % 10;
+  const usableBridge = Math.min(bridge, right);
+  const rest = right - usableBridge;
+  return () => t("minusTip", left, right, left - right, usableBridge, rest);
 }
 
 function shuffle(items) {
@@ -739,6 +774,7 @@ function resetMathWorksheet() {
 
 function renderMathWorksheet() {
   elements.worksheet.replaceChildren();
+  elements.worksheet.classList.toggle("tips-enabled", mathFeedbackMode === "tips");
   mathProblems.forEach((problem, index) => {
     const row = document.createElement("label");
     row.className = "problem";
@@ -756,17 +792,17 @@ function renderMathWorksheet() {
     input.setAttribute("aria-label", `${problem.left} ${problem.operator} ${problem.right}`);
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D/g, "").slice(0, 3);
-      if (mathFeedbackMode === "instant") {
+      if (showsImmediateMathFeedback()) {
         markProblem(row, problem, input.value, true);
       } else {
         row.classList.remove("correct", "wrong");
         row.querySelector(".answer-result").textContent = "";
       }
       updateMathProgress();
-      if (mathFeedbackMode === "instant" && Number(input.value) === problem.answer) {
+      if (showsImmediateMathFeedback() && Number(input.value) === problem.answer) {
         focusNextMathInput(index);
       }
-      if (mathFeedbackMode === "instant" && mathStarted && !mathEnded && allMathCorrect()) {
+      if (showsImmediateMathFeedback() && mathStarted && !mathEnded && allMathCorrect()) {
         endMath(true);
       }
     });
@@ -776,8 +812,37 @@ function renderMathWorksheet() {
     result.setAttribute("aria-live", "polite");
 
     row.append(equation, input, result);
+    if (mathFeedbackMode === "tips") {
+      row.append(createTipBox(problem));
+    }
     elements.worksheet.append(row);
   });
+}
+
+function showsImmediateMathFeedback() {
+  return mathFeedbackMode === "instant" || mathFeedbackMode === "tips";
+}
+
+function createTipBox(problem) {
+  const wrap = document.createElement("div");
+  wrap.className = "tip-wrap";
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "tip-toggle";
+  button.textContent = t("showTip");
+
+  const box = document.createElement("div");
+  box.className = "tip-box hidden";
+  box.textContent = problem.tip();
+
+  button.addEventListener("click", () => {
+    const isHidden = box.classList.toggle("hidden");
+    button.textContent = isHidden ? t("showTip") : t("hideTip");
+  });
+
+  wrap.append(button, box);
+  return wrap;
 }
 
 function focusNextMathInput(currentIndex) {
@@ -821,7 +886,7 @@ function allMathCorrect() {
 
 function updateMathProgress() {
   const correct = countCorrectMath();
-  if (mathFeedbackMode === "instant" || mathEnded || !mathStarted) {
+  if (showsImmediateMathFeedback() || mathEnded || !mathStarted) {
     document.querySelector(".math-progress").classList.remove("concealed");
     elements.mathCorrect.textContent = correct;
     elements.mathLeft.textContent = Math.max(mathProblems.length - correct, 0);
@@ -926,7 +991,7 @@ function selectMathFeedback(mode) {
 
   getMathInputs().forEach((input, index) => {
     const row = input.closest(".problem");
-    if (mode === "instant") {
+    if (mode === "instant" || mode === "tips") {
       markProblem(row, mathProblems[index], input.value, Boolean(input.value));
     } else if (!mathEnded) {
       row.classList.remove("correct", "wrong");

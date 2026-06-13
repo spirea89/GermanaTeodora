@@ -546,7 +546,7 @@ textarea {
 }
 
 .start-options {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0 0 14px;
   padding: 12px;
   border-radius: 8px;
@@ -597,6 +597,10 @@ textarea {
   border: 1px solid #e6d7bd;
 }
 
+.worksheet.tips-enabled {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .problem {
   display: grid;
   grid-template-columns: 1fr auto 64px;
@@ -606,6 +610,36 @@ textarea {
   padding: 10px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.84);
+}
+
+.worksheet.tips-enabled .problem {
+  grid-template-columns: minmax(0, 1fr) 92px 64px minmax(150px, 0.9fr);
+}
+
+.tip-wrap {
+  display: grid;
+  gap: 8px;
+}
+
+.tip-toggle {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: #fff3d4;
+  border: 1px solid #f0d38a;
+  color: #5c3f00;
+  font-weight: 900;
+}
+
+.tip-box {
+  padding: 12px;
+  border-radius: 8px;
+  background: #f7fbff;
+  border: 1px solid #c9def1;
+  color: var(--ink);
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .problem span {
@@ -771,8 +805,20 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .worksheet.tips-enabled {
+    grid-template-columns: 1fr;
+  }
+
   .problem {
     grid-template-columns: minmax(0, 1fr) 92px 62px;
+  }
+
+  .worksheet.tips-enabled .problem {
+    grid-template-columns: minmax(0, 1fr) 92px 62px minmax(150px, 0.9fr);
+  }
+
+  .start-options {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -805,5 +851,13 @@ textarea {
 
   .problem {
     grid-template-columns: minmax(0, 1fr) 72px 58px;
+  }
+
+  .worksheet.tips-enabled .problem {
+    grid-template-columns: minmax(0, 1fr) 72px 58px;
+  }
+
+  .worksheet.tips-enabled .tip-wrap {
+    grid-column: 1 / -1;
   }
 }
