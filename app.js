@@ -877,7 +877,7 @@ function renderMathWorksheet() {
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D/g, "").slice(0, 3);
       if (showsImmediateMathFeedback()) {
-        markProblem(row, problem, input.value, true);
+        markProblem(row, problem, input.value);
       } else {
         row.classList.remove("correct", "wrong");
         row.querySelector(".answer-result").textContent = "";
@@ -885,9 +885,6 @@ function renderMathWorksheet() {
       updateMathProgress();
       if (showsImmediateMathFeedback() && Number(input.value) === problem.answer) {
         focusNextMathInput(index);
-      }
-      if (showsImmediateMathFeedback() && mathStarted && !mathEnded && allMathCorrect()) {
-        endMath(true);
       }
     });
 
@@ -1047,14 +1044,14 @@ function focusNextMathInput(currentIndex) {
   }
 }
 
-function markProblem(row, problem, value, showAnswer = false) {
+function markProblem(row, problem, value, revealAnswer = false) {
   const result = row.querySelector(".answer-result");
   row.classList.remove("correct", "wrong");
   if (result) {
     result.textContent = "";
   }
   if (!value) {
-    if (showAnswer && result) {
+    if (revealAnswer && result) {
       result.textContent = `= ${problem.answer}`;
     }
     return;
@@ -1062,7 +1059,7 @@ function markProblem(row, problem, value, showAnswer = false) {
 
   const isCorrect = Number(value) === problem.answer;
   row.classList.add(isCorrect ? "correct" : "wrong");
-  if (showAnswer && result) {
+  if (revealAnswer && result) {
     result.textContent = isCorrect ? "✓" : `= ${problem.answer}`;
   }
 }
@@ -1072,7 +1069,7 @@ function getMathInputs() {
 }
 
 function countCorrectMath() {
-  return getMathInputs().filter((input, index) => Number(input.value) === mathProblems[index].answer).length;
+  return getMathInputs().filter((input, index) => input.value !== "" && Number(input.value) === mathProblems[index].answer).length;
 }
 
 function allMathCorrect() {
@@ -1187,7 +1184,7 @@ function selectMathFeedback(mode) {
   getMathInputs().forEach((input, index) => {
     const row = input.closest(".problem");
     if (mode === "instant" || mode === "tips" || mode === "school") {
-      markProblem(row, mathProblems[index], input.value, Boolean(input.value));
+      markProblem(row, mathProblems[index], input.value);
     } else if (!mathEnded) {
       row.classList.remove("correct", "wrong");
       row.querySelector(".answer-result").textContent = "";
