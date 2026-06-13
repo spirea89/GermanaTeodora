@@ -3,79 +3,160 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Word Garden</title>
+    <title>Germana Teodora Practice</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main class="app-shell">
-      <section class="game-panel" aria-labelledby="app-title">
-        <header class="top-bar">
-          <div>
-            <p class="eyebrow">Writing practice</p>
-            <h1 id="app-title">Word Garden</h1>
-          </div>
-          <button class="icon-button" id="settings-button" type="button" aria-label="Open word studio" title="Word studio">
-            <span aria-hidden="true">⚙</span>
+      <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
+        <div class="home-header">
+          <p class="eyebrow">Practice time</p>
+          <h1 id="home-title">Germana Teodora</h1>
+        </div>
+
+        <div class="choice-grid" aria-label="Choose practice">
+          <button class="choice-card german-choice" id="open-german" type="button">
+            <span class="choice-emoji" aria-hidden="true">📚</span>
+            <span>
+              <strong>German</strong>
+              <small>Words, listening, missing letters</small>
+            </span>
           </button>
-        </header>
-
-        <section class="score-row" aria-label="Game score">
-          <div>
-            <span class="score-label">Stars</span>
-            <strong id="stars">0</strong>
-          </div>
-          <div>
-            <span class="score-label">Streak</span>
-            <strong id="streak">0</strong>
-          </div>
-          <div>
-            <span class="score-label">Round</span>
-            <strong id="round">1</strong>
-          </div>
-        </section>
-
-        <section class="card game-card">
-          <div class="clue-wrap" aria-live="polite">
-            <span class="emoji-clue" id="emoji-clue" aria-hidden="true">🏠</span>
-            <p class="phrase-clue" id="phrase-clue">A little home</p>
-          </div>
-
-          <div class="word-prompt" id="word-prompt" aria-label="Word with missing letters"></div>
-
-          <label class="answer-label" for="answer-input">Type the missing letters</label>
-          <div class="answer-row">
-            <input id="answer-input" autocomplete="off" autocapitalize="none" spellcheck="false">
-            <button id="check-button" type="button">Check</button>
-          </div>
-
-          <p class="hint" id="hint">Look at the picture and fill the middle.</p>
-        </section>
-
-        <section class="controls">
-          <button class="ghost-button" id="speak-button" type="button">🔊 Hear word</button>
-          <button class="ghost-button" id="skip-button" type="button">↪ New word</button>
-        </section>
+          <button class="choice-card math-choice" id="open-math" type="button">
+            <span class="choice-emoji" aria-hidden="true">🔢</span>
+            <span>
+              <strong>Math</strong>
+              <small>Plus and minus to 100</small>
+            </span>
+          </button>
+        </div>
       </section>
 
-      <aside class="studio-panel" id="studio-panel" aria-label="Word studio">
-        <div class="studio-header">
-          <div>
-            <p class="eyebrow">Word studio</p>
-            <h2>Practice list</h2>
-          </div>
-          <button class="icon-button" id="close-studio" type="button" aria-label="Close word studio" title="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
+      <section class="screen german-screen hidden" id="german-screen" aria-labelledby="app-title">
+        <section class="game-panel">
+          <header class="top-bar">
+            <button class="icon-button" id="german-home" type="button" aria-label="Back to practice chooser" title="Home">
+              <span aria-hidden="true">⌂</span>
+            </button>
+            <div>
+              <p class="eyebrow">Writing practice</p>
+              <h1 id="app-title">Word Garden</h1>
+            </div>
+            <button class="icon-button" id="settings-button" type="button" aria-label="Open word studio" title="Word studio">
+              <span aria-hidden="true">⚙</span>
+            </button>
+          </header>
 
-        <p class="studio-copy">One item per line. Add an emoji and clue with commas:</p>
-        <pre>die Sonne, ☀️, Listen and fill the missing letters.</pre>
-        <textarea id="word-list" rows="10"></textarea>
-        <div class="studio-actions">
-          <button id="save-words" type="button">Save words</button>
-          <button class="ghost-button" id="reset-words" type="button">Reset</button>
-        </div>
-      </aside>
+          <section class="score-row" aria-label="Game score">
+            <div>
+              <span class="score-label">Stars</span>
+              <strong id="stars">0</strong>
+            </div>
+            <div>
+              <span class="score-label">Streak</span>
+              <strong id="streak">0</strong>
+            </div>
+            <div>
+              <span class="score-label">Round</span>
+              <strong id="round">1</strong>
+            </div>
+          </section>
+
+          <section class="card game-card">
+            <div class="clue-wrap" aria-live="polite">
+              <span class="emoji-clue" id="emoji-clue" aria-hidden="true">✨</span>
+              <p class="phrase-clue" id="phrase-clue">Listen and fill the missing letters.</p>
+            </div>
+
+            <div class="word-prompt" id="word-prompt" aria-label="Word with missing letters"></div>
+
+            <label class="answer-label" for="answer-input">Type the missing letters</label>
+            <div class="answer-row">
+              <input id="answer-input" autocomplete="off" autocapitalize="none" spellcheck="false">
+              <button id="check-button" type="button">Check</button>
+            </div>
+
+            <p class="hint" id="hint">Listen, look, and fill the hidden letters.</p>
+          </section>
+
+          <section class="controls">
+            <button class="ghost-button" id="speak-button" type="button">🔊 Hear word</button>
+            <button class="ghost-button" id="skip-button" type="button">↪ New word</button>
+          </section>
+        </section>
+
+        <aside class="studio-panel" id="studio-panel" aria-label="Word studio">
+          <div class="studio-header">
+            <div>
+              <p class="eyebrow">Word studio</p>
+              <h2>Practice list</h2>
+            </div>
+            <button class="icon-button" id="close-studio" type="button" aria-label="Close word studio" title="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+
+          <p class="studio-copy">One item per line. Add an emoji and clue with commas:</p>
+          <pre>die Sonne, ☀️, Listen and fill the missing letters.</pre>
+          <textarea id="word-list" rows="10"></textarea>
+          <div class="studio-actions">
+            <button id="save-words" type="button">Save words</button>
+            <button class="ghost-button" id="reset-words" type="button">Reset</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="screen math-screen hidden" id="math-screen" aria-labelledby="math-title">
+        <section class="math-panel">
+          <header class="top-bar">
+            <button class="icon-button" id="math-home" type="button" aria-label="Back to practice chooser" title="Home">
+              <span aria-hidden="true">⌂</span>
+            </button>
+            <div>
+              <p class="eyebrow">Math practice</p>
+              <h1 id="math-title">Number Sprint</h1>
+            </div>
+            <div class="timer-pill" id="timer-display">10:00</div>
+          </header>
+
+          <section class="math-setup" aria-label="Math setup">
+            <div>
+              <span class="score-label">Exercise</span>
+              <strong>Plus and minus to 100</strong>
+            </div>
+            <div>
+              <span class="score-label">Time</span>
+              <div class="time-options" id="time-options" aria-label="Choose exercise time">
+                <button type="button" data-minutes="10" class="selected">10</button>
+                <button type="button" data-minutes="20">20</button>
+                <button type="button" data-minutes="30">30</button>
+                <button type="button" data-minutes="40">40</button>
+                <button type="button" data-minutes="50">50</button>
+                <button type="button" data-minutes="60">60</button>
+              </div>
+            </div>
+            <button id="start-math" type="button">Start</button>
+          </section>
+
+          <section class="math-progress" aria-label="Math progress">
+            <div>
+              <span class="score-label">Correct</span>
+              <strong id="math-correct">0</strong>
+            </div>
+            <div>
+              <span class="score-label">Left</span>
+              <strong id="math-left">24</strong>
+            </div>
+          </section>
+
+          <section class="worksheet" id="worksheet" aria-label="Math worksheet"></section>
+
+          <section class="controls">
+            <button class="ghost-button" id="new-math" type="button">↻ New worksheet</button>
+            <button class="ghost-button" id="finish-math" type="button">✓ Finish</button>
+          </section>
+        </section>
+      </section>
     </main>
 
     <div class="reward-layer" id="reward-layer" aria-live="assertive" aria-hidden="true">

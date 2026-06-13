@@ -10,6 +10,7 @@
   --sky: #2e74b5;
   --gold: #f3b233;
   --line: #e9dccd;
+  --paper: #fffdf8;
   --shadow: 0 20px 50px rgba(93, 67, 38, 0.16);
 }
 
@@ -38,26 +39,111 @@ button {
   cursor: pointer;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .app-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 22px;
   width: min(1120px, calc(100% - 32px));
   min-height: 100vh;
   margin: 0 auto;
   padding: 24px 0;
+}
+
+.screen {
+  min-height: calc(100vh - 48px);
+}
+
+.home-screen,
+.german-screen,
+.math-screen {
   align-items: center;
 }
 
+.home-screen {
+  display: grid;
+  align-content: center;
+  gap: 28px;
+}
+
+.german-screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 22px;
+}
+
+.math-screen {
+  display: grid;
+}
+
+.home-header {
+  max-width: 760px;
+}
+
+.home-header h1 {
+  font-size: clamp(3rem, 10vw, 7rem);
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.choice-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 16px;
+  min-height: 180px;
+  padding: clamp(18px, 4vw, 34px);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(233, 220, 205, 0.9);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  text-align: left;
+}
+
+.choice-card strong {
+  display: block;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  line-height: 1;
+}
+
+.choice-card small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.choice-emoji {
+  display: grid;
+  place-items: center;
+  width: clamp(72px, 14vw, 120px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #edf8ff;
+  font-size: clamp(3.4rem, 8vw, 5.4rem);
+}
+
+.math-choice .choice-emoji {
+  background: #fff3d4;
+}
+
 .game-panel,
-.studio-panel {
+.studio-panel,
+.math-panel {
   background: rgba(255, 255, 255, 0.84);
   border: 1px solid rgba(233, 220, 205, 0.8);
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
 }
 
-.game-panel {
+.game-panel,
+.math-panel {
   border-radius: 8px;
   padding: clamp(18px, 3vw, 34px);
 }
@@ -67,7 +153,9 @@ button {
 .score-row,
 .answer-row,
 .controls,
-.studio-actions {
+.studio-actions,
+.math-setup,
+.math-progress {
   display: flex;
   align-items: center;
 }
@@ -117,11 +205,14 @@ h2 {
   font-size: 1.45rem;
 }
 
-.score-row {
+.score-row,
+.math-progress {
   margin: 22px 0;
 }
 
-.score-row div {
+.score-row div,
+.math-progress div,
+.math-setup > div {
   flex: 1;
   min-width: 0;
   padding: 12px;
@@ -138,7 +229,8 @@ h2 {
   text-transform: uppercase;
 }
 
-.score-row strong {
+.score-row strong,
+.math-progress strong {
   display: block;
   margin-top: 2px;
   font-size: 1.8rem;
@@ -258,7 +350,8 @@ input {
 }
 
 .answer-row button,
-#save-words {
+#save-words,
+#start-math {
   height: 58px;
   padding: 0 20px;
   border-radius: 8px;
@@ -335,6 +428,106 @@ textarea {
   gap: 10px;
 }
 
+.math-panel {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+}
+
+.timer-pill {
+  min-width: 108px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fff3d4;
+  border: 1px solid #f0d38a;
+  color: #5c3f00;
+  font-size: 1.45rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.math-setup {
+  gap: 12px;
+  align-items: stretch;
+  margin: 22px 0 12px;
+}
+
+.math-setup strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.1rem;
+}
+
+.time-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.time-options button {
+  min-height: 38px;
+  border-radius: 8px;
+  background: #f7fbff;
+  border: 1px solid #c9def1;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.time-options button.selected {
+  background: var(--sky);
+  color: #ffffff;
+}
+
+.math-progress {
+  gap: 12px;
+}
+
+.worksheet {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 18px;
+  padding: clamp(14px, 3vw, 24px);
+  border-radius: 8px;
+  background:
+    linear-gradient(#e7eef6 1px, transparent 1px),
+    linear-gradient(90deg, #e7eef6 1px, transparent 1px),
+    var(--paper);
+  background-size: 28px 28px;
+  border: 1px solid #e6d7bd;
+}
+
+.problem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.problem span {
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
+  font-weight: 900;
+}
+
+.problem input {
+  width: 76px;
+  height: 44px;
+  padding: 0 8px;
+  border-width: 2px;
+  font-size: 1.25rem;
+}
+
+.problem.correct {
+  outline: 3px solid rgba(47, 125, 90, 0.22);
+}
+
+.problem.wrong {
+  outline: 3px solid rgba(217, 65, 111, 0.2);
+}
+
 .reward-layer {
   position: fixed;
   inset: 0;
@@ -395,8 +588,18 @@ textarea {
 
 @media (max-width: 860px) {
   .app-shell {
+    width: min(100% - 18px, 1120px);
+    padding: 9px 0;
+  }
+
+  .screen {
+    min-height: calc(100vh - 18px);
+  }
+
+  .choice-grid,
+  .german-screen,
+  .worksheet {
     grid-template-columns: 1fr;
-    align-items: start;
   }
 
   .studio-panel {
@@ -406,19 +609,20 @@ textarea {
   .studio-panel.open {
     display: flex;
   }
+
+  .math-setup {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 560px) {
-  .app-shell {
-    width: min(100% - 18px, 1120px);
-    padding: 9px 0;
-  }
-
-  .score-row {
+  .score-row,
+  .math-progress {
     gap: 8px;
   }
 
-  .score-row div {
+  .score-row div,
+  .math-progress div {
     padding: 9px;
   }
 
@@ -428,5 +632,13 @@ textarea {
 
   .answer-row button {
     width: 100%;
+  }
+
+  .time-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .problem {
+    grid-template-columns: minmax(0, 1fr) 72px;
   }
 }
