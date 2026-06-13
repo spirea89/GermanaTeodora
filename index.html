@@ -29,6 +29,13 @@
               <small>Plus and minus to 100</small>
             </span>
           </button>
+          <button class="choice-card admin-choice" id="open-admin" type="button">
+            <span class="choice-emoji" aria-hidden="true">🛠️</span>
+            <span>
+              <strong>Administration</strong>
+              <small>Add German practice words</small>
+            </span>
+          </button>
         </div>
       </section>
 
@@ -42,9 +49,7 @@
               <p class="eyebrow">Writing practice</p>
               <h1 id="app-title">Word Garden</h1>
             </div>
-            <button class="icon-button" id="settings-button" type="button" aria-label="Open word studio" title="Word studio">
-              <span aria-hidden="true">⚙</span>
-            </button>
+            <span class="top-spacer" aria-hidden="true"></span>
           </header>
 
           <section class="score-row" aria-label="Game score">
@@ -84,25 +89,28 @@
             <button class="ghost-button" id="skip-button" type="button">↪ New word</button>
           </section>
         </section>
+      </section>
 
-        <aside class="studio-panel" id="studio-panel" aria-label="Word studio">
+      <section class="screen admin-screen hidden" id="admin-screen" aria-labelledby="admin-title">
+        <aside class="studio-panel admin-panel" id="studio-panel" aria-label="Administration">
           <div class="studio-header">
             <div>
-              <p class="eyebrow">Word studio</p>
-              <h2>Practice list</h2>
+              <p class="eyebrow">Administration</p>
+              <h1 id="admin-title">German Words</h1>
             </div>
-            <button class="icon-button" id="close-studio" type="button" aria-label="Close word studio" title="Close">
-              <span aria-hidden="true">×</span>
+            <button class="icon-button" id="admin-home" type="button" aria-label="Back to practice chooser" title="Home">
+              <span aria-hidden="true">⌂</span>
             </button>
           </div>
 
           <p class="studio-copy">One item per line. Add an emoji and clue with commas:</p>
           <pre>die Sonne, ☀️, Listen and fill the missing letters.</pre>
-          <textarea id="word-list" rows="10"></textarea>
+          <textarea id="word-list" rows="14"></textarea>
           <div class="studio-actions">
             <button id="save-words" type="button">Save words</button>
             <button class="ghost-button" id="reset-words" type="button">Reset</button>
           </div>
+          <p class="admin-note" id="admin-note" aria-live="polite">Saved words are used in the German game on this device.</p>
         </aside>
       </section>
 

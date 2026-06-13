@@ -148,10 +148,13 @@ const elements = {
   homeScreen: document.querySelector("#home-screen"),
   germanScreen: document.querySelector("#german-screen"),
   mathScreen: document.querySelector("#math-screen"),
+  adminScreen: document.querySelector("#admin-screen"),
   openGerman: document.querySelector("#open-german"),
   openMath: document.querySelector("#open-math"),
+  openAdmin: document.querySelector("#open-admin"),
   germanHome: document.querySelector("#german-home"),
   mathHome: document.querySelector("#math-home"),
+  adminHome: document.querySelector("#admin-home"),
   emoji: document.querySelector("#emoji-clue"),
   phrase: document.querySelector("#phrase-clue"),
   prompt: document.querySelector("#word-prompt"),
@@ -166,12 +169,11 @@ const elements = {
   rewardLayer: document.querySelector("#reward-layer"),
   rewardEmoji: document.querySelector("#reward-emoji"),
   rewardText: document.querySelector("#reward-text"),
-  settings: document.querySelector("#settings-button"),
   studio: document.querySelector("#studio-panel"),
-  closeStudio: document.querySelector("#close-studio"),
   wordList: document.querySelector("#word-list"),
   saveWords: document.querySelector("#save-words"),
   resetWords: document.querySelector("#reset-words"),
+  adminNote: document.querySelector("#admin-note"),
   timeOptions: document.querySelector("#time-options"),
   timerDisplay: document.querySelector("#timer-display"),
   startMath: document.querySelector("#start-math"),
@@ -199,14 +201,18 @@ function showScreen(screenName) {
   elements.homeScreen.classList.toggle("hidden", screenName !== "home");
   elements.germanScreen.classList.toggle("hidden", screenName !== "german");
   elements.mathScreen.classList.toggle("hidden", screenName !== "math");
+  elements.adminScreen.classList.toggle("hidden", screenName !== "admin");
 
   if (screenName === "german") {
-    closeStudio();
     elements.input.focus();
   }
 
   if (screenName === "math") {
     ensureMathWorksheet();
+  }
+
+  if (screenName === "admin") {
+    openAdmin();
   }
 }
 
@@ -421,14 +427,10 @@ function parseWords(value) {
     .filter((item) => item.word.length >= 2);
 }
 
-function openStudio() {
+function openAdmin() {
   elements.wordList.value = serializeWords();
-  elements.studio.classList.add("open");
+  elements.adminNote.textContent = "Saved words are used in the German game on this device.";
   elements.wordList.focus();
-}
-
-function closeStudio() {
-  elements.studio.classList.remove("open");
 }
 
 function randomInt(min, max) {
@@ -619,11 +621,13 @@ function selectMathTime(minutes) {
 
 elements.openGerman.addEventListener("click", () => showScreen("german"));
 elements.openMath.addEventListener("click", () => showScreen("math"));
+elements.openAdmin.addEventListener("click", () => showScreen("admin"));
 elements.germanHome.addEventListener("click", () => showScreen("home"));
 elements.mathHome.addEventListener("click", () => {
   resetMathWorksheet();
   showScreen("home");
 });
+elements.adminHome.addEventListener("click", () => showScreen("home"));
 
 elements.check.addEventListener("click", checkAnswer);
 elements.input.addEventListener("keydown", (event) => {
@@ -640,8 +644,6 @@ elements.skip.addEventListener("click", () => {
 });
 
 elements.speak.addEventListener("click", () => speak(currentWord.word));
-elements.settings.addEventListener("click", openStudio);
-elements.closeStudio.addEventListener("click", closeStudio);
 
 elements.saveWords.addEventListener("click", () => {
   const nextWords = parseWords(elements.wordList.value);
@@ -652,8 +654,9 @@ elements.saveWords.addEventListener("click", () => {
 
   words = nextWords;
   saveWordState(words);
-  closeStudio();
   pickWord();
+  elements.wordList.value = serializeWords();
+  elements.adminNote.textContent = "Saved. German practice will use this list.";
 });
 
 elements.resetWords.addEventListener("click", () => {
@@ -661,6 +664,7 @@ elements.resetWords.addEventListener("click", () => {
   saveWordState(words);
   elements.wordList.value = serializeWords();
   pickWord();
+  elements.adminNote.textContent = "Reset to the original German word list.";
 });
 
 elements.timeOptions.addEventListener("click", (event) => {

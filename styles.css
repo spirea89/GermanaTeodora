@@ -56,7 +56,8 @@ button {
 
 .home-screen,
 .german-screen,
-.math-screen {
+.math-screen,
+.admin-screen {
   align-items: center;
 }
 
@@ -68,11 +69,14 @@ button {
 
 .german-screen {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 22px;
+  justify-items: center;
 }
 
 .math-screen {
+  display: grid;
+}
+
+.admin-screen {
   display: grid;
 }
 
@@ -86,7 +90,7 @@ button {
 
 .choice-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -133,6 +137,10 @@ button {
   background: #fff3d4;
 }
 
+.admin-choice .choice-emoji {
+  background: #f3f4ff;
+}
+
 .game-panel,
 .studio-panel,
 .math-panel {
@@ -146,6 +154,10 @@ button {
 .math-panel {
   border-radius: 8px;
   padding: clamp(18px, 3vw, 34px);
+}
+
+.game-panel {
+  width: min(100%, 840px);
 }
 
 .top-bar,
@@ -402,6 +414,18 @@ input {
   padding: 18px;
 }
 
+.admin-panel {
+  width: min(100%, 900px);
+  min-height: min(760px, calc(100vh - 48px));
+  margin: 0 auto;
+}
+
+.top-spacer {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+}
+
 .studio-copy {
   margin: 0;
   color: var(--muted);
@@ -426,6 +450,12 @@ textarea {
 
 .studio-actions {
   gap: 10px;
+}
+
+.admin-note {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
 }
 
 .math-panel {
@@ -600,14 +630,6 @@ textarea {
   .german-screen,
   .worksheet {
     grid-template-columns: 1fr;
-  }
-
-  .studio-panel {
-    display: none;
-  }
-
-  .studio-panel.open {
-    display: flex;
   }
 
   .math-setup {
