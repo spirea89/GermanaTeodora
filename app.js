@@ -859,6 +859,7 @@ function renderMathWorksheet() {
   elements.worksheet.replaceChildren();
   elements.worksheet.classList.toggle("tips-enabled", mathFeedbackMode === "tips" || mathFeedbackMode === "school");
   elements.worksheet.classList.toggle("school-enabled", mathFeedbackMode === "school");
+  elements.worksheet.classList.toggle("answers-revealed", mathEnded);
   mathProblems.forEach((problem, index) => {
     const row = document.createElement("label");
     row.className = "problem";
@@ -1161,6 +1162,7 @@ function endMath(wasSuccessful) {
 }
 
 function revealMathAnswers() {
+  elements.worksheet.classList.add("answers-revealed");
   [...elements.worksheet.querySelectorAll(".problem")].forEach((row, index) => {
     const input = row.querySelector("input");
     markProblem(row, mathProblems[index], input.value, true);

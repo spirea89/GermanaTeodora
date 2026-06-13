@@ -733,6 +733,11 @@ textarea {
   font-size: 1.1rem;
   font-weight: 900;
   text-align: center;
+  visibility: hidden;
+}
+
+.worksheet.answers-revealed .answer-result {
+  visibility: visible;
 }
 
 .problem.correct .answer-result {
