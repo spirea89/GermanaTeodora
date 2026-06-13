@@ -20,6 +20,7 @@
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   font-family: "Segoe UI", Arial, sans-serif;
   color: var(--ink);
@@ -37,6 +38,13 @@ textarea {
 button {
   border: 0;
   cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  transform: translateY(1px) scale(0.99);
 }
 
 .hidden {
@@ -46,12 +54,14 @@ button {
 .app-shell {
   width: min(1120px, calc(100% - 32px));
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0 auto;
-  padding: 24px 0;
+  padding: max(18px, env(safe-area-inset-top)) 0 max(18px, env(safe-area-inset-bottom));
 }
 
 .screen {
   min-height: calc(100vh - 48px);
+  min-height: calc(100dvh - 48px);
 }
 
 .home-screen,
@@ -99,7 +109,7 @@ button {
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 16px;
-  min-height: 180px;
+  min-height: 190px;
   padding: clamp(18px, 4vw, 34px);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.9);
@@ -109,10 +119,15 @@ button {
   text-align: left;
 }
 
+.choice-card > span:last-child {
+  min-width: 0;
+}
+
 .choice-card strong {
   display: block;
   font-size: clamp(2rem, 5vw, 3.6rem);
   line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 .choice-card small {
@@ -139,6 +154,10 @@ button {
 
 .admin-choice .choice-emoji {
   background: #f3f4ff;
+}
+
+.admin-choice strong {
+  font-size: clamp(1.65rem, 3vw, 3rem);
 }
 
 .game-panel,
@@ -206,9 +225,9 @@ h2 {
 .icon-button {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
   border-radius: 50%;
   color: var(--ink);
   background: #ffffff;
@@ -354,9 +373,9 @@ textarea:focus {
 
 input {
   min-width: 0;
-  height: 58px;
+  height: 64px;
   padding: 0 16px;
-  font-size: 1.7rem;
+  font-size: 1.9rem;
   font-weight: 800;
   text-align: center;
 }
@@ -364,8 +383,8 @@ input {
 .answer-row button,
 #save-words,
 #start-math {
-  height: 58px;
-  padding: 0 20px;
+  min-height: 64px;
+  padding: 0 24px;
   border-radius: 8px;
   background: var(--leaf);
   color: #ffffff;
@@ -396,8 +415,8 @@ input {
 }
 
 .ghost-button {
-  min-height: 44px;
-  padding: 0 14px;
+  min-height: 56px;
+  padding: 0 18px;
   border-radius: 8px;
   background: #ffffff;
   color: var(--ink);
@@ -421,9 +440,9 @@ input {
 }
 
 .top-spacer {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
 }
 
 .studio-copy {
@@ -442,9 +461,10 @@ pre {
 
 textarea {
   flex: 1;
-  min-height: 230px;
+  min-height: 360px;
   resize: vertical;
-  padding: 12px;
+  padding: 14px;
+  font-size: 1.08rem;
   line-height: 1.5;
 }
 
@@ -490,12 +510,12 @@ textarea {
 .time-options {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
   margin-top: 8px;
 }
 
 .time-options button {
-  min-height: 38px;
+  min-height: 54px;
   border-radius: 8px;
   background: #f7fbff;
   border: 1px solid #c9def1;
@@ -515,7 +535,7 @@ textarea {
 .worksheet {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px 18px;
+  gap: 14px 18px;
   padding: clamp(14px, 3vw, 24px);
   border-radius: 8px;
   background:
@@ -531,8 +551,8 @@ textarea {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 8px;
-  min-height: 56px;
-  padding: 8px;
+  min-height: 72px;
+  padding: 10px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.84);
 }
@@ -543,11 +563,11 @@ textarea {
 }
 
 .problem input {
-  width: 76px;
-  height: 44px;
+  width: 92px;
+  height: 56px;
   padding: 0 8px;
   border-width: 2px;
-  font-size: 1.25rem;
+  font-size: 1.45rem;
 }
 
 .problem.correct {
@@ -634,6 +654,58 @@ textarea {
 
   .math-setup {
     flex-direction: column;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1024px) {
+  .app-shell {
+    width: min(100% - 28px, 1120px);
+    padding: 18px 0;
+  }
+
+  .choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-choice {
+    grid-column: 1 / -1;
+  }
+
+  .choice-card {
+    min-height: 176px;
+  }
+
+  .german-screen,
+  .math-screen,
+  .admin-screen {
+    align-content: start;
+  }
+
+  .game-panel,
+  .math-panel,
+  .admin-panel {
+    width: 100%;
+  }
+
+  .math-setup {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .math-setup > div {
+    flex-basis: calc(50% - 8px);
+  }
+
+  #start-math {
+    flex: 1 0 100%;
+  }
+
+  .worksheet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .problem {
+    grid-template-columns: minmax(0, 1fr) 92px;
   }
 }
 

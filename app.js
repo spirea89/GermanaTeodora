@@ -508,12 +508,16 @@ function renderMathWorksheet() {
     input.type = "tel";
     input.inputMode = "numeric";
     input.pattern = "[0-9]*";
+    input.autocomplete = "off";
     input.disabled = !mathStarted || mathEnded;
     input.setAttribute("aria-label", `${problem.left} ${problem.operator} ${problem.right}`);
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D/g, "").slice(0, 3);
       markProblem(row, problem, input.value);
       updateMathProgress();
+      if (Number(input.value) === problem.answer) {
+        focusNextMathInput(index);
+      }
       if (mathStarted && !mathEnded && allMathCorrect()) {
         endMath(true);
       }
@@ -522,6 +526,13 @@ function renderMathWorksheet() {
     row.append(equation, input);
     elements.worksheet.append(row);
   });
+}
+
+function focusNextMathInput(currentIndex) {
+  const nextInput = getMathInputs().find((input, index) => index > currentIndex && !input.value && !input.disabled);
+  if (nextInput) {
+    nextInput.focus();
+  }
 }
 
 function markProblem(row, problem, value) {
