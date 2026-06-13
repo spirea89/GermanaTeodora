@@ -535,7 +535,7 @@ textarea {
 }
 
 .time-options,
-.feedback-options {
+.start-options {
   display: grid;
   gap: 8px;
   margin-top: 8px;
@@ -545,12 +545,17 @@ textarea {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
-.feedback-options {
+.start-options {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 0 14px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--line);
 }
 
 .time-options button,
-.feedback-options button {
+.start-options button {
   min-height: 54px;
   border-radius: 8px;
   background: #f7fbff;
@@ -560,13 +565,22 @@ textarea {
 }
 
 .time-options button.selected,
-.feedback-options button.selected {
+.start-options button:focus {
   background: var(--sky);
   color: #ffffff;
 }
 
 .math-progress {
   gap: 12px;
+}
+
+.math-progress.concealed div {
+  background: #f3f3f3;
+  color: #8a8a8a;
+}
+
+.math-progress.concealed strong {
+  color: #8a8a8a;
 }
 
 .worksheet {
@@ -785,7 +799,7 @@ textarea {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .feedback-options {
+  .start-options {
     grid-template-columns: 1fr;
   }
 

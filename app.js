@@ -198,10 +198,9 @@ const translations = {
     exerciseName: "Plus and minus to 100",
     time: "Time",
     chooseTime: "Choose exercise time",
-    answers: "Answers",
     chooseFeedback: "Choose answer feedback",
-    showNow: "Show now",
-    atFinish: "At finish",
+    showNow: "Show Instant Results",
+    atFinish: "Show results at the end",
     start: "Start",
     mathProgress: "Math progress",
     correct: "Correct",
@@ -255,10 +254,9 @@ const translations = {
     exerciseName: "Plus und Minus bis 100",
     time: "Zeit",
     chooseTime: "Übungszeit auswählen",
-    answers: "Antworten",
     chooseFeedback: "Antwortanzeige auswählen",
-    showNow: "Sofort zeigen",
-    atFinish: "Am Ende",
+    showNow: "Ergebnisse sofort zeigen",
+    atFinish: "Ergebnisse am Ende zeigen",
     start: "Start",
     mathProgress: "Mathe-Fortschritt",
     correct: "Richtig",
@@ -304,7 +302,7 @@ const elements = {
   resetWords: document.querySelector("#reset-words"),
   adminNote: document.querySelector("#admin-note"),
   timeOptions: document.querySelector("#time-options"),
-  feedbackOptions: document.querySelector("#feedback-options"),
+  startOptions: document.querySelector("#start-options"),
   timerDisplay: document.querySelector("#timer-display"),
   startMath: document.querySelector("#start-math"),
   newMath: document.querySelector("#new-math"),
@@ -391,10 +389,9 @@ function applyLanguage() {
   setText(".math-setup > div:nth-child(1) strong", "exerciseName");
   setText(".math-setup > div:nth-child(2) .score-label", "time");
   elements.timeOptions.setAttribute("aria-label", t("chooseTime"));
-  setText(".math-setup > div:nth-child(3) .score-label", "answers");
-  elements.feedbackOptions.setAttribute("aria-label", t("chooseFeedback"));
-  elements.feedbackOptions.querySelector('[data-feedback="instant"]').textContent = t("showNow");
-  elements.feedbackOptions.querySelector('[data-feedback="end"]').textContent = t("atFinish");
+  elements.startOptions.setAttribute("aria-label", t("chooseFeedback"));
+  elements.startOptions.querySelector('[data-feedback="instant"]').textContent = t("showNow");
+  elements.startOptions.querySelector('[data-feedback="end"]').textContent = t("atFinish");
   elements.startMath.textContent = t("start");
   document.querySelector(".math-progress").setAttribute("aria-label", t("mathProgress"));
   setText(".math-progress div:nth-child(1) .score-label", "correct");
@@ -734,6 +731,7 @@ function resetMathWorksheet() {
   mathProblems = createMathProblems();
   mathStarted = false;
   mathEnded = false;
+  elements.startOptions.classList.add("hidden");
   updateTimerDisplay(mathSelectedMinutes * 60);
   renderMathWorksheet();
   updateMathProgress();
@@ -823,15 +821,16 @@ function allMathCorrect() {
 
 function updateMathProgress() {
   const correct = countCorrectMath();
-  if (mathFeedbackMode === "instant" || mathEnded) {
+  if (mathFeedbackMode === "instant" || mathEnded || !mathStarted) {
+    document.querySelector(".math-progress").classList.remove("concealed");
     elements.mathCorrect.textContent = correct;
     elements.mathLeft.textContent = Math.max(mathProblems.length - correct, 0);
     return;
   }
 
-  const filled = getMathInputs().filter((input) => input.value).length;
+  document.querySelector(".math-progress").classList.add("concealed");
   elements.mathCorrect.textContent = "—";
-  elements.mathLeft.textContent = Math.max(mathProblems.length - filled, 0);
+  elements.mathLeft.textContent = "—";
 }
 
 function updateTimerDisplay(totalSeconds) {
@@ -862,14 +861,25 @@ function startMathTimer() {
   }, 250);
 }
 
-function startMath() {
+function showMathStartOptions() {
+  if (mathStarted && !mathEnded) {
+    return;
+  }
+
+  elements.startOptions.classList.remove("hidden");
+}
+
+function startMath(mode) {
   if (mathEnded || !mathProblems.length) {
     resetMathWorksheet();
   }
 
+  selectMathFeedback(mode);
+  elements.startOptions.classList.add("hidden");
   mathStarted = true;
   mathEnded = false;
   renderMathWorksheet();
+  updateMathProgress();
   startMathTimer();
   const firstInput = elements.worksheet.querySelector("input");
   if (firstInput) {
@@ -913,9 +923,6 @@ function selectMathTime(minutes) {
 
 function selectMathFeedback(mode) {
   mathFeedbackMode = mode;
-  [...elements.feedbackOptions.querySelectorAll("button")].forEach((button) => {
-    button.classList.toggle("selected", button.dataset.feedback === mode);
-  });
 
   getMathInputs().forEach((input, index) => {
     const row = input.closest(".problem");
@@ -993,15 +1000,15 @@ elements.timeOptions.addEventListener("click", (event) => {
   selectMathTime(Number(button.dataset.minutes));
 });
 
-elements.feedbackOptions.addEventListener("click", (event) => {
+elements.startOptions.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-feedback]");
   if (!button) {
     return;
   }
-  selectMathFeedback(button.dataset.feedback);
+  startMath(button.dataset.feedback);
 });
 
-elements.startMath.addEventListener("click", startMath);
+elements.startMath.addEventListener("click", showMathStartOptions);
 elements.newMath.addEventListener("click", resetMathWorksheet);
 elements.finishMath.addEventListener("click", () => {
   if (mathStarted && !mathEnded) {
