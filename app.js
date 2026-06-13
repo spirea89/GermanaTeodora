@@ -896,11 +896,27 @@ function renderMathWorksheet() {
     result.setAttribute("aria-live", "polite");
 
     row.append(equation, input, result);
-    if (mathFeedbackMode === "tips" || mathFeedbackMode === "school") {
+    if (shouldShowTipForProblem(problem)) {
       row.append(createTipBox(problem));
     }
     elements.worksheet.append(row);
   });
+}
+
+function shouldShowTipForProblem(problem) {
+  if (mathFeedbackMode === "tips") {
+    return true;
+  }
+  if (mathFeedbackMode !== "school") {
+    return false;
+  }
+  return crossesTenBoundary(problem);
+}
+
+function crossesTenBoundary(problem) {
+  const startGroup = Math.floor(problem.left / 10);
+  const endGroup = Math.floor(problem.answer / 10);
+  return startGroup !== endGroup;
 }
 
 function showsImmediateMathFeedback() {
