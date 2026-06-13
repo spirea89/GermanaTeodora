@@ -175,6 +175,7 @@ const elements = {
   resetWords: document.querySelector("#reset-words"),
   adminNote: document.querySelector("#admin-note"),
   timeOptions: document.querySelector("#time-options"),
+  feedbackOptions: document.querySelector("#feedback-options"),
   timerDisplay: document.querySelector("#timer-display"),
   startMath: document.querySelector("#start-math"),
   newMath: document.querySelector("#new-math"),
@@ -196,6 +197,7 @@ let mathTimer = null;
 let mathDeadline = 0;
 let mathStarted = false;
 let mathEnded = false;
+let mathFeedbackMode = "instant";
 
 function showScreen(screenName) {
   elements.homeScreen.classList.toggle("hidden", screenName !== "home");
@@ -513,17 +515,26 @@ function renderMathWorksheet() {
     input.setAttribute("aria-label", `${problem.left} ${problem.operator} ${problem.right}`);
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D/g, "").slice(0, 3);
-      markProblem(row, problem, input.value);
+      if (mathFeedbackMode === "instant") {
+        markProblem(row, problem, input.value, true);
+      } else {
+        row.classList.remove("correct", "wrong");
+        row.querySelector(".answer-result").textContent = "";
+      }
       updateMathProgress();
-      if (Number(input.value) === problem.answer) {
+      if (mathFeedbackMode === "instant" && Number(input.value) === problem.answer) {
         focusNextMathInput(index);
       }
-      if (mathStarted && !mathEnded && allMathCorrect()) {
+      if (mathFeedbackMode === "instant" && mathStarted && !mathEnded && allMathCorrect()) {
         endMath(true);
       }
     });
 
-    row.append(equation, input);
+    const result = document.createElement("span");
+    result.className = "answer-result";
+    result.setAttribute("aria-live", "polite");
+
+    row.append(equation, input, result);
     elements.worksheet.append(row);
   });
 }
@@ -535,13 +546,24 @@ function focusNextMathInput(currentIndex) {
   }
 }
 
-function markProblem(row, problem, value) {
+function markProblem(row, problem, value, showAnswer = false) {
+  const result = row.querySelector(".answer-result");
   row.classList.remove("correct", "wrong");
+  if (result) {
+    result.textContent = "";
+  }
   if (!value) {
+    if (showAnswer && result) {
+      result.textContent = `= ${problem.answer}`;
+    }
     return;
   }
 
-  row.classList.add(Number(value) === problem.answer ? "correct" : "wrong");
+  const isCorrect = Number(value) === problem.answer;
+  row.classList.add(isCorrect ? "correct" : "wrong");
+  if (showAnswer && result) {
+    result.textContent = isCorrect ? "✓" : `= ${problem.answer}`;
+  }
 }
 
 function getMathInputs() {
@@ -558,8 +580,15 @@ function allMathCorrect() {
 
 function updateMathProgress() {
   const correct = countCorrectMath();
-  elements.mathCorrect.textContent = correct;
-  elements.mathLeft.textContent = Math.max(mathProblems.length - correct, 0);
+  if (mathFeedbackMode === "instant" || mathEnded) {
+    elements.mathCorrect.textContent = correct;
+    elements.mathLeft.textContent = Math.max(mathProblems.length - correct, 0);
+    return;
+  }
+
+  const filled = getMathInputs().filter((input) => input.value).length;
+  elements.mathCorrect.textContent = "—";
+  elements.mathLeft.textContent = Math.max(mathProblems.length - filled, 0);
 }
 
 function updateTimerDisplay(totalSeconds) {
@@ -615,8 +644,17 @@ function endMath(wasSuccessful) {
   getMathInputs().forEach((input) => {
     input.disabled = true;
   });
+  revealMathAnswers();
+  updateMathProgress();
   updateTimerDisplay(Math.max(0, Math.ceil((mathDeadline - Date.now()) / 1000)));
   showReward(wasSuccessful ? "😄" : "😢", wasSuccessful ? "All done!" : "Time is up!", 2400);
+}
+
+function revealMathAnswers() {
+  [...elements.worksheet.querySelectorAll(".problem")].forEach((row, index) => {
+    const input = row.querySelector("input");
+    markProblem(row, mathProblems[index], input.value, true);
+  });
 }
 
 function selectMathTime(minutes) {
@@ -628,6 +666,24 @@ function selectMathTime(minutes) {
   if (!mathStarted || mathEnded) {
     updateTimerDisplay(mathSelectedMinutes * 60);
   }
+}
+
+function selectMathFeedback(mode) {
+  mathFeedbackMode = mode;
+  [...elements.feedbackOptions.querySelectorAll("button")].forEach((button) => {
+    button.classList.toggle("selected", button.dataset.feedback === mode);
+  });
+
+  getMathInputs().forEach((input, index) => {
+    const row = input.closest(".problem");
+    if (mode === "instant") {
+      markProblem(row, mathProblems[index], input.value, Boolean(input.value));
+    } else if (!mathEnded) {
+      row.classList.remove("correct", "wrong");
+      row.querySelector(".answer-result").textContent = "";
+    }
+  });
+  updateMathProgress();
 }
 
 elements.openGerman.addEventListener("click", () => showScreen("german"));
@@ -686,6 +742,14 @@ elements.timeOptions.addEventListener("click", (event) => {
   selectMathTime(Number(button.dataset.minutes));
 });
 
+elements.feedbackOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-feedback]");
+  if (!button) {
+    return;
+  }
+  selectMathFeedback(button.dataset.feedback);
+});
+
 elements.startMath.addEventListener("click", startMath);
 elements.newMath.addEventListener("click", resetMathWorksheet);
 elements.finishMath.addEventListener("click", () => {
@@ -697,3 +761,4 @@ elements.finishMath.addEventListener("click", () => {
 renderScore();
 pickWord();
 selectMathTime(10);
+selectMathFeedback("instant");
