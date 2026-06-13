@@ -649,6 +649,54 @@ textarea {
   display: block;
 }
 
+.school-graph {
+  min-width: 190px;
+}
+
+.school-graph svg {
+  display: block;
+  width: 100%;
+  min-height: 92px;
+}
+
+.school-line {
+  stroke: #242424;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.school-arc {
+  fill: none;
+  stroke: #b7354b;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.school-jump,
+.school-number,
+.school-name {
+  fill: #242424;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.school-jump {
+  font-size: 18px;
+}
+
+.school-number {
+  font-size: 18px;
+}
+
+.school-name {
+  font-size: 15px;
+}
+
+.school-blank {
+  fill: var(--berry);
+}
+
 .problem span {
   font-size: clamp(1.15rem, 3vw, 1.55rem);
   font-weight: 900;

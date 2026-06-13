@@ -202,6 +202,7 @@ const translations = {
     showNow: "Show Instant Results",
     atFinish: "Show results at the end",
     withTips: "Show Results and Tips",
+    withSchool: "Start Test with School Examples",
     showTip: "Tip",
     hideTip: "Hide tip",
     start: "Start",
@@ -261,6 +262,7 @@ const translations = {
     showNow: "Ergebnisse sofort zeigen",
     atFinish: "Ergebnisse am Ende zeigen",
     withTips: "Ergebnisse und Tipps zeigen",
+    withSchool: "Test mit Schulbeispielen starten",
     showTip: "Tipp",
     hideTip: "Tipp ausblenden",
     start: "Start",
@@ -399,6 +401,7 @@ function applyLanguage() {
   elements.startOptions.querySelector('[data-feedback="instant"]').textContent = t("showNow");
   elements.startOptions.querySelector('[data-feedback="end"]').textContent = t("atFinish");
   elements.startOptions.querySelector('[data-feedback="tips"]').textContent = t("withTips");
+  elements.startOptions.querySelector('[data-feedback="school"]').textContent = t("withSchool");
   elements.startMath.textContent = t("start");
   document.querySelector(".math-progress").setAttribute("aria-label", t("mathProgress"));
   setText(".math-progress div:nth-child(1) .score-label", "correct");
@@ -686,7 +689,7 @@ function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function makeAdditionProblem() {
+function makeAdditionProblem(index = 0) {
   let left = randomInt(4, 79);
   let right = randomInt(3, 35);
   while (left + right > 100) {
@@ -699,11 +702,11 @@ function makeAdditionProblem() {
     operator: "+",
     right,
     answer: left + right,
-    tip: makeMathTip(left, "+", right)
+    tip: makeMathTip(left, "+", right, index)
   };
 }
 
-function makeSubtractionProblem() {
+function makeSubtractionProblem(index = 0) {
   const left = randomInt(20, 100);
   const right = randomInt(2, Math.min(49, left));
 
@@ -712,19 +715,60 @@ function makeSubtractionProblem() {
     operator: "-",
     right,
     answer: left - right,
-    tip: makeMathTip(left, "-", right)
+    tip: makeMathTip(left, "-", right, index)
   };
 }
 
-function makeMathTip(left, operator, right) {
+function makeMathTip(left, operator, right, index = 0) {
   const tens = Math.floor(right / 10) * 10;
   const ones = right % 10;
   const firstPart = tens > 0 ? tens : ones;
+  const additionNames = ["Lilli", "Emil", "Willi"];
+  const subtractionNames = ["Mira", "Rudi", "Gabi"];
+  const schoolSteps = operator === "+"
+    ? makeAdditionSchoolSteps(left, right)
+    : makeSubtractionSchoolSteps(left, right);
 
   return {
     first: `${left} ${operator} ${firstPart} =`,
-    second: ""
+    second: "",
+    schoolName: operator === "+" ? additionNames[index % additionNames.length] : subtractionNames[index % subtractionNames.length],
+    schoolSteps
   };
+}
+
+function makeAdditionSchoolSteps(left, right) {
+  const tens = Math.floor(right / 10) * 10;
+  const ones = right % 10;
+  const steps = [];
+  if (tens > 0) {
+    steps.push({ label: `+ ${tens}`, direction: "right" });
+  }
+  if (ones > 0) {
+    steps.push({ label: `+ ${ones}`, direction: "right" });
+  }
+  return steps.length ? steps : [{ label: `+ ${right}`, direction: "right" }];
+}
+
+function makeSubtractionSchoolSteps(left, right) {
+  const tens = Math.floor(right / 10) * 10;
+  const ones = right % 10;
+  if (ones >= 6) {
+    const rounded = tens + 10;
+    return [
+      { label: `- ${rounded}`, direction: "left" },
+      { label: `+ ${10 - ones}`, direction: "right" }
+    ];
+  }
+
+  const steps = [];
+  if (tens > 0) {
+    steps.push({ label: `- ${tens}`, direction: "left" });
+  }
+  if (ones > 0) {
+    steps.push({ label: `- ${ones}`, direction: "left" });
+  }
+  return steps.length ? steps : [{ label: `- ${right}`, direction: "left" }];
 }
 
 function shuffle(items) {
@@ -735,8 +779,8 @@ function shuffle(items) {
 }
 
 function createMathProblems() {
-  const additions = Array.from({ length: 12 }, makeAdditionProblem);
-  const subtractions = Array.from({ length: 12 }, makeSubtractionProblem);
+  const additions = Array.from({ length: 12 }, (_, index) => makeAdditionProblem(index));
+  const subtractions = Array.from({ length: 12 }, (_, index) => makeSubtractionProblem(index));
   return shuffle([...additions, ...subtractions]);
 }
 
@@ -759,7 +803,8 @@ function resetMathWorksheet() {
 
 function renderMathWorksheet() {
   elements.worksheet.replaceChildren();
-  elements.worksheet.classList.toggle("tips-enabled", mathFeedbackMode === "tips");
+  elements.worksheet.classList.toggle("tips-enabled", mathFeedbackMode === "tips" || mathFeedbackMode === "school");
+  elements.worksheet.classList.toggle("school-enabled", mathFeedbackMode === "school");
   mathProblems.forEach((problem, index) => {
     const row = document.createElement("label");
     row.className = "problem";
@@ -797,7 +842,7 @@ function renderMathWorksheet() {
     result.setAttribute("aria-live", "polite");
 
     row.append(equation, input, result);
-    if (mathFeedbackMode === "tips") {
+      if (mathFeedbackMode === "tips" || mathFeedbackMode === "school") {
       row.append(createTipBox(problem));
     }
     elements.worksheet.append(row);
@@ -805,7 +850,7 @@ function renderMathWorksheet() {
 }
 
 function showsImmediateMathFeedback() {
-  return mathFeedbackMode === "instant" || mathFeedbackMode === "tips";
+  return mathFeedbackMode === "instant" || mathFeedbackMode === "tips" || mathFeedbackMode === "school";
 }
 
 function createTipBox(problem) {
@@ -819,13 +864,17 @@ function createTipBox(problem) {
 
   const box = document.createElement("div");
   box.className = "tip-box hidden";
-  const firstStep = document.createElement("span");
-  firstStep.textContent = problem.tip.first;
-  box.append(firstStep);
-  if (problem.tip.second) {
-    const secondStep = document.createElement("span");
-    secondStep.textContent = problem.tip.second;
-    box.append(secondStep);
+  if (mathFeedbackMode === "school") {
+    box.append(createSchoolGraph(problem));
+  } else {
+    const firstStep = document.createElement("span");
+    firstStep.textContent = problem.tip.first;
+    box.append(firstStep);
+    if (problem.tip.second) {
+      const secondStep = document.createElement("span");
+      secondStep.textContent = problem.tip.second;
+      box.append(secondStep);
+    }
   }
 
   button.addEventListener("click", () => {
@@ -835,6 +884,72 @@ function createTipBox(problem) {
 
   wrap.append(button, box);
   return wrap;
+}
+
+function createSchoolGraph(problem) {
+  const graph = document.createElement("div");
+  graph.className = "school-graph";
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 260 104");
+  svg.setAttribute("aria-hidden", "true");
+
+  const baseline = createSvgElement("line", { x1: 18, y1: 72, x2: 242, y2: 72, class: "school-line" });
+  svg.append(baseline);
+
+  const steps = problem.tip.schoolSteps.slice(0, 2);
+  const points = getSchoolPoints(problem);
+  steps.forEach((step, index) => {
+    const [start, end] = points.segments[index];
+    svg.append(createArc(start, end, index, step.direction));
+    svg.append(createSvgElement("text", {
+      x: (start + end) / 2,
+      y: index === 0 ? 24 : 38,
+      class: "school-jump"
+    }, step.label));
+  });
+
+  svg.append(createSvgElement("text", { x: points.startX, y: 92, class: "school-number" }, String(problem.left)));
+  svg.append(createSvgElement("text", { x: points.endX, y: 92, class: "school-number school-blank" }, "__"));
+  svg.append(createSvgElement("text", { x: 130, y: 94, class: "school-name" }, problem.tip.schoolName));
+
+  graph.append(svg);
+  return graph;
+}
+
+function getSchoolPoints(problem) {
+  if (problem.operator === "+") {
+    return problem.tip.schoolSteps.length === 1
+      ? { startX: 32, endX: 228, segments: [[32, 228]] }
+      : { startX: 32, endX: 228, segments: [[32, 132], [132, 228]] };
+  }
+
+  const usesCompensation = problem.tip.schoolSteps[1]?.direction === "right";
+  if (usesCompensation) {
+    return { startX: 228, endX: 110, segments: [[228, 72], [72, 110]] };
+  }
+
+  return problem.tip.schoolSteps.length === 1
+    ? { startX: 228, endX: 32, segments: [[228, 32]] }
+    : { startX: 228, endX: 32, segments: [[228, 126], [126, 32]] };
+}
+
+function createArc(start, end, index, direction) {
+  const arcTop = index === 0 ? 20 : 34;
+  const sweep = direction === "right" ? 1 : 0;
+  return createSvgElement("path", {
+    d: `M ${start} 70 A ${(end - start) / 2} ${arcTop} 0 0 ${sweep} ${end} 70`,
+    class: "school-arc"
+  });
+}
+
+function createSvgElement(tag, attributes, text = "") {
+  const element = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+  if (text) {
+    element.textContent = text;
+  }
+  return element;
 }
 
 function focusNextMathInput(currentIndex) {
@@ -983,7 +1098,7 @@ function selectMathFeedback(mode) {
 
   getMathInputs().forEach((input, index) => {
     const row = input.closest(".problem");
-    if (mode === "instant" || mode === "tips") {
+    if (mode === "instant" || mode === "tips" || mode === "school") {
       markProblem(row, mathProblems[index], input.value, Boolean(input.value));
     } else if (!mathEnded) {
       row.classList.remove("correct", "wrong");
