@@ -723,21 +723,33 @@ function makeMathTip(left, operator, right, index = 0) {
   const tens = Math.floor(right / 10) * 10;
   const ones = right % 10;
   const firstPart = tens > 0 ? tens : ones;
-  const additionNames = ["Lilli", "Emil", "Willi"];
-  const subtractionNames = ["Mira", "Rudi", "Gabi"];
-  const schoolSteps = operator === "+"
-    ? makeAdditionSchoolSteps(left, right)
-    : makeSubtractionSchoolSteps(left, right);
 
   return {
     first: `${left} ${operator} ${firstPart} =`,
     second: "",
-    schoolName: operator === "+" ? additionNames[index % additionNames.length] : subtractionNames[index % subtractionNames.length],
-    schoolSteps
+    schoolExamples: operator === "+"
+      ? makeAdditionSchoolExamples(left, right)
+      : makeSubtractionSchoolExamples(left, right)
   };
 }
 
-function makeAdditionSchoolSteps(left, right) {
+function makeAdditionSchoolExamples(left, right) {
+  return [
+    { name: "Lilli", steps: makeAdditionTensFirstSteps(right) },
+    { name: "Emil", steps: makeAdditionOnesFirstSteps(right) },
+    { name: "Willi", steps: makeAdditionMakeTenSteps(left, right) }
+  ];
+}
+
+function makeSubtractionSchoolExamples(left, right) {
+  return [
+    { name: "Mira", steps: makeSubtractionOnesFirstSteps(right) },
+    { name: "Rudi", steps: makeSubtractionTensFirstSteps(right) },
+    { name: "Gabi", steps: makeSubtractionCompensationSteps(right) }
+  ];
+}
+
+function makeAdditionTensFirstSteps(right) {
   const tens = Math.floor(right / 10) * 10;
   const ones = right % 10;
   const steps = [];
@@ -750,17 +762,33 @@ function makeAdditionSchoolSteps(left, right) {
   return steps.length ? steps : [{ label: `+ ${right}`, direction: "right" }];
 }
 
-function makeSubtractionSchoolSteps(left, right) {
+function makeAdditionOnesFirstSteps(right) {
   const tens = Math.floor(right / 10) * 10;
   const ones = right % 10;
-  if (ones >= 6) {
-    const rounded = tens + 10;
+  const steps = [];
+  if (ones > 0) {
+    steps.push({ label: `+ ${ones}`, direction: "right" });
+  }
+  if (tens > 0) {
+    steps.push({ label: `+ ${tens}`, direction: "right" });
+  }
+  return steps.length ? steps : [{ label: `+ ${right}`, direction: "right" }];
+}
+
+function makeAdditionMakeTenSteps(left, right) {
+  const bridge = (10 - (left % 10)) % 10;
+  if (bridge > 0 && bridge < right) {
     return [
-      { label: `- ${rounded}`, direction: "left" },
-      { label: `+ ${10 - ones}`, direction: "right" }
+      { label: `+ ${bridge}`, direction: "right" },
+      { label: `+ ${right - bridge}`, direction: "right" }
     ];
   }
+  return makeAdditionTensFirstSteps(right);
+}
 
+function makeSubtractionTensFirstSteps(right) {
+  const tens = Math.floor(right / 10) * 10;
+  const ones = right % 10;
   const steps = [];
   if (tens > 0) {
     steps.push({ label: `- ${tens}`, direction: "left" });
@@ -769,6 +797,32 @@ function makeSubtractionSchoolSteps(left, right) {
     steps.push({ label: `- ${ones}`, direction: "left" });
   }
   return steps.length ? steps : [{ label: `- ${right}`, direction: "left" }];
+}
+
+function makeSubtractionOnesFirstSteps(right) {
+  const tens = Math.floor(right / 10) * 10;
+  const ones = right % 10;
+  const steps = [];
+  if (ones > 0) {
+    steps.push({ label: `- ${ones}`, direction: "left" });
+  }
+  if (tens > 0) {
+    steps.push({ label: `- ${tens}`, direction: "left" });
+  }
+  return steps.length ? steps : [{ label: `- ${right}`, direction: "left" }];
+}
+
+function makeSubtractionCompensationSteps(right) {
+  const tens = Math.floor(right / 10) * 10;
+  const ones = right % 10;
+  if (ones > 0) {
+    const rounded = tens + 10;
+    return [
+      { label: `- ${rounded}`, direction: "left" },
+      { label: `+ ${10 - ones}`, direction: "right" }
+    ];
+  }
+  return makeSubtractionTensFirstSteps(right);
 }
 
 function shuffle(items) {
@@ -842,7 +896,7 @@ function renderMathWorksheet() {
     result.setAttribute("aria-live", "polite");
 
     row.append(equation, input, result);
-      if (mathFeedbackMode === "tips" || mathFeedbackMode === "school") {
+    if (mathFeedbackMode === "tips" || mathFeedbackMode === "school") {
       row.append(createTipBox(problem));
     }
     elements.worksheet.append(row);
@@ -865,7 +919,7 @@ function createTipBox(problem) {
   const box = document.createElement("div");
   box.className = "tip-box hidden";
   if (mathFeedbackMode === "school") {
-    box.append(createSchoolGraph(problem));
+    box.append(createSchoolGraphs(problem));
   } else {
     const firstStep = document.createElement("span");
     firstStep.textContent = problem.tip.first;
@@ -886,7 +940,16 @@ function createTipBox(problem) {
   return wrap;
 }
 
-function createSchoolGraph(problem) {
+function createSchoolGraphs(problem) {
+  const graphs = document.createElement("div");
+  graphs.className = "school-graphs";
+  problem.tip.schoolExamples.forEach((example) => {
+    graphs.append(createSchoolGraph(problem, example));
+  });
+  return graphs;
+}
+
+function createSchoolGraph(problem, example) {
   const graph = document.createElement("div");
   graph.className = "school-graph";
 
@@ -897,8 +960,8 @@ function createSchoolGraph(problem) {
   const baseline = createSvgElement("line", { x1: 18, y1: 72, x2: 242, y2: 72, class: "school-line" });
   svg.append(baseline);
 
-  const steps = problem.tip.schoolSteps.slice(0, 2);
-  const points = getSchoolPoints(problem);
+  const steps = example.steps.slice(0, 2);
+  const points = getSchoolPoints(problem.operator, steps);
   steps.forEach((step, index) => {
     const [start, end] = points.segments[index];
     svg.append(createArc(start, end, index, step.direction));
@@ -911,25 +974,25 @@ function createSchoolGraph(problem) {
 
   svg.append(createSvgElement("text", { x: points.startX, y: 92, class: "school-number" }, String(problem.left)));
   svg.append(createSvgElement("text", { x: points.endX, y: 92, class: "school-number school-blank" }, "__"));
-  svg.append(createSvgElement("text", { x: 130, y: 94, class: "school-name" }, problem.tip.schoolName));
+  svg.append(createSvgElement("text", { x: 130, y: 94, class: "school-name" }, example.name));
 
   graph.append(svg);
   return graph;
 }
 
-function getSchoolPoints(problem) {
-  if (problem.operator === "+") {
-    return problem.tip.schoolSteps.length === 1
+function getSchoolPoints(operator, steps) {
+  if (operator === "+") {
+    return steps.length === 1
       ? { startX: 32, endX: 228, segments: [[32, 228]] }
       : { startX: 32, endX: 228, segments: [[32, 132], [132, 228]] };
   }
 
-  const usesCompensation = problem.tip.schoolSteps[1]?.direction === "right";
+  const usesCompensation = steps[1]?.direction === "right";
   if (usesCompensation) {
     return { startX: 228, endX: 110, segments: [[228, 72], [72, 110]] };
   }
 
-  return problem.tip.schoolSteps.length === 1
+  return steps.length === 1
     ? { startX: 228, endX: 32, segments: [[228, 32]] }
     : { startX: 228, endX: 32, segments: [[228, 126], [126, 32]] };
 }
@@ -937,8 +1000,9 @@ function getSchoolPoints(problem) {
 function createArc(start, end, index, direction) {
   const arcTop = index === 0 ? 20 : 34;
   const sweep = direction === "right" ? 1 : 0;
+  const radius = Math.abs(end - start) / 2;
   return createSvgElement("path", {
-    d: `M ${start} 70 A ${(end - start) / 2} ${arcTop} 0 0 ${sweep} ${end} 70`,
+    d: `M ${start} 70 A ${radius} ${arcTop} 0 0 ${sweep} ${end} 70`,
     class: "school-arc"
   });
 }

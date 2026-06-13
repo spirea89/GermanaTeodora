@@ -616,6 +616,14 @@ textarea {
   grid-template-columns: minmax(0, 1fr) 92px 64px minmax(150px, 0.9fr);
 }
 
+.worksheet.school-enabled .problem {
+  grid-template-columns: minmax(0, 1fr) 92px 64px;
+}
+
+.worksheet.school-enabled .tip-wrap {
+  grid-column: 1 / -1;
+}
+
 .tip-wrap {
   display: grid;
   gap: 8px;
@@ -649,8 +657,17 @@ textarea {
   display: block;
 }
 
+.school-graphs {
+  display: grid;
+  gap: 10px;
+}
+
 .school-graph {
-  min-width: 190px;
+  min-width: 0;
+  padding: 6px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #d9e7f4;
 }
 
 .school-graph svg {
@@ -872,6 +889,10 @@ textarea {
     grid-template-columns: minmax(0, 1fr) 92px 62px minmax(150px, 0.9fr);
   }
 
+  .worksheet.school-enabled .problem {
+    grid-template-columns: minmax(0, 1fr) 92px 62px;
+  }
+
   .start-options {
     grid-template-columns: 1fr;
   }
@@ -914,5 +935,9 @@ textarea {
 
   .worksheet.tips-enabled .tip-wrap {
     grid-column: 1 / -1;
+  }
+
+  .worksheet.school-enabled .problem {
+    grid-template-columns: minmax(0, 1fr) 72px 58px;
   }
 }
