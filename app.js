@@ -144,7 +144,136 @@ const wordRewards = [
   ["🍭", "Sweet win!"]
 ];
 
+const wordRewardsDe = [
+  ["🎉", "Fantastisch!"],
+  ["🌈", "So schön!"],
+  ["🪄", "Zauberhaft!"],
+  ["🏆", "Champion!"],
+  ["🎈", "Hurra!"],
+  ["💎", "Super gemacht!"],
+  ["🚀", "Raketenstark!"],
+  ["🍭", "Toll!"]
+];
+
+const translations = {
+  en: {
+    appTitle: "Germana Teodora Practice",
+    toggle: "Deutsch",
+    toggleLabel: "Switch language to German",
+    practiceTime: "Practice time",
+    german: "German",
+    germanSub: "Words, listening, missing letters",
+    math: "Math",
+    mathSub: "Plus and minus to 100",
+    administration: "Administration",
+    adminSub: "Add German practice words",
+    backHome: "Back to practice chooser",
+    homeTitle: "Home",
+    writingPractice: "Writing practice",
+    wordGarden: "Word Garden",
+    stars: "Stars",
+    streak: "Streak",
+    round: "Round",
+    wordPromptLabel: "Word with missing letters",
+    answerLabel: "Type the missing letters",
+    check: "Check",
+    hearWord: "🔊 Hear word",
+    newWord: "↪ New word",
+    wordClueDefault: "Listen and fill the missing letters.",
+    wordHintDefault: "Listen, look, and fill the hidden letters.",
+    wordSuccess: (word) => `Yes! The word is ${word}.`,
+    wordTry: "Try again. You can type the hidden letters or the whole word.",
+    adminTitle: "German Words",
+    adminCopy: "One item per line. Add an emoji and clue with commas:",
+    adminExample: "die Sonne, ☀️, Listen and fill the missing letters.",
+    saveWords: "Save words",
+    reset: "Reset",
+    adminReady: "Saved words are used in the German game on this device.",
+    adminSaved: "Saved. German practice will use this list.",
+    adminReset: "Reset to the original German word list.",
+    mathPractice: "Math practice",
+    numberSprint: "Number Sprint",
+    mathSetupLabel: "Math setup",
+    exercise: "Exercise",
+    exerciseName: "Plus and minus to 100",
+    time: "Time",
+    chooseTime: "Choose exercise time",
+    answers: "Answers",
+    chooseFeedback: "Choose answer feedback",
+    showNow: "Show now",
+    atFinish: "At finish",
+    start: "Start",
+    mathProgress: "Math progress",
+    correct: "Correct",
+    left: "Left",
+    worksheet: "Math worksheet",
+    newWorksheet: "↻ New worksheet",
+    finish: "✓ Finish",
+    allDone: "All done!",
+    timeUp: "Time is up!",
+    brilliant: "Brilliant!"
+  },
+  de: {
+    appTitle: "Germana Teodora Übung",
+    toggle: "English",
+    toggleLabel: "Sprache auf Englisch umstellen",
+    practiceTime: "Übungszeit",
+    german: "Deutsch",
+    germanSub: "Wörter, Hören, fehlende Buchstaben",
+    math: "Mathe",
+    mathSub: "Plus und Minus bis 100",
+    administration: "Verwaltung",
+    adminSub: "Neue deutsche Wörter hinzufügen",
+    backHome: "Zur Auswahl zurück",
+    homeTitle: "Start",
+    writingPractice: "Schreibübung",
+    wordGarden: "Wörtergarten",
+    stars: "Sterne",
+    streak: "Serie",
+    round: "Runde",
+    wordPromptLabel: "Wort mit fehlenden Buchstaben",
+    answerLabel: "Fehlende Buchstaben eingeben",
+    check: "Prüfen",
+    hearWord: "🔊 Wort hören",
+    newWord: "↪ Neues Wort",
+    wordClueDefault: "Höre zu und ergänze die fehlenden Buchstaben.",
+    wordHintDefault: "Höre zu, schau genau und ergänze die fehlenden Buchstaben.",
+    wordSuccess: (word) => `Ja! Das Wort ist ${word}.`,
+    wordTry: "Versuch es noch einmal. Du kannst die fehlenden Buchstaben oder das ganze Wort schreiben.",
+    adminTitle: "Deutsche Wörter",
+    adminCopy: "Ein Eintrag pro Zeile. Emoji und Hinweis mit Kommas ergänzen:",
+    adminExample: "die Sonne, ☀️, Höre zu und ergänze die fehlenden Buchstaben.",
+    saveWords: "Wörter speichern",
+    reset: "Zurücksetzen",
+    adminReady: "Gespeicherte Wörter werden auf diesem Gerät im Deutsch-Spiel benutzt.",
+    adminSaved: "Gespeichert. Die Deutsch-Übung benutzt diese Liste.",
+    adminReset: "Die ursprüngliche deutsche Wortliste wurde wiederhergestellt.",
+    mathPractice: "Matheübung",
+    numberSprint: "Zahlensprint",
+    mathSetupLabel: "Mathe-Einstellungen",
+    exercise: "Aufgabe",
+    exerciseName: "Plus und Minus bis 100",
+    time: "Zeit",
+    chooseTime: "Übungszeit auswählen",
+    answers: "Antworten",
+    chooseFeedback: "Antwortanzeige auswählen",
+    showNow: "Sofort zeigen",
+    atFinish: "Am Ende",
+    start: "Start",
+    mathProgress: "Mathe-Fortschritt",
+    correct: "Richtig",
+    left: "Übrig",
+    worksheet: "Mathe-Arbeitsblatt",
+    newWorksheet: "↻ Neues Blatt",
+    finish: "✓ Fertig",
+    allDone: "Alles geschafft!",
+    timeUp: "Die Zeit ist vorbei!",
+    brilliant: "Super!"
+  }
+};
+
 const elements = {
+  languageToggle: document.querySelector("#language-toggle"),
   homeScreen: document.querySelector("#home-screen"),
   germanScreen: document.querySelector("#german-screen"),
   mathScreen: document.querySelector("#math-screen"),
@@ -198,6 +327,115 @@ let mathDeadline = 0;
 let mathStarted = false;
 let mathEnded = false;
 let mathFeedbackMode = "instant";
+let currentLanguage = translations[localStorage.getItem("practiceLanguage")] ? localStorage.getItem("practiceLanguage") : "en";
+
+function t(key, ...args) {
+  const value = translations[currentLanguage][key] || translations.en[key] || key;
+  return typeof value === "function" ? value(...args) : value;
+}
+
+function setText(selector, key) {
+  const node = document.querySelector(selector);
+  if (node) {
+    node.textContent = t(key);
+  }
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage;
+  document.title = t("appTitle");
+  elements.languageToggle.textContent = t("toggle");
+  elements.languageToggle.setAttribute("aria-label", t("toggleLabel"));
+
+  setText(".home-header .eyebrow", "practiceTime");
+  setText("#open-german strong", "german");
+  setText("#open-german small", "germanSub");
+  setText("#open-math strong", "math");
+  setText("#open-math small", "mathSub");
+  setText("#open-admin strong", "administration");
+  setText("#open-admin small", "adminSub");
+
+  [elements.germanHome, elements.mathHome, elements.adminHome].forEach((button) => {
+    button.setAttribute("aria-label", t("backHome"));
+    button.setAttribute("title", t("homeTitle"));
+  });
+
+  setText("#german-screen .eyebrow", "writingPractice");
+  setText("#app-title", "wordGarden");
+  setText(".score-row div:nth-child(1) .score-label", "stars");
+  setText(".score-row div:nth-child(2) .score-label", "streak");
+  setText(".score-row div:nth-child(3) .score-label", "round");
+  elements.prompt.setAttribute("aria-label", t("wordPromptLabel"));
+  setText(".answer-label", "answerLabel");
+  elements.check.textContent = t("check");
+  elements.speak.textContent = t("hearWord");
+  elements.skip.textContent = t("newWord");
+
+  setText("#admin-screen .eyebrow", "administration");
+  setText("#admin-title", "adminTitle");
+  setText(".studio-copy", "adminCopy");
+  const adminExample = document.querySelector("#admin-screen pre");
+  if (adminExample) {
+    adminExample.textContent = t("adminExample");
+  }
+  elements.saveWords.textContent = t("saveWords");
+  elements.resetWords.textContent = t("reset");
+  if (!elements.adminNote.dataset.state || elements.adminNote.dataset.state === "ready") {
+    setAdminNote("ready");
+  }
+
+  setText("#math-screen .eyebrow", "mathPractice");
+  setText("#math-title", "numberSprint");
+  document.querySelector(".math-setup").setAttribute("aria-label", t("mathSetupLabel"));
+  setText(".math-setup > div:nth-child(1) .score-label", "exercise");
+  setText(".math-setup > div:nth-child(1) strong", "exerciseName");
+  setText(".math-setup > div:nth-child(2) .score-label", "time");
+  elements.timeOptions.setAttribute("aria-label", t("chooseTime"));
+  setText(".math-setup > div:nth-child(3) .score-label", "answers");
+  elements.feedbackOptions.setAttribute("aria-label", t("chooseFeedback"));
+  elements.feedbackOptions.querySelector('[data-feedback="instant"]').textContent = t("showNow");
+  elements.feedbackOptions.querySelector('[data-feedback="end"]').textContent = t("atFinish");
+  elements.startMath.textContent = t("start");
+  document.querySelector(".math-progress").setAttribute("aria-label", t("mathProgress"));
+  setText(".math-progress div:nth-child(1) .score-label", "correct");
+  setText(".math-progress div:nth-child(2) .score-label", "left");
+  elements.worksheet.setAttribute("aria-label", t("worksheet"));
+  elements.newMath.textContent = t("newWorksheet");
+  elements.finishMath.textContent = t("finish");
+
+  if (elements.phrase.textContent === translations.en.wordClueDefault || elements.phrase.textContent === translations.de.wordClueDefault) {
+    elements.phrase.textContent = t("wordClueDefault");
+  }
+  if (!elements.hint.dataset.state || elements.hint.dataset.state === "default") {
+    setHint("default");
+  } else if (elements.hint.dataset.state === "success") {
+    setHint("success", currentWord.word);
+  } else if (elements.hint.dataset.state === "try") {
+    setHint("try");
+  }
+}
+
+function setHint(state, word = "") {
+  elements.hint.dataset.state = state;
+  elements.hint.className = "hint";
+  if (state === "success") {
+    elements.hint.classList.add("success");
+    elements.hint.textContent = t("wordSuccess", word);
+    return;
+  }
+  if (state === "try") {
+    elements.hint.classList.add("try");
+    elements.hint.textContent = t("wordTry");
+    return;
+  }
+  elements.hint.textContent = t("wordHintDefault");
+}
+
+function setAdminNote(state) {
+  elements.adminNote.dataset.state = state;
+  const key = state === "saved" ? "adminSaved" : state === "reset" ? "adminReset" : "adminReady";
+  elements.adminNote.textContent = t(key);
+}
 
 function showScreen(screenName) {
   elements.homeScreen.classList.toggle("hidden", screenName !== "home");
@@ -248,6 +486,13 @@ function decorateWord(word) {
     emoji: match ? match[1] : "✨",
     clue: match ? match[2] : "Listen and fill the missing letters."
   };
+}
+
+function getWordClue(wordItem) {
+  if (wordItem.clue === translations.en.wordClueDefault || wordItem.clue === translations.de.wordClueDefault) {
+    return t("wordClueDefault");
+  }
+  return wordItem.clue || t("wordClueDefault");
 }
 
 function hiddenLettersOf(value) {
@@ -337,11 +582,10 @@ function pickWord() {
   currentIndex = nextIndex;
   currentWord = words[currentIndex];
   elements.emoji.textContent = currentWord.emoji || "✨";
-  elements.phrase.textContent = currentWord.clue || "Listen and fill the missing letters.";
+  elements.phrase.textContent = getWordClue(currentWord);
   elements.input.value = "";
   elements.input.maxLength = Math.max(currentWord.word.length + 4, hiddenLettersOf(currentWord.word).length + 2, 3);
-  elements.hint.className = "hint";
-  elements.hint.textContent = "Listen, look, and fill the hidden letters.";
+  setHint("default");
   renderPrompt(currentWord.word);
 }
 
@@ -361,7 +605,8 @@ function showReward(emoji, text, duration = 1450, afterClose = null) {
 }
 
 function showWordReward() {
-  const reward = wordRewards[Math.floor(Math.random() * wordRewards.length)];
+  const rewards = currentLanguage === "de" ? wordRewardsDe : wordRewards;
+  const reward = rewards[Math.floor(Math.random() * rewards.length)];
   showReward(reward[0], reward[1], 1450, () => {
     round += 1;
     renderScore();
@@ -380,8 +625,7 @@ function checkAnswer() {
     stars += 1;
     streak += 1;
     localStorage.setItem("wordGardenStars", String(stars));
-    elements.hint.className = "hint success";
-    elements.hint.textContent = `Yes! The word is ${currentWord.word}.`;
+    setHint("success", currentWord.word);
     renderScore();
     showWordReward();
     speak(currentWord.word);
@@ -389,8 +633,7 @@ function checkAnswer() {
   }
 
   streak = 0;
-  elements.hint.className = "hint try";
-  elements.hint.textContent = "Try again. You can type the hidden letters or the whole word.";
+  setHint("try");
   renderScore();
   elements.input.select();
 }
@@ -431,7 +674,7 @@ function parseWords(value) {
 
 function openAdmin() {
   elements.wordList.value = serializeWords();
-  elements.adminNote.textContent = "Saved words are used in the German game on this device.";
+  setAdminNote("ready");
   elements.wordList.focus();
 }
 
@@ -647,7 +890,7 @@ function endMath(wasSuccessful) {
   revealMathAnswers();
   updateMathProgress();
   updateTimerDisplay(Math.max(0, Math.ceil((mathDeadline - Date.now()) / 1000)));
-  showReward(wasSuccessful ? "😄" : "😢", wasSuccessful ? "All done!" : "Time is up!", 2400);
+  showReward(wasSuccessful ? "😄" : "😢", wasSuccessful ? t("allDone") : t("timeUp"), 2400);
 }
 
 function revealMathAnswers() {
@@ -689,6 +932,14 @@ function selectMathFeedback(mode) {
 elements.openGerman.addEventListener("click", () => showScreen("german"));
 elements.openMath.addEventListener("click", () => showScreen("math"));
 elements.openAdmin.addEventListener("click", () => showScreen("admin"));
+elements.languageToggle.addEventListener("click", () => {
+  currentLanguage = currentLanguage === "en" ? "de" : "en";
+  localStorage.setItem("practiceLanguage", currentLanguage);
+  applyLanguage();
+  if (currentWord) {
+    elements.phrase.textContent = getWordClue(currentWord);
+  }
+});
 elements.germanHome.addEventListener("click", () => showScreen("home"));
 elements.mathHome.addEventListener("click", () => {
   resetMathWorksheet();
@@ -723,7 +974,7 @@ elements.saveWords.addEventListener("click", () => {
   saveWordState(words);
   pickWord();
   elements.wordList.value = serializeWords();
-  elements.adminNote.textContent = "Saved. German practice will use this list.";
+  setAdminNote("saved");
 });
 
 elements.resetWords.addEventListener("click", () => {
@@ -731,7 +982,7 @@ elements.resetWords.addEventListener("click", () => {
   saveWordState(words);
   elements.wordList.value = serializeWords();
   pickWord();
-  elements.adminNote.textContent = "Reset to the original German word list.";
+  setAdminNote("reset");
 });
 
 elements.timeOptions.addEventListener("click", (event) => {
@@ -758,7 +1009,8 @@ elements.finishMath.addEventListener("click", () => {
   }
 });
 
-renderScore();
-pickWord();
 selectMathTime(10);
 selectMathFeedback("instant");
+renderScore();
+applyLanguage();
+pickWord();

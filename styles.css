@@ -51,6 +51,22 @@ button:active {
   display: none !important;
 }
 
+.language-toggle {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(12px, env(safe-area-inset-right));
+  z-index: 20;
+  min-width: 112px;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 24px rgba(87, 60, 35, 0.16);
+  font-weight: 900;
+}
+
 .app-shell {
   width: min(1120px, calc(100% - 32px));
   min-height: 100vh;
