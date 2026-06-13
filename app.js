@@ -204,12 +204,6 @@ const translations = {
     withTips: "Show Results and Tips",
     showTip: "Tip",
     hideTip: "Hide tip",
-    plusTip: (left, right, answer, bridge, rest) => rest === 0
-      ? `Make a ten: ${left} + ${bridge} = ${answer}.`
-      : `Make a ten: ${left} + ${bridge} = ${left + bridge}. Then add ${rest}: ${left + bridge} + ${rest} = ${answer}.`,
-    minusTip: (left, right, answer, bridge, rest) => rest === 0
-      ? `Go down to a ten: ${left} - ${bridge} = ${answer}.`
-      : `Go down to a ten: ${left} - ${bridge} = ${left - bridge}. Then take away ${rest}: ${left - bridge} - ${rest} = ${answer}.`,
     start: "Start",
     mathProgress: "Math progress",
     correct: "Correct",
@@ -269,12 +263,6 @@ const translations = {
     withTips: "Ergebnisse und Tipps zeigen",
     showTip: "Tipp",
     hideTip: "Tipp ausblenden",
-    plusTip: (left, right, answer, bridge, rest) => rest === 0
-      ? `Erst zum Zehner: ${left} + ${bridge} = ${answer}.`
-      : `Erst zum Zehner: ${left} + ${bridge} = ${left + bridge}. Dann noch ${rest}: ${left + bridge} + ${rest} = ${answer}.`,
-    minusTip: (left, right, answer, bridge, rest) => rest === 0
-      ? `Erst zum Zehner: ${left} - ${bridge} = ${answer}.`
-      : `Erst zum Zehner: ${left} - ${bridge} = ${left - bridge}. Dann noch ${rest} wegnehmen: ${left - bridge} - ${rest} = ${answer}.`,
     start: "Start",
     mathProgress: "Mathe-Fortschritt",
     correct: "Richtig",
@@ -733,13 +721,19 @@ function makeMathTip(left, operator, right) {
     const bridge = left % 10 === 0 ? 10 : 10 - (left % 10);
     const usableBridge = Math.min(bridge, right);
     const rest = right - usableBridge;
-    return () => t("plusTip", left, right, left + right, usableBridge, rest);
+    return {
+      first: `${left} + ${usableBridge} = ${left + usableBridge}`,
+      second: rest > 0 ? `${left + usableBridge} + ${rest} =` : ""
+    };
   }
 
   const bridge = left % 10 === 0 ? 10 : left % 10;
   const usableBridge = Math.min(bridge, right);
   const rest = right - usableBridge;
-  return () => t("minusTip", left, right, left - right, usableBridge, rest);
+  return {
+    first: `${left} - ${usableBridge} = ${left - usableBridge}`,
+    second: rest > 0 ? `${left - usableBridge} - ${rest} =` : ""
+  };
 }
 
 function shuffle(items) {
@@ -834,7 +828,14 @@ function createTipBox(problem) {
 
   const box = document.createElement("div");
   box.className = "tip-box hidden";
-  box.textContent = problem.tip();
+  const firstStep = document.createElement("span");
+  firstStep.textContent = problem.tip.first;
+  box.append(firstStep);
+  if (problem.tip.second) {
+    const secondStep = document.createElement("span");
+    secondStep.textContent = problem.tip.second;
+    box.append(secondStep);
+  }
 
   button.addEventListener("click", () => {
     const isHidden = box.classList.toggle("hidden");

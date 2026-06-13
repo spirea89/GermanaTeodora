@@ -633,13 +633,20 @@ textarea {
 }
 
 .tip-box {
+  display: grid;
+  gap: 6px;
   padding: 12px;
   border-radius: 8px;
   background: #f7fbff;
   border: 1px solid #c9def1;
   color: var(--ink);
-  font-weight: 800;
-  line-height: 1.35;
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.tip-box span {
+  display: block;
 }
 
 .problem span {
