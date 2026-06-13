@@ -717,22 +717,13 @@ function makeSubtractionProblem() {
 }
 
 function makeMathTip(left, operator, right) {
-  if (operator === "+") {
-    const bridge = left % 10 === 0 ? 10 : 10 - (left % 10);
-    const usableBridge = Math.min(bridge, right);
-    const rest = right - usableBridge;
-    return {
-      first: `${left} + ${usableBridge} = ${left + usableBridge}`,
-      second: rest > 0 ? `${left + usableBridge} + ${rest} =` : ""
-    };
-  }
+  const tens = Math.floor(right / 10) * 10;
+  const ones = right % 10;
+  const firstPart = tens > 0 ? tens : ones;
 
-  const bridge = left % 10 === 0 ? 10 : left % 10;
-  const usableBridge = Math.min(bridge, right);
-  const rest = right - usableBridge;
   return {
-    first: `${left} - ${usableBridge} = ${left - usableBridge}`,
-    second: rest > 0 ? `${left - usableBridge} - ${rest} =` : ""
+    first: `${left} ${operator} ${firstPart} =`,
+    second: ""
   };
 }
 
