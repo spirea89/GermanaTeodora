@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Germana Teodora Practice</title>
-    <link rel="stylesheet" href="styles.css?v=20260613-answers">
+    <link rel="stylesheet" href="styles.css?v=20260614-contest">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
@@ -152,6 +152,67 @@
             <button type="button" data-feedback="end">Show results at the end</button>
             <button type="button" data-feedback="tips">Show Results and Tips</button>
             <button type="button" data-feedback="school">Start Test with School Examples</button>
+            <button type="button" data-feedback="contest">Contest</button>
+          </section>
+
+          <section class="contest-panel hidden" id="contest-panel" aria-label="Contest">
+            <div class="contest-setup" id="contest-setup">
+              <div>
+                <span class="score-label">Players</span>
+                <div class="contest-options" id="contest-player-options" aria-label="Choose players">
+                  <button type="button" data-players="2" class="selected">2</button>
+                  <button type="button" data-players="3">3</button>
+                  <button type="button" data-players="4">4</button>
+                  <button type="button" data-players="5">5</button>
+                  <button type="button" data-players="6">6</button>
+                </div>
+              </div>
+              <div>
+                <span class="score-label">Seconds</span>
+                <div class="contest-options" id="contest-time-options" aria-label="Choose seconds per equation">
+                  <button type="button" data-seconds="30" class="selected">30</button>
+                  <button type="button" data-seconds="40">40</button>
+                  <button type="button" data-seconds="50">50</button>
+                  <button type="button" data-seconds="60">60</button>
+                </div>
+              </div>
+              <button id="start-contest" type="button">Start contest</button>
+            </div>
+
+            <div class="contest-arena hidden" id="contest-arena">
+              <div class="contest-status">
+                <div>
+                  <span class="score-label">Player</span>
+                  <strong id="contest-player">Player 1</strong>
+                </div>
+                <div>
+                  <span class="score-label">Question</span>
+                  <strong id="contest-round">1 / 24</strong>
+                </div>
+                <div>
+                  <span class="score-label">Time</span>
+                  <strong id="contest-timer">30</strong>
+                </div>
+              </div>
+
+              <section class="contest-card" aria-label="Contest equation">
+                <div class="contest-equation" id="contest-equation">12 + 7 =</div>
+                <input id="contest-answer" type="tel" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Contest answer">
+                <p class="contest-message" id="contest-message" aria-live="polite"></p>
+                <div class="contest-actions">
+                  <button id="submit-contest" type="button">Submit</button>
+                  <button class="ghost-button hidden" id="next-contest" type="button">Next turn</button>
+                </div>
+              </section>
+
+              <section class="contest-scoreboard" id="contest-scoreboard" aria-label="Contest scores"></section>
+            </div>
+
+            <div class="contest-results hidden" id="contest-results">
+              <h2 id="contest-winner">Winner</h2>
+              <section class="contest-scoreboard" id="contest-final-scoreboard" aria-label="Final contest scores"></section>
+              <button id="new-contest" type="button">New contest</button>
+            </div>
           </section>
 
           <section class="math-progress" aria-label="Math progress">
@@ -182,6 +243,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260613-answers"></script>
+    <script src="app.js?v=20260614-contest"></script>
   </body>
 </html>

@@ -203,6 +203,28 @@ const translations = {
     atFinish: "Show results at the end",
     withTips: "Show Results and Tips",
     withSchool: "Start Test with School Examples",
+    contest: "Contest",
+    contestLabel: "Contest",
+    players: "Players",
+    choosePlayers: "Choose players",
+    seconds: "Seconds",
+    chooseSeconds: "Choose seconds per equation",
+    startContest: "Start contest",
+    contestPlayer: "Player",
+    contestQuestion: "Question",
+    contestEquation: "Contest equation",
+    contestAnswer: "Contest answer",
+    submit: "Submit",
+    nextTurn: "Next turn",
+    newContest: "New contest",
+    contestScores: "Contest scores",
+    finalScores: "Final contest scores",
+    playerName: (number) => `Player ${number}`,
+    contestCorrect: "Correct! +1 point",
+    contestWrong: (answer) => `Not this time. Answer: ${answer}`,
+    contestTimeout: (answer) => `Time is up. Answer: ${answer}`,
+    contestWinner: (names) => `Winner: ${names}`,
+    contestTie: (names) => `Tie: ${names}`,
     showTip: "Tip",
     hideTip: "Hide tip",
     start: "Start",
@@ -263,6 +285,28 @@ const translations = {
     atFinish: "Ergebnisse am Ende zeigen",
     withTips: "Ergebnisse und Tipps zeigen",
     withSchool: "Test mit Schulbeispielen starten",
+    contest: "Wettbewerb",
+    contestLabel: "Wettbewerb",
+    players: "Spieler",
+    choosePlayers: "Spieler auswÃ¤hlen",
+    seconds: "Sekunden",
+    chooseSeconds: "Sekunden pro Aufgabe auswÃ¤hlen",
+    startContest: "Wettbewerb starten",
+    contestPlayer: "Spieler",
+    contestQuestion: "Frage",
+    contestEquation: "Wettbewerbsaufgabe",
+    contestAnswer: "Wettbewerbsantwort",
+    submit: "Antworten",
+    nextTurn: "NÃ¤chster Spieler",
+    newContest: "Neuer Wettbewerb",
+    contestScores: "Punktestand",
+    finalScores: "Endstand",
+    playerName: (number) => `Spieler ${number}`,
+    contestCorrect: "Richtig! +1 Punkt",
+    contestWrong: (answer) => `Leider nicht. Antwort: ${answer}`,
+    contestTimeout: (answer) => `Zeit vorbei. Antwort: ${answer}`,
+    contestWinner: (names) => `Gewinner: ${names}`,
+    contestTie: (names) => `Unentschieden: ${names}`,
     showTip: "Tipp",
     hideTip: "Tipp ausblenden",
     start: "Start",
@@ -312,12 +356,33 @@ const elements = {
   timeOptions: document.querySelector("#time-options"),
   startOptions: document.querySelector("#start-options"),
   timerDisplay: document.querySelector("#timer-display"),
+  mathProgress: document.querySelector(".math-progress"),
+  mathControls: document.querySelector("#math-screen .controls"),
   startMath: document.querySelector("#start-math"),
   newMath: document.querySelector("#new-math"),
   finishMath: document.querySelector("#finish-math"),
   worksheet: document.querySelector("#worksheet"),
   mathCorrect: document.querySelector("#math-correct"),
-  mathLeft: document.querySelector("#math-left")
+  mathLeft: document.querySelector("#math-left"),
+  contestPanel: document.querySelector("#contest-panel"),
+  contestSetup: document.querySelector("#contest-setup"),
+  contestArena: document.querySelector("#contest-arena"),
+  contestResults: document.querySelector("#contest-results"),
+  contestPlayerOptions: document.querySelector("#contest-player-options"),
+  contestTimeOptions: document.querySelector("#contest-time-options"),
+  startContest: document.querySelector("#start-contest"),
+  contestPlayer: document.querySelector("#contest-player"),
+  contestRound: document.querySelector("#contest-round"),
+  contestTimer: document.querySelector("#contest-timer"),
+  contestEquation: document.querySelector("#contest-equation"),
+  contestAnswer: document.querySelector("#contest-answer"),
+  contestMessage: document.querySelector("#contest-message"),
+  submitContest: document.querySelector("#submit-contest"),
+  nextContest: document.querySelector("#next-contest"),
+  contestScoreboard: document.querySelector("#contest-scoreboard"),
+  contestWinner: document.querySelector("#contest-winner"),
+  contestFinalScoreboard: document.querySelector("#contest-final-scoreboard"),
+  newContest: document.querySelector("#new-contest")
 };
 
 let words = loadWords();
@@ -333,6 +398,14 @@ let mathDeadline = 0;
 let mathStarted = false;
 let mathEnded = false;
 let mathFeedbackMode = "instant";
+let contestPlayerCount = 2;
+let contestSeconds = 30;
+let contestProblems = [];
+let contestScores = [];
+let contestIndex = 0;
+let contestTimer = null;
+let contestDeadline = 0;
+let contestAnswered = false;
 let currentLanguage = translations[localStorage.getItem("practiceLanguage")] ? localStorage.getItem("practiceLanguage") : "en";
 
 function t(key, ...args) {
@@ -402,6 +475,7 @@ function applyLanguage() {
   elements.startOptions.querySelector('[data-feedback="end"]').textContent = t("atFinish");
   elements.startOptions.querySelector('[data-feedback="tips"]').textContent = t("withTips");
   elements.startOptions.querySelector('[data-feedback="school"]').textContent = t("withSchool");
+  elements.startOptions.querySelector('[data-feedback="contest"]').textContent = t("contest");
   elements.startMath.textContent = t("start");
   document.querySelector(".math-progress").setAttribute("aria-label", t("mathProgress"));
   setText(".math-progress div:nth-child(1) .score-label", "correct");
@@ -409,6 +483,23 @@ function applyLanguage() {
   elements.worksheet.setAttribute("aria-label", t("worksheet"));
   elements.newMath.textContent = t("newWorksheet");
   elements.finishMath.textContent = t("finish");
+  elements.contestPanel.setAttribute("aria-label", t("contestLabel"));
+  setText("#contest-setup > div:nth-child(1) .score-label", "players");
+  setText("#contest-setup > div:nth-child(2) .score-label", "seconds");
+  elements.contestPlayerOptions.setAttribute("aria-label", t("choosePlayers"));
+  elements.contestTimeOptions.setAttribute("aria-label", t("chooseSeconds"));
+  elements.startContest.textContent = t("startContest");
+  setText(".contest-status > div:nth-child(1) .score-label", "contestPlayer");
+  setText(".contest-status > div:nth-child(2) .score-label", "contestQuestion");
+  setText(".contest-status > div:nth-child(3) .score-label", "time");
+  document.querySelector(".contest-card").setAttribute("aria-label", t("contestEquation"));
+  elements.contestAnswer.setAttribute("aria-label", t("contestAnswer"));
+  elements.submitContest.textContent = t("submit");
+  elements.nextContest.textContent = t("nextTurn");
+  elements.contestScoreboard.setAttribute("aria-label", t("contestScores"));
+  elements.contestFinalScoreboard.setAttribute("aria-label", t("finalScores"));
+  elements.newContest.textContent = t("newContest");
+  renderContestStatus();
 
   if (elements.phrase.textContent === translations.en.wordClueDefault || elements.phrase.textContent === translations.de.wordClueDefault) {
     elements.phrase.textContent = t("wordClueDefault");
@@ -846,9 +937,11 @@ function ensureMathWorksheet() {
 
 function resetMathWorksheet() {
   stopMathTimer();
+  stopContestTimer();
   mathProblems = createMathProblems();
   mathStarted = false;
   mathEnded = false;
+  showStandardMathView();
   elements.startOptions.classList.add("hidden");
   updateTimerDisplay(mathSelectedMinutes * 60);
   renderMathWorksheet();
@@ -1128,10 +1221,17 @@ function showMathStartOptions() {
 }
 
 function startMath(mode) {
+  if (mode === "contest") {
+    showContestSetup();
+    return;
+  }
+
   if (mathEnded || !mathProblems.length) {
     resetMathWorksheet();
   }
 
+  stopContestTimer();
+  showStandardMathView();
   selectMathFeedback(mode);
   elements.startOptions.classList.add("hidden");
   mathStarted = true;
@@ -1195,6 +1295,216 @@ function selectMathFeedback(mode) {
   updateMathProgress();
 }
 
+function showStandardMathView() {
+  elements.contestPanel.classList.add("hidden");
+  elements.mathProgress.classList.remove("hidden");
+  elements.worksheet.classList.remove("hidden");
+  elements.mathControls.classList.remove("hidden");
+}
+
+function showContestSetup() {
+  stopMathTimer();
+  stopContestTimer();
+  mathStarted = false;
+  mathEnded = false;
+  elements.startOptions.classList.add("hidden");
+  elements.mathProgress.classList.add("hidden");
+  elements.worksheet.classList.add("hidden");
+  elements.mathControls.classList.add("hidden");
+  elements.contestPanel.classList.remove("hidden");
+  elements.contestSetup.classList.remove("hidden");
+  elements.contestArena.classList.add("hidden");
+  elements.contestResults.classList.add("hidden");
+  elements.contestMessage.textContent = "";
+  updateTimerDisplay(mathSelectedMinutes * 60);
+  renderContestStatus();
+}
+
+function selectContestPlayers(count) {
+  contestPlayerCount = count;
+  [...elements.contestPlayerOptions.querySelectorAll("button")].forEach((button) => {
+    button.classList.toggle("selected", Number(button.dataset.players) === count);
+  });
+  renderContestStatus();
+}
+
+function selectContestSeconds(seconds) {
+  contestSeconds = seconds;
+  [...elements.contestTimeOptions.querySelectorAll("button")].forEach((button) => {
+    button.classList.toggle("selected", Number(button.dataset.seconds) === seconds);
+  });
+  elements.contestTimer.textContent = String(seconds);
+}
+
+function startContest() {
+  contestProblems = createMathProblems();
+  contestScores = Array.from({ length: contestPlayerCount }, () => 0);
+  contestIndex = 0;
+  contestAnswered = false;
+  elements.contestSetup.classList.add("hidden");
+  elements.contestResults.classList.add("hidden");
+  elements.contestArena.classList.remove("hidden");
+  renderContestQuestion();
+}
+
+function renderContestQuestion() {
+  const problem = contestProblems[contestIndex];
+  contestAnswered = false;
+  elements.contestPlayer.textContent = getContestPlayerName(currentContestPlayerIndex());
+  elements.contestRound.textContent = `${contestIndex + 1} / ${contestProblems.length}`;
+  elements.contestEquation.textContent = `${problem.left} ${problem.operator} ${problem.right} =`;
+  elements.contestAnswer.value = "";
+  elements.contestAnswer.disabled = false;
+  elements.contestMessage.className = "contest-message";
+  elements.contestMessage.textContent = "";
+  elements.submitContest.disabled = false;
+  elements.submitContest.classList.remove("hidden");
+  elements.nextContest.classList.add("hidden");
+  renderContestScoreboard(elements.contestScoreboard, currentContestPlayerIndex());
+  startContestTimer();
+  elements.contestAnswer.focus();
+}
+
+function currentContestPlayerIndex() {
+  return contestIndex % contestPlayerCount;
+}
+
+function getContestPlayerName(index) {
+  return t("playerName", index + 1);
+}
+
+function startContestTimer() {
+  stopContestTimer();
+  updateContestTimer(contestSeconds);
+  contestDeadline = Date.now() + contestSeconds * 1000;
+  contestTimer = window.setInterval(() => {
+    const remaining = Math.ceil((contestDeadline - Date.now()) / 1000);
+    updateContestTimer(remaining);
+    if (remaining <= 0) {
+      finishContestQuestion(false, true);
+    }
+  }, 250);
+}
+
+function updateContestTimer(seconds) {
+  elements.contestTimer.textContent = String(Math.max(0, seconds));
+}
+
+function stopContestTimer() {
+  if (contestTimer) {
+    window.clearInterval(contestTimer);
+    contestTimer = null;
+  }
+}
+
+function submitContestAnswer() {
+  if (contestAnswered || !contestProblems.length) {
+    return;
+  }
+  const problem = contestProblems[contestIndex];
+  const isCorrect = elements.contestAnswer.value !== "" && Number(elements.contestAnswer.value) === problem.answer;
+  finishContestQuestion(isCorrect, false);
+}
+
+function finishContestQuestion(isCorrect, timedOut) {
+  if (contestAnswered || !contestProblems.length) {
+    return;
+  }
+
+  stopContestTimer();
+  contestAnswered = true;
+  const problem = contestProblems[contestIndex];
+  const playerIndex = currentContestPlayerIndex();
+  if (isCorrect) {
+    contestScores[playerIndex] += 1;
+  }
+
+  elements.contestAnswer.disabled = true;
+  elements.submitContest.disabled = true;
+  elements.submitContest.classList.add("hidden");
+  elements.nextContest.classList.remove("hidden");
+  elements.contestMessage.className = `contest-message ${isCorrect ? "good" : "bad"}`;
+  elements.contestMessage.textContent = isCorrect
+    ? t("contestCorrect")
+    : timedOut
+      ? t("contestTimeout", problem.answer)
+      : t("contestWrong", problem.answer);
+  elements.nextContest.textContent = contestIndex + 1 >= contestProblems.length ? t("finish") : t("nextTurn");
+  renderContestScoreboard(elements.contestScoreboard, playerIndex);
+}
+
+function advanceContest() {
+  if (!contestAnswered) {
+    return;
+  }
+  contestIndex += 1;
+  if (contestIndex >= contestProblems.length) {
+    endContest();
+    return;
+  }
+  renderContestQuestion();
+}
+
+function endContest() {
+  stopContestTimer();
+  elements.contestArena.classList.add("hidden");
+  elements.contestResults.classList.remove("hidden");
+  renderContestResults();
+  showReward(elements.contestWinner.dataset.tie === "true" ? "🤝" : "🏆", elements.contestWinner.textContent, 2200);
+}
+
+function renderContestResults() {
+  const maxScore = Math.max(...contestScores);
+  const winners = contestScores
+    .map((score, index) => ({ score, index }))
+    .filter((entry) => entry.score === maxScore)
+    .map((entry) => getContestPlayerName(entry.index));
+  elements.contestWinner.dataset.tie = winners.length === 1 ? "false" : "true";
+  elements.contestWinner.textContent = winners.length === 1
+    ? t("contestWinner", winners[0])
+    : t("contestTie", winners.join(", "));
+  renderContestScoreboard(elements.contestFinalScoreboard, -1, winners);
+}
+
+function renderContestScoreboard(target, currentIndex = -1, winnerNames = []) {
+  target.replaceChildren();
+  contestScores.forEach((score, index) => {
+    const card = document.createElement("div");
+    const name = getContestPlayerName(index);
+    card.className = "contest-score";
+    card.classList.toggle("current", index === currentIndex);
+    card.classList.toggle("winner", winnerNames.includes(name));
+
+    const label = document.createElement("span");
+    label.className = "score-label";
+    label.textContent = name;
+
+    const value = document.createElement("strong");
+    value.textContent = String(score);
+
+    card.append(label, value);
+    target.append(card);
+  });
+}
+
+function renderContestStatus() {
+  if (!elements.contestPlayer || !contestScores.length) {
+    if (elements.contestPlayer) {
+      elements.contestPlayer.textContent = getContestPlayerName(0);
+      elements.contestRound.textContent = `1 / 24`;
+      elements.contestTimer.textContent = String(contestSeconds);
+    }
+    return;
+  }
+
+  elements.contestPlayer.textContent = getContestPlayerName(currentContestPlayerIndex());
+  elements.contestRound.textContent = `${Math.min(contestIndex + 1, contestProblems.length || 24)} / ${contestProblems.length || 24}`;
+  renderContestScoreboard(elements.contestScoreboard, currentContestPlayerIndex());
+  if (!elements.contestResults.classList.contains("hidden")) {
+    renderContestResults();
+  }
+}
+
 elements.openGerman.addEventListener("click", () => showScreen("german"));
 elements.openMath.addEventListener("click", () => showScreen("math"));
 elements.openAdmin.addEventListener("click", () => showScreen("admin"));
@@ -1209,6 +1519,7 @@ elements.languageToggle.addEventListener("click", () => {
 elements.germanHome.addEventListener("click", () => showScreen("home"));
 elements.mathHome.addEventListener("click", () => {
   resetMathWorksheet();
+  stopContestTimer();
   showScreen("home");
 });
 elements.adminHome.addEventListener("click", () => showScreen("home"));
@@ -1267,6 +1578,22 @@ elements.startOptions.addEventListener("click", (event) => {
   startMath(button.dataset.feedback);
 });
 
+elements.contestPlayerOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-players]");
+  if (!button) {
+    return;
+  }
+  selectContestPlayers(Number(button.dataset.players));
+});
+
+elements.contestTimeOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-seconds]");
+  if (!button) {
+    return;
+  }
+  selectContestSeconds(Number(button.dataset.seconds));
+});
+
 elements.startMath.addEventListener("click", showMathStartOptions);
 elements.newMath.addEventListener("click", resetMathWorksheet);
 elements.finishMath.addEventListener("click", () => {
@@ -1274,9 +1601,23 @@ elements.finishMath.addEventListener("click", () => {
     endMath(allMathCorrect());
   }
 });
+elements.startContest.addEventListener("click", startContest);
+elements.submitContest.addEventListener("click", submitContestAnswer);
+elements.nextContest.addEventListener("click", advanceContest);
+elements.newContest.addEventListener("click", showContestSetup);
+elements.contestAnswer.addEventListener("input", () => {
+  elements.contestAnswer.value = elements.contestAnswer.value.replace(/\D/g, "").slice(0, 3);
+});
+elements.contestAnswer.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    submitContestAnswer();
+  }
+});
 
 selectMathTime(10);
 selectMathFeedback("instant");
+selectContestPlayers(2);
+selectContestSeconds(30);
 renderScore();
 applyLanguage();
 pickWord();
