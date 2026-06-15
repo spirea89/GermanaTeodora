@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Germana Teodora Practice</title>
-    <link rel="stylesheet" href="styles.css?v=20260614-contest">
+    <link rel="stylesheet" href="styles.css?v=20260615-german-apps">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
@@ -53,6 +53,24 @@
             <span class="top-spacer" aria-hidden="true"></span>
           </header>
 
+          <section class="german-hub" id="german-hub" aria-label="German apps">
+            <button class="choice-card rebus-choice" id="open-rebus" type="button">
+              <span class="choice-emoji" aria-hidden="true">🧩</span>
+              <span>
+                <strong>Rebus</strong>
+                <small>Missing letters</small>
+              </span>
+            </button>
+            <button class="choice-card article-choice" id="open-articles" type="button">
+              <span class="choice-emoji" aria-hidden="true">📘</span>
+              <span>
+                <strong>DER/DIE/DAS</strong>
+                <small>Choose the article</small>
+              </span>
+            </button>
+          </section>
+
+          <section class="german-app hidden" id="rebus-app">
           <section class="score-row" aria-label="Game score">
             <div>
               <span class="score-label">Stars</span>
@@ -86,8 +104,44 @@
           </section>
 
           <section class="controls">
+            <button class="ghost-button german-menu-button" type="button">German apps</button>
             <button class="ghost-button" id="speak-button" type="button">🔊 Hear word</button>
             <button class="ghost-button" id="skip-button" type="button">↪ New word</button>
+          </section>
+          </section>
+
+          <section class="german-app hidden" id="article-app">
+            <section class="score-row article-score-row" aria-label="Article game score">
+              <div>
+                <span class="score-label">Correct</span>
+                <strong id="article-correct">0</strong>
+              </div>
+              <div>
+                <span class="score-label">Streak</span>
+                <strong id="article-streak">0</strong>
+              </div>
+              <div>
+                <span class="score-label">Round</span>
+                <strong id="article-round">1</strong>
+              </div>
+            </section>
+
+            <section class="card article-card">
+              <span class="emoji-clue" id="article-emoji" aria-hidden="true">📘</span>
+              <div class="article-word" id="article-word">Sonne</div>
+              <div class="article-options" id="article-options" aria-label="Choose the article">
+                <button type="button" data-article="der">der</button>
+                <button type="button" data-article="die">die</button>
+                <button type="button" data-article="das">das</button>
+              </div>
+              <p class="hint" id="article-hint" aria-live="polite">Choose der, die, or das.</p>
+            </section>
+
+            <section class="controls">
+              <button class="ghost-button german-menu-button" type="button">German apps</button>
+              <button class="ghost-button" id="article-speak" type="button">🔊 Hear word</button>
+              <button class="ghost-button" id="article-skip" type="button">↪ New word</button>
+            </section>
           </section>
         </section>
       </section>
@@ -104,7 +158,7 @@
             </button>
           </div>
 
-          <p class="studio-copy">One item per line. Add an emoji and clue with commas:</p>
+          <p class="studio-copy">One item per line. Use: word, article, emoji, clue</p>
           <pre>die Sonne, ☀️, Listen and fill the missing letters.</pre>
           <textarea id="word-list" rows="14"></textarea>
           <div class="studio-actions">
@@ -243,6 +297,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260614-contest"></script>
+    <script src="app.js?v=20260615-german-apps"></script>
   </body>
 </html>

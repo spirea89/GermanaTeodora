@@ -130,7 +130,68 @@ const emojiRules = [
   [["dach", "zimmer"], "🏠", "Listen and fill the missing letters."]
 ];
 
-const defaultWords = practiceWords.map((word) => decorateWord(word));
+const commonArticleWords = [
+  ["Mann", "der", "👨"],
+  ["Frau", "die", "👩"],
+  ["Kind", "das", "🧒"],
+  ["Haus", "das", "🏠"],
+  ["Auto", "das", "🚗"],
+  ["Baum", "der", "🌳"],
+  ["Blume", "die", "🌸"],
+  ["Hund", "der", "🐕"],
+  ["Katze", "die", "🐈"],
+  ["Pferd", "das", "🐎"],
+  ["Vogel", "der", "🐦"],
+  ["Fisch", "der", "🐟"],
+  ["Apfel", "der", "🍎"],
+  ["Banane", "die", "🍌"],
+  ["Brot", "das", "🍞"],
+  ["Milch", "die", "🥛"],
+  ["Wasser", "das", "💧"],
+  ["Sonne", "die", "☀️"],
+  ["Mond", "der", "🌙"],
+  ["Stern", "der", "⭐"],
+  ["Schule", "die", "🏫"],
+  ["Buch", "das", "📖"],
+  ["Stift", "der", "✏️"],
+  ["Tisch", "der", "🪑"],
+  ["Stuhl", "der", "🪑"],
+  ["Tür", "die", "🚪"],
+  ["Fenster", "das", "🪟"],
+  ["Bett", "das", "🛏️"],
+  ["Ball", "der", "⚽"],
+  ["Spiel", "das", "🎲"],
+  ["Hand", "die", "✋"],
+  ["Fuß", "der", "🦶"],
+  ["Kopf", "der", "🙂"],
+  ["Auge", "das", "👁️"],
+  ["Nase", "die", "👃"],
+  ["Mund", "der", "👄"],
+  ["Ohr", "das", "👂"],
+  ["Tag", "der", "📅"],
+  ["Nacht", "die", "🌃"],
+  ["Woche", "die", "📅"],
+  ["Jahr", "das", "🗓️"],
+  ["Zeit", "die", "⏰"],
+  ["Freund", "der", "😊"],
+  ["Freundin", "die", "😊"],
+  ["Mädchen", "das", "👧"],
+  ["Junge", "der", "👦"],
+  ["Mutter", "die", "👩"],
+  ["Vater", "der", "👨"],
+  ["Essen", "das", "🍽️"],
+  ["Jacke", "die", "🧥"]
+];
+
+const defaultWords = [
+  ...practiceWords.map((word) => decorateWord(word)),
+  ...commonArticleWords.map(([word, article, emoji]) => ({
+    ...decorateWord(word),
+    word,
+    article,
+    emoji
+  }))
+];
 const wordsStorageKey = "wordGardenGermanWords";
 
 const wordRewards = [
@@ -171,6 +232,11 @@ const translations = {
     homeTitle: "Home",
     writingPractice: "Writing practice",
     wordGarden: "Word Garden",
+    germanApps: "German apps",
+    rebus: "Rebus",
+    rebusSub: "Missing letters",
+    articleGame: "DER/DIE/DAS",
+    articleSub: "Choose the article",
     stars: "Stars",
     streak: "Streak",
     round: "Round",
@@ -183,9 +249,13 @@ const translations = {
     wordHintDefault: "Listen, look, and fill the hidden letters.",
     wordSuccess: (word) => `Yes! The word is ${word}.`,
     wordTry: "Try again. You can type the hidden letters or the whole word.",
+    articlePrompt: "Choose der, die, or das.",
+    articleSuccess: (article, word) => `Yes! ${article} ${word}`,
+    articleTry: (article, word) => `Almost. It is ${article} ${word}.`,
+    articleNoWords: "Add words with der, die, or das in Administration.",
     adminTitle: "German Words",
-    adminCopy: "One item per line. Add an emoji and clue with commas:",
-    adminExample: "die Sonne, ☀️, Listen and fill the missing letters.",
+    adminCopy: "One item per line. Use: word, article, emoji, clue",
+    adminExample: "Sonne, die, ☀️, Listen and fill the missing letters.",
     saveWords: "Save words",
     reset: "Reset",
     adminReady: "Saved words are used in the German game on this device.",
@@ -253,6 +323,11 @@ const translations = {
     homeTitle: "Start",
     writingPractice: "Schreibübung",
     wordGarden: "Wörtergarten",
+    germanApps: "Deutsch-Apps",
+    rebus: "Rebus",
+    rebusSub: "Fehlende Buchstaben",
+    articleGame: "DER/DIE/DAS",
+    articleSub: "Artikel wählen",
     stars: "Sterne",
     streak: "Serie",
     round: "Runde",
@@ -265,9 +340,13 @@ const translations = {
     wordHintDefault: "Höre zu, schau genau und ergänze die fehlenden Buchstaben.",
     wordSuccess: (word) => `Ja! Das Wort ist ${word}.`,
     wordTry: "Versuch es noch einmal. Du kannst die fehlenden Buchstaben oder das ganze Wort schreiben.",
+    articlePrompt: "Wähle der, die oder das.",
+    articleSuccess: (article, word) => `Ja! ${article} ${word}`,
+    articleTry: (article, word) => `Fast. Es heißt ${article} ${word}.`,
+    articleNoWords: "Füge Wörter mit der, die oder das in der Verwaltung hinzu.",
     adminTitle: "Deutsche Wörter",
-    adminCopy: "Ein Eintrag pro Zeile. Emoji und Hinweis mit Kommas ergänzen:",
-    adminExample: "die Sonne, ☀️, Höre zu und ergänze die fehlenden Buchstaben.",
+    adminCopy: "Ein Eintrag pro Zeile: Wort, Artikel, Emoji, Hinweis",
+    adminExample: "Sonne, die, ☀️, Höre zu und ergänze die fehlenden Buchstaben.",
     saveWords: "Wörter speichern",
     reset: "Zurücksetzen",
     adminReady: "Gespeicherte Wörter werden auf diesem Gerät im Deutsch-Spiel benutzt.",
@@ -331,6 +410,12 @@ const elements = {
   openGerman: document.querySelector("#open-german"),
   openMath: document.querySelector("#open-math"),
   openAdmin: document.querySelector("#open-admin"),
+  germanHub: document.querySelector("#german-hub"),
+  rebusApp: document.querySelector("#rebus-app"),
+  articleApp: document.querySelector("#article-app"),
+  openRebus: document.querySelector("#open-rebus"),
+  openArticles: document.querySelector("#open-articles"),
+  germanMenuButtons: document.querySelectorAll(".german-menu-button"),
   germanHome: document.querySelector("#german-home"),
   mathHome: document.querySelector("#math-home"),
   adminHome: document.querySelector("#admin-home"),
@@ -345,6 +430,15 @@ const elements = {
   round: document.querySelector("#round"),
   speak: document.querySelector("#speak-button"),
   skip: document.querySelector("#skip-button"),
+  articleEmoji: document.querySelector("#article-emoji"),
+  articleWord: document.querySelector("#article-word"),
+  articleOptions: document.querySelector("#article-options"),
+  articleHint: document.querySelector("#article-hint"),
+  articleCorrect: document.querySelector("#article-correct"),
+  articleStreak: document.querySelector("#article-streak"),
+  articleRound: document.querySelector("#article-round"),
+  articleSpeak: document.querySelector("#article-speak"),
+  articleSkip: document.querySelector("#article-skip"),
   rewardLayer: document.querySelector("#reward-layer"),
   rewardEmoji: document.querySelector("#reward-emoji"),
   rewardText: document.querySelector("#reward-text"),
@@ -391,6 +485,11 @@ let currentWord = words[0];
 let stars = Number(localStorage.getItem("wordGardenStars") || 0);
 let streak = 0;
 let round = 1;
+let articleCurrentIndex = -1;
+let articleCurrentWord = null;
+let articleCorrect = Number(localStorage.getItem("articleGameCorrect") || 0);
+let articleStreak = 0;
+let articleRound = 1;
 let mathSelectedMinutes = 10;
 let mathProblems = [];
 let mathTimer = null;
@@ -440,15 +539,36 @@ function applyLanguage() {
   });
 
   setText("#german-screen .eyebrow", "writingPractice");
-  setText("#app-title", "wordGarden");
+  setText("#app-title", "germanApps");
+  setText("#open-rebus strong", "rebus");
+  setText("#open-rebus small", "rebusSub");
+  setText("#open-articles strong", "articleGame");
+  setText("#open-articles small", "articleSub");
   setText(".score-row div:nth-child(1) .score-label", "stars");
   setText(".score-row div:nth-child(2) .score-label", "streak");
   setText(".score-row div:nth-child(3) .score-label", "round");
+  elements.germanMenuButtons.forEach((button) => {
+    button.textContent = t("germanApps");
+  });
   elements.prompt.setAttribute("aria-label", t("wordPromptLabel"));
   setText(".answer-label", "answerLabel");
   elements.check.textContent = t("check");
   elements.speak.textContent = t("hearWord");
   elements.skip.textContent = t("newWord");
+  setText(".article-score-row div:nth-child(1) .score-label", "correct");
+  setText(".article-score-row div:nth-child(2) .score-label", "streak");
+  setText(".article-score-row div:nth-child(3) .score-label", "round");
+  elements.articleOptions.setAttribute("aria-label", t("articleSub"));
+  elements.articleSpeak.textContent = t("hearWord");
+  elements.articleSkip.textContent = t("newWord");
+  if (!elements.articleHint.dataset.state || elements.articleHint.dataset.state === "default") {
+    setArticleHint("default");
+  }
+  if (!elements.rebusApp.classList.contains("hidden")) {
+    document.querySelector("#app-title").textContent = t("rebus");
+  } else if (!elements.articleApp.classList.contains("hidden")) {
+    document.querySelector("#app-title").textContent = t("articleGame");
+  }
 
   setText("#admin-screen .eyebrow", "administration");
   setText("#admin-title", "adminTitle");
@@ -542,7 +662,7 @@ function showScreen(screenName) {
   elements.adminScreen.classList.toggle("hidden", screenName !== "admin");
 
   if (screenName === "german") {
-    elements.input.focus();
+    showGermanMenu();
   }
 
   if (screenName === "math") {
@@ -551,6 +671,28 @@ function showScreen(screenName) {
 
   if (screenName === "admin") {
     openAdmin();
+  }
+}
+
+function showGermanMenu() {
+  elements.germanHub.classList.remove("hidden");
+  elements.rebusApp.classList.add("hidden");
+  elements.articleApp.classList.add("hidden");
+  elements.input.blur();
+  document.querySelector("#app-title").textContent = t("germanApps");
+}
+
+function showGermanApp(appName) {
+  elements.germanHub.classList.add("hidden");
+  elements.rebusApp.classList.toggle("hidden", appName !== "rebus");
+  elements.articleApp.classList.toggle("hidden", appName !== "articles");
+  document.querySelector("#app-title").textContent = appName === "rebus" ? t("rebus") : t("articleGame");
+  if (appName === "rebus") {
+    pickWord();
+    elements.input.focus();
+  }
+  if (appName === "articles") {
+    pickArticleWord();
   }
 }
 
@@ -571,6 +713,11 @@ function cleanWord(value) {
     .replace(/[^a-zA-ZäöüÄÖÜß\s-]/g, "");
 }
 
+function cleanArticle(value) {
+  const article = normalize(value).replace(/\s/g, "");
+  return ["der", "die", "das"].includes(article) ? article : "";
+}
+
 function isLetter(character) {
   return /[a-zA-ZäöüÄÖÜß]/.test(character);
 }
@@ -584,6 +731,31 @@ function decorateWord(word) {
     emoji: match ? match[1] : "✨",
     clue: match ? match[2] : "Listen and fill the missing letters."
   };
+}
+
+function normalizeWordItem(item) {
+  if (typeof item === "string") {
+    return decorateWord(item);
+  }
+
+  const word = cleanWord(item?.word || "");
+  if (!word) {
+    return null;
+  }
+
+  const decorated = decorateWord(word);
+  return {
+    word,
+    article: cleanArticle(item?.article || ""),
+    emoji: item?.emoji || decorated.emoji,
+    clue: item?.clue || decorated.clue
+  };
+}
+
+function withDefaultArticleWords(nextWords) {
+  const seen = new Set(nextWords.map((item) => normalize(item.word)));
+  const missingArticleWords = defaultWords.filter((item) => item.article && !seen.has(normalize(item.word)));
+  return [...nextWords, ...missingArticleWords];
 }
 
 function getWordClue(wordItem) {
@@ -614,7 +786,8 @@ function loadWords() {
 
   try {
     const parsed = JSON.parse(saved);
-    return Array.isArray(parsed) && parsed.length ? parsed : defaultWords;
+    const normalized = Array.isArray(parsed) ? parsed.map(normalizeWordItem).filter(Boolean) : [];
+    return normalized.length ? withDefaultArticleWords(normalized) : defaultWords;
   } catch {
     return defaultWords;
   }
@@ -736,6 +909,103 @@ function checkAnswer() {
   elements.input.select();
 }
 
+function articleWords() {
+  return words.filter((item) => cleanArticle(item.article));
+}
+
+function renderArticleScore() {
+  elements.articleCorrect.textContent = articleCorrect;
+  elements.articleStreak.textContent = articleStreak;
+  elements.articleRound.textContent = articleRound;
+}
+
+function setArticleHint(state, wordItem = null) {
+  elements.articleHint.dataset.state = state;
+  elements.articleHint.className = "hint";
+  if (state === "success" && wordItem) {
+    elements.articleHint.classList.add("success");
+    elements.articleHint.textContent = t("articleSuccess", wordItem.article, wordItem.word);
+    return;
+  }
+  if (state === "try" && wordItem) {
+    elements.articleHint.classList.add("try");
+    elements.articleHint.textContent = t("articleTry", wordItem.article, wordItem.word);
+    return;
+  }
+  if (state === "empty") {
+    elements.articleHint.classList.add("try");
+    elements.articleHint.textContent = t("articleNoWords");
+    return;
+  }
+  elements.articleHint.textContent = t("articlePrompt");
+}
+
+function pickArticleWord() {
+  const candidates = articleWords();
+  renderArticleScore();
+  elements.articleOptions.querySelectorAll("button").forEach((button) => {
+    button.disabled = !candidates.length;
+    button.classList.remove("selected", "correct", "wrong");
+  });
+
+  if (!candidates.length) {
+    articleCurrentWord = null;
+    elements.articleEmoji.textContent = "📘";
+    elements.articleWord.textContent = "DER/DIE/DAS";
+    setArticleHint("empty");
+    return;
+  }
+
+  let nextIndex = Math.floor(Math.random() * candidates.length);
+  if (candidates.length > 1) {
+    while (nextIndex === articleCurrentIndex) {
+      nextIndex = Math.floor(Math.random() * candidates.length);
+    }
+  }
+
+  articleCurrentIndex = nextIndex;
+  articleCurrentWord = candidates[nextIndex];
+  elements.articleEmoji.textContent = articleCurrentWord.emoji || "📘";
+  elements.articleWord.textContent = articleCurrentWord.word;
+  setArticleHint("default");
+}
+
+function chooseArticle(article) {
+  if (!articleCurrentWord) {
+    return;
+  }
+
+  const isCorrect = article === articleCurrentWord.article;
+  elements.articleOptions.querySelectorAll("button").forEach((button) => {
+    const buttonArticle = button.dataset.article;
+    button.classList.toggle("selected", buttonArticle === article);
+    button.classList.toggle("correct", buttonArticle === articleCurrentWord.article);
+    button.classList.toggle("wrong", buttonArticle === article && !isCorrect);
+    button.disabled = true;
+  });
+
+  if (isCorrect) {
+    articleCorrect += 1;
+    articleStreak += 1;
+    localStorage.setItem("articleGameCorrect", String(articleCorrect));
+    setArticleHint("success", articleCurrentWord);
+    showReward("🏆", t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word), 1150, nextArticleRound);
+  } else {
+    articleStreak = 0;
+    setArticleHint("try", articleCurrentWord);
+    window.setTimeout(nextArticleRound, 1450);
+  }
+
+  renderArticleScore();
+  speak(`${articleCurrentWord.article} ${articleCurrentWord.word}`);
+}
+
+function nextArticleRound() {
+  articleRound += 1;
+  renderArticleScore();
+  pickArticleWord();
+}
+
 function speak(text) {
   if (!("speechSynthesis" in window)) {
     return;
@@ -765,6 +1035,32 @@ function parseWords(value) {
         word,
         emoji: parts[1] || decorated.emoji,
         clue: parts.slice(2).join(", ") || decorated.clue
+      };
+    })
+    .filter((item) => item.word.length >= 2);
+}
+
+function serializeWords() {
+  return words.map((item) => `${item.word}, ${item.article || ""}, ${item.emoji || "✨"}, ${item.clue || ""}`).join("\n");
+}
+
+function parseWords(value) {
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(",").map((part) => part.trim());
+      const word = cleanWord(parts[0]);
+      const decorated = decorateWord(word);
+      const article = cleanArticle(parts[1] || "");
+      const emojiIndex = article ? 2 : 1;
+      const clueIndex = article ? 3 : 2;
+      return {
+        word,
+        article,
+        emoji: parts[emojiIndex] || decorated.emoji,
+        clue: parts.slice(clueIndex).join(", ") || decorated.clue
       };
     })
     .filter((item) => item.word.length >= 2);
@@ -1506,6 +1802,11 @@ function renderContestStatus() {
 }
 
 elements.openGerman.addEventListener("click", () => showScreen("german"));
+elements.openRebus.addEventListener("click", () => showGermanApp("rebus"));
+elements.openArticles.addEventListener("click", () => showGermanApp("articles"));
+elements.germanMenuButtons.forEach((button) => {
+  button.addEventListener("click", showGermanMenu);
+});
 elements.openMath.addEventListener("click", () => showScreen("math"));
 elements.openAdmin.addEventListener("click", () => showScreen("admin"));
 elements.languageToggle.addEventListener("click", () => {
@@ -1539,6 +1840,19 @@ elements.skip.addEventListener("click", () => {
 });
 
 elements.speak.addEventListener("click", () => speak(currentWord.word));
+elements.articleOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-article]");
+  if (!button) {
+    return;
+  }
+  chooseArticle(button.dataset.article);
+});
+elements.articleSpeak.addEventListener("click", () => {
+  if (articleCurrentWord) {
+    speak(`${articleCurrentWord.article} ${articleCurrentWord.word}`);
+  }
+});
+elements.articleSkip.addEventListener("click", nextArticleRound);
 
 elements.saveWords.addEventListener("click", () => {
   const nextWords = parseWords(elements.wordList.value);
@@ -1550,6 +1864,9 @@ elements.saveWords.addEventListener("click", () => {
   words = nextWords;
   saveWordState(words);
   pickWord();
+  if (!elements.articleApp.classList.contains("hidden")) {
+    pickArticleWord();
+  }
   elements.wordList.value = serializeWords();
   setAdminNote("saved");
 });
@@ -1559,6 +1876,9 @@ elements.resetWords.addEventListener("click", () => {
   saveWordState(words);
   elements.wordList.value = serializeWords();
   pickWord();
+  if (!elements.articleApp.classList.contains("hidden")) {
+    pickArticleWord();
+  }
   setAdminNote("reset");
 });
 
@@ -1619,5 +1939,6 @@ selectMathFeedback("instant");
 selectContestPlayers(2);
 selectContestSeconds(30);
 renderScore();
+renderArticleScore();
 applyLanguage();
 pickWord();

@@ -120,6 +120,13 @@ button:active {
   gap: 18px;
 }
 
+.german-hub {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
 .choice-card {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -193,6 +200,10 @@ button:active {
 
 .game-panel {
   width: min(100%, 840px);
+}
+
+.german-app {
+  display: grid;
 }
 
 .top-bar,
@@ -291,6 +302,49 @@ h2 {
 
 .game-card {
   padding: clamp(18px, 4vw, 34px);
+}
+
+.article-card {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: clamp(20px, 5vw, 38px);
+}
+
+.article-word {
+  font-size: clamp(3rem, 10vw, 6rem);
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+.article-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.article-options button {
+  min-height: 82px;
+  border-radius: 8px;
+  background: #f7fbff;
+  border: 2px solid #c9def1;
+  color: var(--ink);
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 900;
+}
+
+.article-options button.correct {
+  background: #f0fff7;
+  border-color: var(--leaf);
+  color: var(--leaf-dark);
+}
+
+.article-options button.wrong {
+  background: #fff2f5;
+  border-color: var(--berry);
+  color: var(--berry);
 }
 
 .clue-wrap {
@@ -952,6 +1006,7 @@ textarea {
   }
 
   .choice-grid,
+  .german-hub,
   .german-screen,
   .worksheet {
     grid-template-columns: 1fr;
@@ -969,6 +1024,10 @@ textarea {
   }
 
   .choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .german-hub {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1051,6 +1110,10 @@ textarea {
 
   .time-options {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .article-options {
+    grid-template-columns: 1fr;
   }
 
   .contest-options {
