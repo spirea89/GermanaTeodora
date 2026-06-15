@@ -1055,13 +1055,44 @@ function nextArticleRound() {
   pickArticleWord();
 }
 
+let germanVoice = null;
+
+function findGermanVoice() {
+  if (!("speechSynthesis" in window)) {
+    return null;
+  }
+
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) {
+    return null;
+  }
+
+  const germanVoices = voices.filter((voice) => /^de([-_]|$)/i.test(voice.lang));
+  return germanVoices.find((voice) => /^de[-_]DE$/i.test(voice.lang))
+    || germanVoices.find((voice) => /^de[-_]AT$/i.test(voice.lang))
+    || germanVoices.find((voice) => /^de[-_]CH$/i.test(voice.lang))
+    || germanVoices[0]
+    || null;
+}
+
+function refreshGermanVoice() {
+  germanVoice = findGermanVoice();
+}
+
 function speak(text) {
   if (!("speechSynthesis" in window)) {
     return;
   }
 
+  if (!germanVoice) {
+    refreshGermanVoice();
+  }
+
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "de-DE";
+  utterance.lang = germanVoice?.lang || "de-DE";
+  if (germanVoice) {
+    utterance.voice = germanVoice;
+  }
   utterance.rate = 0.82;
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
@@ -1914,6 +1945,10 @@ elements.languageToggle.addEventListener("click", () => {
     elements.phrase.textContent = getWordClue(currentWord);
   }
 });
+if ("speechSynthesis" in window) {
+  refreshGermanVoice();
+  window.speechSynthesis.addEventListener("voiceschanged", refreshGermanVoice);
+}
 elements.germanHome.addEventListener("click", () => showScreen("home"));
 elements.mathHome.addEventListener("click", () => {
   resetMathWorksheet();
