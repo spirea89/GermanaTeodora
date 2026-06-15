@@ -183,16 +183,16 @@ const commonArticleWords = [
   ["Jacke", "die", "🧥"]
 ];
 
-const defaultWords = [
-  ...practiceWords.map((word) => decorateWord(word)),
-  ...commonArticleWords.map(([word, article, emoji]) => ({
-    ...decorateWord(word),
-    word,
-    article,
-    emoji
-  }))
-];
+const defaultRebusWords = practiceWords.map((word) => decorateWord(word));
+const defaultArticleWords = commonArticleWords.map(([word, article, emoji]) => ({
+  ...decorateWord(word),
+  word,
+  article,
+  emoji
+}));
+const defaultWords = [...defaultRebusWords, ...defaultArticleWords];
 const wordsStorageKey = "wordGardenGermanWords";
+const articleWordsStorageKey = "articleGameGermanWords";
 
 const wordRewards = [
   ["🎉", "Fantastic!"],
@@ -254,8 +254,10 @@ const translations = {
     articleTry: (article, word) => `Almost. It is ${article} ${word}.`,
     articleNoWords: "Add words with der, die, or das in Administration.",
     adminTitle: "German Words",
-    adminCopy: "One item per line. Use: word, article, emoji, clue",
-    adminExample: "Sonne, die, ☀️, Listen and fill the missing letters.",
+    adminCopy: "Rebus words. One item per line. Use: word, emoji, clue",
+    adminArticleCopy: "DER/DIE/DAS words. One item per line. Use: word, article, emoji",
+    adminExample: "die Sonne, ☀️, Listen and fill the missing letters.",
+    adminArticleExample: "Sonne, die, ☀️",
     saveWords: "Save words",
     reset: "Reset",
     adminReady: "Saved words are used in the German game on this device.",
@@ -345,8 +347,10 @@ const translations = {
     articleTry: (article, word) => `Fast. Es heißt ${article} ${word}.`,
     articleNoWords: "Füge Wörter mit der, die oder das in der Verwaltung hinzu.",
     adminTitle: "Deutsche Wörter",
-    adminCopy: "Ein Eintrag pro Zeile: Wort, Artikel, Emoji, Hinweis",
-    adminExample: "Sonne, die, ☀️, Höre zu und ergänze die fehlenden Buchstaben.",
+    adminCopy: "Rebus-Wörter. Ein Eintrag pro Zeile: Wort, Emoji, Hinweis",
+    adminArticleCopy: "DER/DIE/DAS-Wörter. Ein Eintrag pro Zeile: Wort, Artikel, Emoji",
+    adminExample: "die Sonne, ☀️, Höre zu und ergänze die fehlenden Buchstaben.",
+    adminArticleExample: "Sonne, die, ☀️",
     saveWords: "Wörter speichern",
     reset: "Zurücksetzen",
     adminReady: "Gespeicherte Wörter werden auf diesem Gerät im Deutsch-Spiel benutzt.",
@@ -444,6 +448,7 @@ const elements = {
   rewardText: document.querySelector("#reward-text"),
   studio: document.querySelector("#studio-panel"),
   wordList: document.querySelector("#word-list"),
+  articleWordList: document.querySelector("#article-word-list"),
   saveWords: document.querySelector("#save-words"),
   resetWords: document.querySelector("#reset-words"),
   adminNote: document.querySelector("#admin-note"),
@@ -480,6 +485,7 @@ const elements = {
 };
 
 let words = loadWords();
+let articlePracticeWords = loadArticleWords();
 let currentIndex = -1;
 let currentWord = words[0];
 let stars = Number(localStorage.getItem("wordGardenStars") || 0);
@@ -572,10 +578,19 @@ function applyLanguage() {
 
   setText("#admin-screen .eyebrow", "administration");
   setText("#admin-title", "adminTitle");
-  setText(".studio-copy", "adminCopy");
-  const adminExample = document.querySelector("#admin-screen pre");
-  if (adminExample) {
-    adminExample.textContent = t("adminExample");
+  const adminCopies = document.querySelectorAll("#admin-screen .studio-copy");
+  if (adminCopies[0]) {
+    adminCopies[0].textContent = t("adminCopy");
+  }
+  if (adminCopies[1]) {
+    adminCopies[1].textContent = t("adminArticleCopy");
+  }
+  const adminExamples = document.querySelectorAll("#admin-screen pre");
+  if (adminExamples[0]) {
+    adminExamples[0].textContent = t("adminExample");
+  }
+  if (adminExamples[1]) {
+    adminExamples[1].textContent = t("adminArticleExample");
   }
   elements.saveWords.textContent = t("saveWords");
   elements.resetWords.textContent = t("reset");
@@ -754,7 +769,7 @@ function normalizeWordItem(item) {
 
 function withDefaultArticleWords(nextWords) {
   const seen = new Set(nextWords.map((item) => normalize(item.word)));
-  const missingArticleWords = defaultWords.filter((item) => item.article && !seen.has(normalize(item.word)));
+  const missingArticleWords = defaultArticleWords.filter((item) => item.article && !seen.has(normalize(item.word)));
   return [...nextWords, ...missingArticleWords];
 }
 
@@ -781,20 +796,54 @@ function hiddenLettersOf(value) {
 function loadWords() {
   const saved = localStorage.getItem(wordsStorageKey);
   if (!saved) {
-    return defaultWords;
+    return defaultRebusWords;
   }
 
   try {
     const parsed = JSON.parse(saved);
     const normalized = Array.isArray(parsed) ? parsed.map(normalizeWordItem).filter(Boolean) : [];
-    return normalized.length ? withDefaultArticleWords(normalized) : defaultWords;
+    return normalized.length ? normalized.map((item) => ({ ...item, article: "" })) : defaultRebusWords;
   } catch {
-    return defaultWords;
+    return defaultRebusWords;
   }
 }
 
 function saveWordState(nextWords) {
   localStorage.setItem(wordsStorageKey, JSON.stringify(nextWords));
+}
+
+function loadArticleWords() {
+  const saved = localStorage.getItem(articleWordsStorageKey);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      const normalized = Array.isArray(parsed) ? parsed.map(normalizeWordItem).filter((item) => item && item.article) : [];
+      if (normalized.length) {
+        return normalized;
+      }
+    } catch {
+      // Fall back to defaults below.
+    }
+  }
+
+  const legacySaved = localStorage.getItem(wordsStorageKey);
+  if (legacySaved) {
+    try {
+      const parsed = JSON.parse(legacySaved);
+      const legacyArticleWords = Array.isArray(parsed)
+        ? parsed.map(normalizeWordItem).filter((item) => item && item.article)
+        : [];
+      return withDefaultArticleWords(legacyArticleWords);
+    } catch {
+      return defaultArticleWords;
+    }
+  }
+
+  return defaultArticleWords;
+}
+
+function saveArticleWordState(nextWords) {
+  localStorage.setItem(articleWordsStorageKey, JSON.stringify(nextWords));
 }
 
 function renderScore() {
@@ -910,7 +959,7 @@ function checkAnswer() {
 }
 
 function articleWords() {
-  return words.filter((item) => cleanArticle(item.article));
+  return articlePracticeWords.filter((item) => cleanArticle(item.article));
 }
 
 function renderArticleScore() {
@@ -1066,8 +1115,56 @@ function parseWords(value) {
     .filter((item) => item.word.length >= 2);
 }
 
+function serializeRebusWords() {
+  return words.map((item) => `${item.word}, ${item.emoji || "✨"}, ${item.clue || ""}`).join("\n");
+}
+
+function parseRebusWords(value) {
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(",").map((part) => part.trim());
+      const word = cleanWord(parts[0]);
+      const decorated = decorateWord(word);
+      return {
+        word,
+        article: "",
+        emoji: parts[1] || decorated.emoji,
+        clue: parts.slice(2).join(", ") || decorated.clue
+      };
+    })
+    .filter((item) => item.word.length >= 2);
+}
+
+function serializeArticleWords() {
+  return articlePracticeWords.map((item) => `${item.word}, ${item.article}, ${item.emoji || "📘"}`).join("\n");
+}
+
+function parseArticleWords(value) {
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(",").map((part) => part.trim());
+      const word = cleanWord(parts[0]);
+      const decorated = decorateWord(word);
+      const article = cleanArticle(parts[1] || "");
+      return {
+        word,
+        article,
+        emoji: parts[2] || decorated.emoji,
+        clue: decorated.clue
+      };
+    })
+    .filter((item) => item.word.length >= 2 && item.article);
+}
+
 function openAdmin() {
-  elements.wordList.value = serializeWords();
+  elements.wordList.value = serializeRebusWords();
+  elements.articleWordList.value = serializeArticleWords();
   setAdminNote("ready");
   elements.wordList.focus();
 }
@@ -1855,26 +1952,34 @@ elements.articleSpeak.addEventListener("click", () => {
 elements.articleSkip.addEventListener("click", nextArticleRound);
 
 elements.saveWords.addEventListener("click", () => {
-  const nextWords = parseWords(elements.wordList.value);
-  if (!nextWords.length) {
-    elements.wordList.value = serializeWords();
+  const nextWords = parseRebusWords(elements.wordList.value);
+  const nextArticleWords = parseArticleWords(elements.articleWordList.value);
+  if (!nextWords.length || !nextArticleWords.length) {
+    elements.wordList.value = serializeRebusWords();
+    elements.articleWordList.value = serializeArticleWords();
     return;
   }
 
   words = nextWords;
+  articlePracticeWords = nextArticleWords;
   saveWordState(words);
+  saveArticleWordState(articlePracticeWords);
   pickWord();
   if (!elements.articleApp.classList.contains("hidden")) {
     pickArticleWord();
   }
-  elements.wordList.value = serializeWords();
+  elements.wordList.value = serializeRebusWords();
+  elements.articleWordList.value = serializeArticleWords();
   setAdminNote("saved");
 });
 
 elements.resetWords.addEventListener("click", () => {
-  words = defaultWords;
+  words = defaultRebusWords;
+  articlePracticeWords = defaultArticleWords;
   saveWordState(words);
-  elements.wordList.value = serializeWords();
+  saveArticleWordState(articlePracticeWords);
+  elements.wordList.value = serializeRebusWords();
+  elements.articleWordList.value = serializeArticleWords();
   pickWord();
   if (!elements.articleApp.classList.contains("hidden")) {
     pickArticleWord();

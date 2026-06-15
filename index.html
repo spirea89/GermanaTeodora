@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Germana Teodora Practice</title>
-    <link rel="stylesheet" href="styles.css?v=20260615-german-apps">
+    <link rel="stylesheet" href="styles.css?v=20260615-article-admin-split">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
@@ -158,9 +158,12 @@
             </button>
           </div>
 
-          <p class="studio-copy">One item per line. Use: word, article, emoji, clue</p>
+          <p class="studio-copy">Rebus words. One item per line. Use: word, emoji, clue</p>
           <pre>die Sonne, ☀️, Listen and fill the missing letters.</pre>
-          <textarea id="word-list" rows="14"></textarea>
+          <textarea id="word-list" rows="10"></textarea>
+          <p class="studio-copy article-admin-copy">DER/DIE/DAS words. One item per line. Use: word, article, emoji</p>
+          <pre>Sonne, die, ☀️</pre>
+          <textarea id="article-word-list" rows="10"></textarea>
           <div class="studio-actions">
             <button id="save-words" type="button">Save words</button>
             <button class="ghost-button" id="reset-words" type="button">Reset</button>
@@ -297,6 +300,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260615-german-apps"></script>
+    <script src="app.js?v=20260615-article-admin-split"></script>
   </body>
 </html>
