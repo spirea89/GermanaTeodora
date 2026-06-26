@@ -183,7 +183,7 @@ const commonArticleWords = [
   ["Jacke", "die", "🧥"]
 ];
 
-const defaultRebusWords = practiceWords.map((word) => decorateWord(word));
+const defaultRebusWords = practiceWords.map((word) => decorateWord(capitalizeRebusNouns(word)));
 const defaultArticleWords = commonArticleWords.map(([word, article, emoji]) => ({
   ...decorateWord(word),
   word,
@@ -733,6 +733,18 @@ function cleanArticle(value) {
   return ["der", "die", "das"].includes(article) ? article : "";
 }
 
+function capitalizeRebusNouns(value) {
+  const standaloneNouns = new Set(commonArticleWords.map(([word]) => normalize(word)));
+  const trimmed = value.trim();
+  const withArticleNoun = trimmed.replace(/\b(der|die|das)(\s+)([a-zäöüß])/gi, (_, article, space, nounStart) => {
+    return `${article}${space}${nounStart.toLocaleUpperCase("de-DE")}`;
+  });
+
+  return standaloneNouns.has(normalize(withArticleNoun))
+    ? withArticleNoun.charAt(0).toLocaleUpperCase("de-DE") + withArticleNoun.slice(1)
+    : withArticleNoun;
+}
+
 function isLetter(character) {
   return /[a-zA-ZäöüÄÖÜß]/.test(character);
 }
@@ -753,7 +765,7 @@ function normalizeWordItem(item) {
     return decorateWord(item);
   }
 
-  const word = cleanWord(item?.word || "");
+  const word = capitalizeRebusNouns(cleanWord(item?.word || ""));
   if (!word) {
     return null;
   }
@@ -1109,7 +1121,7 @@ function parseWords(value) {
     .filter(Boolean)
     .map((line) => {
       const parts = line.split(",").map((part) => part.trim());
-      const word = cleanWord(parts[0]);
+      const word = capitalizeRebusNouns(cleanWord(parts[0]));
       const decorated = decorateWord(word);
       return {
         word,
@@ -1157,7 +1169,7 @@ function parseRebusWords(value) {
     .filter(Boolean)
     .map((line) => {
       const parts = line.split(",").map((part) => part.trim());
-      const word = cleanWord(parts[0]);
+      const word = capitalizeRebusNouns(cleanWord(parts[0]));
       const decorated = decorateWord(word);
       return {
         word,
