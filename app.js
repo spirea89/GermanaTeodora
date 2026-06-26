@@ -254,7 +254,7 @@ const translations = {
     wordTry: "Try again. Match the capital letters when you type the whole word.",
     articlePrompt: "Choose der, die, or das.",
     articleSuccess: (article, word) => `Yes! ${article} ${word}`,
-    articleTry: (article, word) => `Almost. It is ${article} ${word}.`,
+    articleTry: () => "Almost. Try again.",
     articleNoWords: "Add words with der, die, or das in Administration.",
     adminTitle: "German Words",
     adminCopy: "Rebus words. One item per line. Use: word, emoji, clue",
@@ -347,7 +347,7 @@ const translations = {
     wordTry: "Versuch es noch einmal. Achte auf Groß- und Kleinschreibung, wenn du das ganze Wort schreibst.",
     articlePrompt: "Wähle der, die oder das.",
     articleSuccess: (article, word) => `Ja! ${article} ${word}`,
-    articleTry: (article, word) => `Fast. Es heißt ${article} ${word}.`,
+    articleTry: () => "Fast. Versuch es noch einmal.",
     articleNoWords: "Füge Wörter mit der, die oder das in der Verwaltung hinzu.",
     adminTitle: "Deutsche Wörter",
     adminCopy: "Rebus-Wörter. Ein Eintrag pro Zeile: Wort, Emoji, Hinweis",
@@ -1122,15 +1122,16 @@ function chooseArticle(article) {
   }
 
   const isCorrect = article === articleCurrentWord.article;
-  elements.articleOptions.querySelectorAll("button").forEach((button) => {
-    const buttonArticle = button.dataset.article;
-    button.classList.toggle("selected", buttonArticle === article);
-    button.classList.toggle("correct", buttonArticle === articleCurrentWord.article);
-    button.classList.toggle("wrong", buttonArticle === article && !isCorrect);
-    button.disabled = true;
-  });
+  const articleButtons = elements.articleOptions.querySelectorAll("button");
 
   if (isCorrect) {
+    articleButtons.forEach((button) => {
+      const buttonArticle = button.dataset.article;
+      button.classList.toggle("selected", buttonArticle === article);
+      button.classList.toggle("correct", buttonArticle === articleCurrentWord.article);
+      button.classList.remove("wrong");
+      button.disabled = true;
+    });
     articleCorrect += 1;
     articleStreak += 1;
     elements.articleWord.classList.remove("article-der", "article-die", "article-das");
@@ -1144,14 +1145,20 @@ function chooseArticle(article) {
       nextArticleRound,
       `article-${articleCurrentWord.article}`
     );
+    speak(`${articleCurrentWord.article} ${articleCurrentWord.word}`);
   } else {
+    articleButtons.forEach((button) => {
+      const buttonArticle = button.dataset.article;
+      button.classList.toggle("selected", buttonArticle === article);
+      button.classList.remove("correct");
+      button.classList.toggle("wrong", buttonArticle === article);
+      button.disabled = false;
+    });
     articleStreak = 0;
     setArticleHint("try", articleCurrentWord);
-    window.setTimeout(nextArticleRound, 1450);
   }
 
   renderArticleScore();
-  speak(`${articleCurrentWord.article} ${articleCurrentWord.word}`);
 }
 
 function nextArticleRound() {
