@@ -248,7 +248,7 @@ const translations = {
     wordClueDefault: "Listen and fill the missing letters.",
     wordHintDefault: "Listen, look, and fill the hidden letters.",
     wordSuccess: (word) => `Yes! The word is ${word}.`,
-    wordTry: "Try again. You can type the hidden letters or the whole word.",
+    wordTry: "Try again. Match the capital letters when you type the whole word.",
     articlePrompt: "Choose der, die, or das.",
     articleSuccess: (article, word) => `Yes! ${article} ${word}`,
     articleTry: (article, word) => `Almost. It is ${article} ${word}.`,
@@ -341,7 +341,7 @@ const translations = {
     wordClueDefault: "Höre zu und ergänze die fehlenden Buchstaben.",
     wordHintDefault: "Höre zu, schau genau und ergänze die fehlenden Buchstaben.",
     wordSuccess: (word) => `Ja! Das Wort ist ${word}.`,
-    wordTry: "Versuch es noch einmal. Du kannst die fehlenden Buchstaben oder das ganze Wort schreiben.",
+    wordTry: "Versuch es noch einmal. Achte auf Groß- und Kleinschreibung, wenn du das ganze Wort schreibst.",
     articlePrompt: "Wähle der, die oder das.",
     articleSuccess: (article, word) => `Ja! ${article} ${word}`,
     articleTry: (article, word) => `Fast. Es heißt ${article} ${word}.`,
@@ -721,6 +721,10 @@ function normalize(value) {
     .replace(/\s+/g, " ");
 }
 
+function normalizeExactCase(value) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
 function cleanWord(value) {
   return value
     .trim()
@@ -948,9 +952,9 @@ function showWordReward() {
 }
 
 function checkAnswer() {
-  const hiddenAnswer = normalize(hiddenLettersOf(currentWord.word)).replace(/\s/g, "");
-  const fullAnswer = normalize(currentWord.word);
-  const given = normalize(elements.input.value);
+  const hiddenAnswer = normalizeExactCase(hiddenLettersOf(currentWord.word)).replace(/\s/g, "");
+  const fullAnswer = normalizeExactCase(currentWord.word);
+  const given = normalizeExactCase(elements.input.value);
   const compactGiven = given.replace(/\s/g, "");
 
   if (compactGiven === hiddenAnswer || given === fullAnswer) {
