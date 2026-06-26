@@ -1004,9 +1004,10 @@ function pickWord() {
   renderPrompt(currentWord.word);
 }
 
-function showReward(emoji, text, duration = 1450, afterClose = null) {
+function showReward(emoji, text, duration = 1450, afterClose = null, textColorClass = "") {
   elements.rewardEmoji.textContent = emoji;
   elements.rewardText.textContent = text;
+  elements.rewardText.className = textColorClass ? `reward-text ${textColorClass}` : "reward-text";
   elements.rewardLayer.classList.add("show");
   elements.rewardLayer.setAttribute("aria-hidden", "false");
 
@@ -1136,7 +1137,13 @@ function chooseArticle(article) {
     elements.articleWord.classList.add(`article-${articleCurrentWord.article}`);
     localStorage.setItem("articleGameCorrect", String(articleCorrect));
     setArticleHint("success", articleCurrentWord);
-    showReward("🏆", t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word), 1150, nextArticleRound);
+    showReward(
+      "🏆",
+      t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word),
+      1150,
+      nextArticleRound,
+      `article-${articleCurrentWord.article}`
+    );
   } else {
     articleStreak = 0;
     setArticleHint("try", articleCurrentWord);

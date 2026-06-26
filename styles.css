@@ -994,6 +994,18 @@ textarea {
   font-weight: 900;
 }
 
+.reward-text.article-der {
+  color: var(--sky);
+}
+
+.reward-text.article-die {
+  color: var(--berry);
+}
+
+.reward-text.article-das {
+  color: var(--leaf-dark);
+}
+
 @keyframes pop {
   0% {
     transform: scale(0.72);
