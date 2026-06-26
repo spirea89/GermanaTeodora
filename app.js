@@ -193,6 +193,7 @@ const defaultArticleWords = commonArticleWords.map(([word, article, emoji]) => (
 const defaultWords = [...defaultRebusWords, ...defaultArticleWords];
 const wordsStorageKey = "wordGardenGermanWords";
 const articleWordsStorageKey = "articleGameGermanWords";
+const germanAppsStorageKey = "deutschUndMatheGermanWords";
 
 const wordRewards = [
   ["🎉", "Fantastic!"],
@@ -810,6 +811,11 @@ function hiddenLettersOf(value) {
 }
 
 function loadWords() {
+  const combined = loadCombinedGermanWordLists();
+  if (combined?.rebus?.length) {
+    return combined.rebus;
+  }
+
   const saved = localStorage.getItem(wordsStorageKey);
   if (!saved) {
     return defaultRebusWords;
@@ -826,9 +832,15 @@ function loadWords() {
 
 function saveWordState(nextWords) {
   localStorage.setItem(wordsStorageKey, JSON.stringify(nextWords));
+  saveCombinedGermanWordLists(nextWords, articlePracticeWords || defaultArticleWords);
 }
 
 function loadArticleWords() {
+  const combined = loadCombinedGermanWordLists();
+  if (combined?.articles?.length) {
+    return combined.articles;
+  }
+
   const saved = localStorage.getItem(articleWordsStorageKey);
   if (saved) {
     try {
@@ -860,6 +872,31 @@ function loadArticleWords() {
 
 function saveArticleWordState(nextWords) {
   localStorage.setItem(articleWordsStorageKey, JSON.stringify(nextWords));
+  saveCombinedGermanWordLists(words || defaultRebusWords, nextWords);
+}
+
+function loadCombinedGermanWordLists() {
+  const saved = localStorage.getItem(germanAppsStorageKey);
+  if (!saved) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(saved);
+    const rebus = Array.isArray(parsed?.rebus)
+      ? parsed.rebus.map(normalizeWordItem).filter(Boolean).map((item) => ({ ...item, article: "" }))
+      : [];
+    const articles = Array.isArray(parsed?.articles)
+      ? parsed.articles.map(normalizeWordItem).filter((item) => item && item.article)
+      : [];
+    return { rebus, articles };
+  } catch {
+    return null;
+  }
+}
+
+function saveCombinedGermanWordLists(rebus, articles) {
+  localStorage.setItem(germanAppsStorageKey, JSON.stringify({ rebus, articles }));
 }
 
 function renderScore() {
@@ -2005,14 +2042,16 @@ elements.articleSkip.addEventListener("click", nextArticleRound);
 elements.saveWords.addEventListener("click", () => {
   const nextWords = parseRebusWords(elements.wordList.value);
   const nextArticleWords = parseArticleWords(elements.articleWordList.value);
-  if (!nextWords.length || !nextArticleWords.length) {
-    elements.wordList.value = serializeRebusWords();
-    elements.articleWordList.value = serializeArticleWords();
+  if (!nextWords.length && !nextArticleWords.length) {
     return;
   }
 
-  words = nextWords;
-  articlePracticeWords = nextArticleWords;
+  if (nextWords.length) {
+    words = nextWords;
+  }
+  if (nextArticleWords.length) {
+    articlePracticeWords = nextArticleWords;
+  }
   saveWordState(words);
   saveArticleWordState(articlePracticeWords);
   pickWord();
