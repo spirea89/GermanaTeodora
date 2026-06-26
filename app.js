@@ -218,7 +218,7 @@ const wordRewardsDe = [
 
 const translations = {
   en: {
-    appTitle: "Germana Teodora Practice",
+    appTitle: "Deutsch und Mathe",
     toggle: "Deutsch",
     toggleLabel: "Switch language to German",
     practiceTime: "Practice time",
@@ -311,7 +311,7 @@ const translations = {
     brilliant: "Brilliant!"
   },
   de: {
-    appTitle: "Germana Teodora Übung",
+    appTitle: "Deutsch und Mathe",
     toggle: "English",
     toggleLabel: "Sprache auf Englisch umstellen",
     practiceTime: "Übungszeit",
