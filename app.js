@@ -194,6 +194,8 @@ const defaultWords = [...defaultRebusWords, ...defaultArticleWords];
 const wordsStorageKey = "wordGardenGermanWords";
 const articleWordsStorageKey = "articleGameGermanWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
+const rebusWordsFile = "data/rebus-words.txt";
+const articleWordsFile = "data/article-words.txt";
 
 const wordRewards = [
   ["🎉", "Fantastic!"],
@@ -263,7 +265,7 @@ const translations = {
     reset: "Reset",
     adminReady: "Saved words are used in the German game on this device.",
     adminSaved: "Saved. German practice will use this list.",
-    adminReset: "Reset to the original German word list.",
+    adminReset: "Reset to the word lists stored in the GitHub files.",
     mathPractice: "Math practice",
     numberSprint: "Number Sprint",
     mathSetupLabel: "Math setup",
@@ -356,7 +358,7 @@ const translations = {
     reset: "Zurücksetzen",
     adminReady: "Gespeicherte Wörter werden auf diesem Gerät im Deutsch-Spiel benutzt.",
     adminSaved: "Gespeichert. Die Deutsch-Übung benutzt diese Liste.",
-    adminReset: "Die ursprüngliche deutsche Wortliste wurde wiederhergestellt.",
+    adminReset: "Die Wortlisten aus den GitHub-Dateien wurden wiederhergestellt.",
     mathPractice: "Matheübung",
     numberSprint: "Zahlensprint",
     mathSetupLabel: "Mathe-Einstellungen",
@@ -897,6 +899,46 @@ function loadCombinedGermanWordLists() {
 
 function saveCombinedGermanWordLists(rebus, articles) {
   localStorage.setItem(germanAppsStorageKey, JSON.stringify({ rebus, articles }));
+}
+
+function hasStoredGermanWordLists() {
+  return Boolean(
+    localStorage.getItem(germanAppsStorageKey)
+    || localStorage.getItem(wordsStorageKey)
+    || localStorage.getItem(articleWordsStorageKey)
+  );
+}
+
+async function loadBundledWordFiles(force = false) {
+  if (!force && hasStoredGermanWordLists()) {
+    return false;
+  }
+
+  try {
+    const cacheBuster = `?updated=${Date.now()}`;
+    const [rebusResponse, articleResponse] = await Promise.all([
+      fetch(`${rebusWordsFile}${cacheBuster}`, { cache: "no-store" }),
+      fetch(`${articleWordsFile}${cacheBuster}`, { cache: "no-store" })
+    ]);
+    if (!rebusResponse.ok || !articleResponse.ok) {
+      return false;
+    }
+
+    const [rebusText, articleText] = await Promise.all([rebusResponse.text(), articleResponse.text()]);
+    const nextRebusWords = parseRebusWords(rebusText);
+    const nextArticleWords = parseArticleWords(articleText);
+    if (!nextRebusWords.length || !nextArticleWords.length) {
+      return false;
+    }
+
+    words = nextRebusWords;
+    articlePracticeWords = nextArticleWords;
+    saveWordState(words);
+    saveArticleWordState(articlePracticeWords);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function renderScore() {
@@ -2063,11 +2105,14 @@ elements.saveWords.addEventListener("click", () => {
   setAdminNote("saved");
 });
 
-elements.resetWords.addEventListener("click", () => {
-  words = defaultRebusWords;
-  articlePracticeWords = defaultArticleWords;
-  saveWordState(words);
-  saveArticleWordState(articlePracticeWords);
+elements.resetWords.addEventListener("click", async () => {
+  const restoredFromFiles = await loadBundledWordFiles(true);
+  if (!restoredFromFiles) {
+    words = defaultRebusWords;
+    articlePracticeWords = defaultArticleWords;
+    saveWordState(words);
+    saveArticleWordState(articlePracticeWords);
+  }
   elements.wordList.value = serializeRebusWords();
   elements.articleWordList.value = serializeArticleWords();
   pickWord();
@@ -2137,3 +2182,12 @@ renderScore();
 renderArticleScore();
 applyLanguage();
 pickWord();
+void loadBundledWordFiles().then((loaded) => {
+  if (!loaded) {
+    return;
+  }
+  pickWord();
+  if (!elements.articleApp.classList.contains("hidden")) {
+    pickArticleWord();
+  }
+});
