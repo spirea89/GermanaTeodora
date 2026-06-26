@@ -318,6 +318,18 @@ h2 {
   text-align: center;
 }
 
+.article-word.article-der {
+  color: var(--sky);
+}
+
+.article-word.article-die {
+  color: var(--berry);
+}
+
+.article-word.article-das {
+  color: var(--leaf-dark);
+}
+
 .article-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -328,21 +340,31 @@ h2 {
 .article-options button {
   min-height: 82px;
   border-radius: 8px;
-  background: #f7fbff;
-  border: 2px solid #c9def1;
-  color: var(--ink);
+  border: 2px solid currentColor;
   font-size: clamp(1.6rem, 5vw, 2.4rem);
   font-weight: 900;
 }
 
-.article-options button.correct {
-  background: #f0fff7;
-  border-color: var(--leaf);
+.article-options button[data-article="der"] {
+  background: #eaf3ff;
+  color: var(--sky);
+}
+
+.article-options button[data-article="die"] {
+  background: #fff0f4;
+  color: var(--berry);
+}
+
+.article-options button[data-article="das"] {
+  background: #effbf3;
   color: var(--leaf-dark);
 }
 
+.article-options button.correct {
+  box-shadow: 0 0 0 4px rgba(47, 125, 90, 0.16);
+}
+
 .article-options button.wrong {
-  background: #fff2f5;
   border-color: var(--berry);
   color: var(--berry);
 }

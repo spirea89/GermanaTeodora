@@ -1111,6 +1111,7 @@ function pickArticleWord() {
   articleCurrentWord = candidates[nextIndex];
   elements.articleEmoji.textContent = articleCurrentWord.emoji || "📘";
   elements.articleWord.textContent = articleCurrentWord.word;
+  elements.articleWord.classList.remove("article-der", "article-die", "article-das");
   setArticleHint("default");
 }
 
@@ -1131,6 +1132,8 @@ function chooseArticle(article) {
   if (isCorrect) {
     articleCorrect += 1;
     articleStreak += 1;
+    elements.articleWord.classList.remove("article-der", "article-die", "article-das");
+    elements.articleWord.classList.add(`article-${articleCurrentWord.article}`);
     localStorage.setItem("articleGameCorrect", String(articleCorrect));
     setArticleHint("success", articleCurrentWord);
     showReward("🏆", t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word), 1150, nextArticleRound);
