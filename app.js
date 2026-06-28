@@ -772,7 +772,7 @@ function normalizeWordItem(item) {
     return decorateWord(item);
   }
 
-  const word = capitalizeRebusNouns(cleanWord(item?.word || ""));
+  const word = cleanWord(item?.word || "");
   if (!word) {
     return null;
   }
@@ -1221,7 +1221,7 @@ function parseWords(value) {
     .filter(Boolean)
     .map((line) => {
       const parts = line.split(",").map((part) => part.trim());
-      const word = capitalizeRebusNouns(cleanWord(parts[0]));
+      const word = cleanWord(parts[0]);
       const decorated = decorateWord(word);
       return {
         word,
@@ -1269,7 +1269,7 @@ function parseRebusWords(value) {
     .filter(Boolean)
     .map((line) => {
       const parts = line.split(",").map((part) => part.trim());
-      const word = capitalizeRebusNouns(cleanWord(parts[0]));
+      const word = cleanWord(parts[0]);
       const decorated = decorateWord(word);
       return {
         word,
