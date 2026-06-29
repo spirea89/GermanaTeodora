@@ -244,10 +244,12 @@ const translations = {
     handwritingSub: "Write with the pen",
     handwritingProgress: "Handwriting progress",
     pages: "Pages",
-    recognizedLetters: "Recognized letters",
+    nextLetter: "Next letter",
     handwritingBoard: "Handwriting board",
-    handwritingHint: "Listen to the word and write with the pen.",
+    handwritingHint: "Listen and write the next missing letter.",
     handwritingDone: "Beautiful page!",
+    handwritingCorrect: "Good. Write the next letter.",
+    handwritingTry: "Try this letter again.",
     clear: "Clear",
     done: "Done",
     stars: "Stars",
@@ -349,10 +351,12 @@ const translations = {
     handwritingSub: "Mit dem Stift schreiben",
     handwritingProgress: "Schreibfortschritt",
     pages: "Seiten",
-    recognizedLetters: "Erkannte Buchstaben",
+    nextLetter: "Nächster Buchstabe",
     handwritingBoard: "Schreibtafel",
-    handwritingHint: "Höre das Wort und schreibe mit dem Stift.",
+    handwritingHint: "Höre zu und schreibe den nächsten fehlenden Buchstaben.",
     handwritingDone: "Schöne Seite!",
+    handwritingCorrect: "Gut. Schreibe den nächsten Buchstaben.",
+    handwritingTry: "Versuch diesen Buchstaben noch einmal.",
     clear: "Löschen",
     done: "Fertig",
     stars: "Sterne",
@@ -477,6 +481,7 @@ const elements = {
   articleSpeak: document.querySelector("#article-speak"),
   articleSkip: document.querySelector("#article-skip"),
   handwritingEmoji: document.querySelector("#handwriting-emoji"),
+  handwritingPrompt: document.querySelector("#handwriting-prompt"),
   handwritingRecognized: document.querySelector("#handwriting-recognized"),
   handwritingBoard: document.querySelector("#handwriting-board"),
   handwritingHint: document.querySelector("#handwriting-hint"),
@@ -543,6 +548,9 @@ let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
 let handwritingRound = 1;
+let handwritingHiddenLetters = [];
+let handwritingSolvedLetters = [];
+let handwritingNextLetterIndex = 0;
 let handwritingDrawing = false;
 let handwritingHasInk = false;
 let handwritingPointerId = null;
@@ -622,7 +630,8 @@ function applyLanguage() {
   document.querySelector(".handwriting-score-row").setAttribute("aria-label", t("handwritingProgress"));
   setText(".handwriting-score-row div:nth-child(1) .score-label", "pages");
   setText(".handwriting-score-row div:nth-child(2) .score-label", "round");
-  setText(".handwriting-target .score-label", "recognizedLetters");
+  setText(".handwriting-target .score-label", "nextLetter");
+  elements.handwritingPrompt.setAttribute("aria-label", t("wordPromptLabel"));
   elements.handwritingBoard.setAttribute("aria-label", t("handwritingBoard"));
   elements.handwritingSpeak.textContent = t("hearWord");
   elements.clearHandwriting.textContent = t("clear");
@@ -745,6 +754,16 @@ function setHandwritingHint(state) {
   if (state === "done") {
     elements.handwritingHint.classList.add("success");
     elements.handwritingHint.textContent = t("handwritingDone");
+    return;
+  }
+  if (state === "correct") {
+    elements.handwritingHint.classList.add("success");
+    elements.handwritingHint.textContent = t("handwritingCorrect");
+    return;
+  }
+  if (state === "try") {
+    elements.handwritingHint.classList.add("try");
+    elements.handwritingHint.textContent = t("handwritingTry");
     return;
   }
   elements.handwritingHint.textContent = t("handwritingHint");
@@ -1122,6 +1141,93 @@ function renderHandwritingScore() {
   elements.handwritingRound.textContent = handwritingRound;
 }
 
+function prepareHandwritingPrompt(word) {
+  elements.handwritingPrompt.replaceChildren();
+  handwritingHiddenLetters = [];
+  handwritingSolvedLetters = [];
+  handwritingNextLetterIndex = 0;
+
+  word.split(/(\s+|-)/).forEach((part) => {
+    if (/^\s+$/.test(part)) {
+      const space = document.createElement("span");
+      space.className = "word-space";
+      space.textContent = " ";
+      elements.handwritingPrompt.append(space);
+      return;
+    }
+
+    if (part === "-") {
+      const hyphen = document.createElement("span");
+      hyphen.className = "word-hyphen";
+      hyphen.textContent = "-";
+      elements.handwritingPrompt.append(hyphen);
+      return;
+    }
+
+    const letters = [...part].filter(isLetter);
+    [...part].forEach((letter, index) => {
+      const tile = document.createElement("span");
+      tile.className = "tile";
+      if (!isLetter(letter) || index === 0 || index === part.length - 1 || letters.length <= 2) {
+        tile.textContent = letter;
+      } else {
+        const hiddenIndex = handwritingHiddenLetters.length;
+        handwritingHiddenLetters.push(letter);
+        handwritingSolvedLetters.push("");
+        tile.textContent = "·";
+        tile.classList.add("missing");
+        tile.dataset.hiddenIndex = String(hiddenIndex);
+      }
+      elements.handwritingPrompt.append(tile);
+    });
+  });
+}
+
+function fillNextHandwritingLetter() {
+  const tile = elements.handwritingPrompt.querySelector(`[data-hidden-index="${handwritingNextLetterIndex}"]`);
+  if (!tile) {
+    return;
+  }
+
+  tile.textContent = handwritingHiddenLetters[handwritingNextLetterIndex];
+  tile.classList.remove("missing");
+  tile.classList.add("filled");
+  handwritingSolvedLetters[handwritingNextLetterIndex] = handwritingHiddenLetters[handwritingNextLetterIndex];
+  handwritingNextLetterIndex += 1;
+}
+
+function processHandwritingRecognition(value) {
+  const letters = [...normalizeExactCase(value)].filter(isLetter);
+  if (!letters.length || !handwritingCurrentWord) {
+    return;
+  }
+
+  for (const letter of letters) {
+    const expected = handwritingHiddenLetters[handwritingNextLetterIndex];
+    if (!expected) {
+      break;
+    }
+
+    if (letter === expected) {
+      fillNextHandwritingLetter();
+      elements.handwritingRecognized.value = "";
+      clearHandwritingBoard();
+
+      if (handwritingNextLetterIndex >= handwritingHiddenLetters.length) {
+        finishHandwritingPage();
+        return;
+      }
+
+      setHandwritingHint("correct");
+    } else {
+      elements.handwritingRecognized.value = letter;
+      elements.handwritingRecognized.select();
+      setHandwritingHint("try");
+      break;
+    }
+  }
+}
+
 function pickHandwritingWord() {
   if (!words.length) {
     words = defaultRebusWords;
@@ -1138,6 +1244,7 @@ function pickHandwritingWord() {
   handwritingCurrentWord = words[handwritingCurrentIndex];
   elements.handwritingEmoji.textContent = handwritingCurrentWord.emoji || "✍️";
   elements.handwritingRecognized.value = "";
+  prepareHandwritingPrompt(handwritingCurrentWord.word);
   setHandwritingHint("default");
   renderHandwritingScore();
   clearHandwritingBoard();
@@ -1276,6 +1383,12 @@ function endHandwritingStroke(event) {
 
 function finishHandwritingPage() {
   if (!handwritingCurrentWord) {
+    return;
+  }
+
+  if (handwritingHiddenLetters.length && handwritingNextLetterIndex < handwritingHiddenLetters.length) {
+    setHandwritingHint("try");
+    elements.handwritingRecognized.focus();
     return;
   }
 
@@ -2389,6 +2502,9 @@ elements.handwritingSpeak.addEventListener("click", () => {
   if (handwritingCurrentWord) {
     speak(handwritingCurrentWord.word);
   }
+});
+elements.handwritingRecognized.addEventListener("input", (event) => {
+  processHandwritingRecognition(event.data || elements.handwritingRecognized.value);
 });
 elements.clearHandwriting.addEventListener("click", () => {
   clearHandwritingBoard();

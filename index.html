@@ -164,10 +164,11 @@
             </section>
 
             <section class="card handwriting-card">
+              <div class="word-prompt handwriting-prompt" id="handwriting-prompt" aria-label="Word with missing letters"></div>
               <div class="handwriting-target">
                 <span class="emoji-clue" id="handwriting-emoji" aria-hidden="true">✍️</span>
                 <div>
-                  <label class="score-label" for="handwriting-recognized">Recognized letters</label>
+                  <label class="score-label" for="handwriting-recognized">Next letter</label>
                   <input id="handwriting-recognized" autocomplete="off" autocapitalize="none" spellcheck="false">
                 </div>
               </div>
@@ -355,6 +356,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260629-handwriting-audio-sandbox"></script>
+    <script src="app.js?v=20260629-handwriting-guided-sandbox"></script>
   </body>
 </html>
