@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - sandbox
   workflow_dispatch:
 
 permissions:
@@ -22,16 +23,32 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout live app
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: live
+
+      - name: Checkout sandbox app
+        uses: actions/checkout@v4
+        with:
+          ref: sandbox
+          path: sandbox-source
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Build Pages artifact
+        run: |
+          mkdir site
+          rsync -a --exclude='.git' --exclude='.github' --exclude='.agents' live/ site/
+          mkdir -p site/sandbox
+          rsync -a --exclude='.git' --exclude='.github' --exclude='.agents' sandbox-source/ site/sandbox/
+
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: site
 
       - name: Deploy
         id: deployment
