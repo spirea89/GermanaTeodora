@@ -245,7 +245,6 @@ const translations = {
     handwritingProgress: "Handwriting progress",
     pages: "Pages",
     nextLetter: "Next letter",
-    handwritingBoard: "Handwriting board",
     handwritingHint: "Listen and write the next missing letter.",
     handwritingDone: "Beautiful page!",
     handwritingCorrect: "Good. Write the next letter.",
@@ -352,7 +351,6 @@ const translations = {
     handwritingProgress: "Schreibfortschritt",
     pages: "Seiten",
     nextLetter: "Nächster Buchstabe",
-    handwritingBoard: "Schreibtafel",
     handwritingHint: "Höre zu und schreibe den nächsten fehlenden Buchstaben.",
     handwritingDone: "Schöne Seite!",
     handwritingCorrect: "Gut. Schreibe den nächsten Buchstaben.",
@@ -483,7 +481,6 @@ const elements = {
   handwritingEmoji: document.querySelector("#handwriting-emoji"),
   handwritingPrompt: document.querySelector("#handwriting-prompt"),
   handwritingRecognized: document.querySelector("#handwriting-recognized"),
-  handwritingBoard: document.querySelector("#handwriting-board"),
   handwritingHint: document.querySelector("#handwriting-hint"),
   handwritingPages: document.querySelector("#handwriting-pages"),
   handwritingRound: document.querySelector("#handwriting-round"),
@@ -551,9 +548,6 @@ let handwritingRound = 1;
 let handwritingHiddenLetters = [];
 let handwritingSolvedLetters = [];
 let handwritingNextLetterIndex = 0;
-let handwritingDrawing = false;
-let handwritingHasInk = false;
-let handwritingPointerId = null;
 let mathSelectedMinutes = 10;
 let mathProblems = [];
 let mathTimer = null;
@@ -632,7 +626,6 @@ function applyLanguage() {
   setText(".handwriting-score-row div:nth-child(2) .score-label", "round");
   setText(".handwriting-target .score-label", "nextLetter");
   elements.handwritingPrompt.setAttribute("aria-label", t("wordPromptLabel"));
-  elements.handwritingBoard.setAttribute("aria-label", t("handwritingBoard"));
   elements.handwritingSpeak.textContent = t("hearWord");
   elements.clearHandwriting.textContent = t("clear");
   elements.skipHandwriting.textContent = t("newWord");
@@ -822,7 +815,6 @@ function showGermanApp(appName) {
   }
   if (appName === "handwriting") {
     pickHandwritingWord();
-    window.requestAnimationFrame(resizeHandwritingBoard);
   }
 }
 
@@ -864,7 +856,7 @@ function cleanWord(value) {
   return value
     .trim()
     .replace(/\s+/g, " ")
-    .replace(/[^a-zA-ZäöüÄÖÜß\s-]/g, "");
+    .replace(/[^\p{L}\s-]/gu, "");
 }
 
 function cleanArticle(value) {
@@ -885,7 +877,11 @@ function capitalizeRebusNouns(value) {
 }
 
 function isLetter(character) {
-  return /[a-zA-ZäöüÄÖÜß]/.test(character);
+  return /^\p{L}$/u.test(character);
+}
+
+function sameGermanLetter(left, right) {
+  return left.toLocaleLowerCase("de-DE") === right.toLocaleLowerCase("de-DE");
 }
 
 function decorateWord(word) {
@@ -1208,10 +1204,9 @@ function processHandwritingRecognition(value) {
       break;
     }
 
-    if (letter === expected) {
+    if (sameGermanLetter(letter, expected)) {
       fillNextHandwritingLetter();
       elements.handwritingRecognized.value = "";
-      clearHandwritingBoard();
 
       if (handwritingNextLetterIndex >= handwritingHiddenLetters.length) {
         finishHandwritingPage();
@@ -1247,138 +1242,8 @@ function pickHandwritingWord() {
   prepareHandwritingPrompt(handwritingCurrentWord.word);
   setHandwritingHint("default");
   renderHandwritingScore();
-  clearHandwritingBoard();
   speak(handwritingCurrentWord.word);
   window.requestAnimationFrame(() => elements.handwritingRecognized.focus());
-}
-
-function getHandwritingContext() {
-  return elements.handwritingBoard.getContext("2d");
-}
-
-function drawHandwritingPaper() {
-  const canvas = elements.handwritingBoard;
-  const context = getHandwritingContext();
-  if (!context) {
-    return;
-  }
-
-  const width = canvas.width;
-  const height = canvas.height;
-  context.clearRect(0, 0, width, height);
-  context.fillStyle = "#fffdf8";
-  context.fillRect(0, 0, width, height);
-
-  const guideColor = "#d8e8f6";
-  const baselineColor = "#93bfe4";
-  const rowHeight = height / 3;
-  context.lineWidth = 2;
-  context.strokeStyle = guideColor;
-  for (let row = 1; row < 3; row += 1) {
-    const y = row * rowHeight;
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(width, y);
-    context.stroke();
-  }
-
-  context.setLineDash([10, 12]);
-  context.strokeStyle = guideColor;
-  for (let row = 0; row < 3; row += 1) {
-    const midline = row * rowHeight + rowHeight * 0.42;
-    context.beginPath();
-    context.moveTo(0, midline);
-    context.lineTo(width, midline);
-    context.stroke();
-  }
-  context.setLineDash([]);
-
-  context.strokeStyle = baselineColor;
-  for (let row = 0; row < 3; row += 1) {
-    const baseline = row * rowHeight + rowHeight * 0.72;
-    context.beginPath();
-    context.moveTo(0, baseline);
-    context.lineTo(width, baseline);
-    context.stroke();
-  }
-}
-
-function resizeHandwritingBoard() {
-  const canvas = elements.handwritingBoard;
-  const rect = canvas.getBoundingClientRect();
-  const pixelRatio = window.devicePixelRatio || 1;
-  const nextWidth = Math.max(1, Math.round(rect.width * pixelRatio));
-  const nextHeight = Math.max(1, Math.round(rect.height * pixelRatio));
-
-  if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
-    canvas.width = nextWidth;
-    canvas.height = nextHeight;
-    drawHandwritingPaper();
-    handwritingHasInk = false;
-  } else if (!handwritingHasInk) {
-    drawHandwritingPaper();
-  }
-}
-
-function clearHandwritingBoard() {
-  handwritingHasInk = false;
-  window.requestAnimationFrame(resizeHandwritingBoard);
-}
-
-function getHandwritingPoint(event) {
-  const rect = elements.handwritingBoard.getBoundingClientRect();
-  const scaleX = elements.handwritingBoard.width / rect.width;
-  const scaleY = elements.handwritingBoard.height / rect.height;
-  return {
-    x: (event.clientX - rect.left) * scaleX,
-    y: (event.clientY - rect.top) * scaleY
-  };
-}
-
-function beginHandwritingStroke(event) {
-  const context = getHandwritingContext();
-  if (!context) {
-    return;
-  }
-
-  elements.handwritingBoard.setPointerCapture(event.pointerId);
-  handwritingDrawing = true;
-  handwritingPointerId = event.pointerId;
-  handwritingHasInk = true;
-  const point = getHandwritingPoint(event);
-  context.lineCap = "round";
-  context.lineJoin = "round";
-  context.strokeStyle = "#20242a";
-  context.lineWidth = Math.max(4, (event.pressure || 0.5) * 9);
-  context.beginPath();
-  context.moveTo(point.x, point.y);
-  event.preventDefault();
-}
-
-function continueHandwritingStroke(event) {
-  if (!handwritingDrawing || event.pointerId !== handwritingPointerId) {
-    return;
-  }
-
-  const context = getHandwritingContext();
-  if (!context) {
-    return;
-  }
-  const point = getHandwritingPoint(event);
-  context.lineWidth = Math.max(4, (event.pressure || 0.5) * 9);
-  context.lineTo(point.x, point.y);
-  context.stroke();
-  event.preventDefault();
-}
-
-function endHandwritingStroke(event) {
-  if (event.pointerId !== handwritingPointerId) {
-    return;
-  }
-
-  handwritingDrawing = false;
-  handwritingPointerId = null;
-  event.preventDefault();
 }
 
 function finishHandwritingPage() {
@@ -2507,7 +2372,6 @@ elements.handwritingRecognized.addEventListener("input", (event) => {
   processHandwritingRecognition(event.data || elements.handwritingRecognized.value);
 });
 elements.clearHandwriting.addEventListener("click", () => {
-  clearHandwritingBoard();
   elements.handwritingRecognized.value = "";
   elements.handwritingRecognized.focus();
   setHandwritingHint("default");
@@ -2517,15 +2381,6 @@ elements.skipHandwriting.addEventListener("click", () => {
   pickHandwritingWord();
 });
 elements.finishHandwriting.addEventListener("click", finishHandwritingPage);
-elements.handwritingBoard.addEventListener("pointerdown", beginHandwritingStroke);
-elements.handwritingBoard.addEventListener("pointermove", continueHandwritingStroke);
-elements.handwritingBoard.addEventListener("pointerup", endHandwritingStroke);
-elements.handwritingBoard.addEventListener("pointercancel", endHandwritingStroke);
-window.addEventListener("resize", () => {
-  if (!elements.handwritingApp.classList.contains("hidden")) {
-    resizeHandwritingBoard();
-  }
-});
 
 elements.saveWords.addEventListener("click", () => {
   const nextWords = parseRebusWords(elements.wordList.value);
