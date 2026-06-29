@@ -240,6 +240,16 @@ const translations = {
     rebusSub: "Missing letters",
     articleGame: "DER/DIE/DAS",
     articleSub: "Choose the article",
+    handwriting: "Handwriting",
+    handwritingSub: "Write with the pen",
+    handwritingProgress: "Handwriting progress",
+    pages: "Pages",
+    copyWord: "Copy this word",
+    handwritingBoard: "Handwriting board",
+    handwritingHint: "Write the word with the pen.",
+    handwritingDone: "Beautiful page!",
+    clear: "Clear",
+    done: "Done",
     stars: "Stars",
     streak: "Streak",
     round: "Round",
@@ -335,6 +345,16 @@ const translations = {
     rebusSub: "Fehlende Buchstaben",
     articleGame: "DER/DIE/DAS",
     articleSub: "Artikel wählen",
+    handwriting: "Schreiben",
+    handwritingSub: "Mit dem Stift schreiben",
+    handwritingProgress: "Schreibfortschritt",
+    pages: "Seiten",
+    copyWord: "Schreibe dieses Wort",
+    handwritingBoard: "Schreibtafel",
+    handwritingHint: "Schreibe das Wort mit dem Stift.",
+    handwritingDone: "Schöne Seite!",
+    clear: "Löschen",
+    done: "Fertig",
     stars: "Sterne",
     streak: "Serie",
     round: "Runde",
@@ -424,8 +444,10 @@ const elements = {
   germanHub: document.querySelector("#german-hub"),
   rebusApp: document.querySelector("#rebus-app"),
   articleApp: document.querySelector("#article-app"),
+  handwritingApp: document.querySelector("#handwriting-app"),
   openRebus: document.querySelector("#open-rebus"),
   openArticles: document.querySelector("#open-articles"),
+  openHandwriting: document.querySelector("#open-handwriting"),
   germanMenuButtons: document.querySelectorAll(".german-menu-button"),
   mathHub: document.querySelector("#math-hub"),
   numberSprintApp: document.querySelector("#number-sprint-app"),
@@ -454,6 +476,16 @@ const elements = {
   articleRound: document.querySelector("#article-round"),
   articleSpeak: document.querySelector("#article-speak"),
   articleSkip: document.querySelector("#article-skip"),
+  handwritingEmoji: document.querySelector("#handwriting-emoji"),
+  handwritingWord: document.querySelector("#handwriting-word"),
+  handwritingBoard: document.querySelector("#handwriting-board"),
+  handwritingHint: document.querySelector("#handwriting-hint"),
+  handwritingPages: document.querySelector("#handwriting-pages"),
+  handwritingRound: document.querySelector("#handwriting-round"),
+  handwritingSpeak: document.querySelector("#handwriting-speak"),
+  clearHandwriting: document.querySelector("#clear-handwriting"),
+  skipHandwriting: document.querySelector("#skip-handwriting"),
+  finishHandwriting: document.querySelector("#finish-handwriting"),
   rewardLayer: document.querySelector("#reward-layer"),
   rewardEmoji: document.querySelector("#reward-emoji"),
   rewardText: document.querySelector("#reward-text"),
@@ -507,6 +539,13 @@ let articleCurrentWord = null;
 let articleCorrect = Number(localStorage.getItem("articleGameCorrect") || 0);
 let articleStreak = 0;
 let articleRound = 1;
+let handwritingCurrentIndex = -1;
+let handwritingCurrentWord = null;
+let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
+let handwritingRound = 1;
+let handwritingDrawing = false;
+let handwritingHasInk = false;
+let handwritingPointerId = null;
 let mathSelectedMinutes = 10;
 let mathProblems = [];
 let mathTimer = null;
@@ -561,6 +600,8 @@ function applyLanguage() {
   setText("#open-rebus small", "rebusSub");
   setText("#open-articles strong", "articleGame");
   setText("#open-articles small", "articleSub");
+  setText("#open-handwriting strong", "handwriting");
+  setText("#open-handwriting small", "handwritingSub");
   setText(".score-row div:nth-child(1) .score-label", "stars");
   setText(".score-row div:nth-child(2) .score-label", "streak");
   setText(".score-row div:nth-child(3) .score-label", "round");
@@ -578,6 +619,18 @@ function applyLanguage() {
   elements.articleOptions.setAttribute("aria-label", t("articleSub"));
   elements.articleSpeak.textContent = t("hearWord");
   elements.articleSkip.textContent = t("newWord");
+  document.querySelector(".handwriting-score-row").setAttribute("aria-label", t("handwritingProgress"));
+  setText(".handwriting-score-row div:nth-child(1) .score-label", "pages");
+  setText(".handwriting-score-row div:nth-child(2) .score-label", "round");
+  setText(".handwriting-target .score-label", "copyWord");
+  elements.handwritingBoard.setAttribute("aria-label", t("handwritingBoard"));
+  elements.handwritingSpeak.textContent = t("hearWord");
+  elements.clearHandwriting.textContent = t("clear");
+  elements.skipHandwriting.textContent = t("newWord");
+  elements.finishHandwriting.textContent = t("done");
+  if (!elements.handwritingHint.dataset.state || elements.handwritingHint.dataset.state === "default") {
+    setHandwritingHint("default");
+  }
   if (!elements.articleHint.dataset.state || elements.articleHint.dataset.state === "default") {
     setArticleHint("default");
   }
@@ -585,6 +638,8 @@ function applyLanguage() {
     document.querySelector("#app-title").textContent = t("rebus");
   } else if (!elements.articleApp.classList.contains("hidden")) {
     document.querySelector("#app-title").textContent = t("articleGame");
+  } else if (!elements.handwritingApp.classList.contains("hidden")) {
+    document.querySelector("#app-title").textContent = t("handwriting");
   }
 
   setText("#admin-screen .eyebrow", "administration");
@@ -684,6 +739,17 @@ function setHint(state, word = "") {
   elements.hint.textContent = t("wordHintDefault");
 }
 
+function setHandwritingHint(state) {
+  elements.handwritingHint.dataset.state = state;
+  elements.handwritingHint.className = "hint";
+  if (state === "done") {
+    elements.handwritingHint.classList.add("success");
+    elements.handwritingHint.textContent = t("handwritingDone");
+    return;
+  }
+  elements.handwritingHint.textContent = t("handwritingHint");
+}
+
 function setAdminNote(state) {
   elements.adminNote.dataset.state = state;
   const key = state === "saved" ? "adminSaved" : state === "reset" ? "adminReset" : "adminReady";
@@ -713,6 +779,7 @@ function showGermanMenu() {
   elements.germanHub.classList.remove("hidden");
   elements.rebusApp.classList.add("hidden");
   elements.articleApp.classList.add("hidden");
+  elements.handwritingApp.classList.add("hidden");
   elements.input.blur();
   document.querySelector("#app-title").textContent = t("germanApps");
 }
@@ -721,13 +788,22 @@ function showGermanApp(appName) {
   elements.germanHub.classList.add("hidden");
   elements.rebusApp.classList.toggle("hidden", appName !== "rebus");
   elements.articleApp.classList.toggle("hidden", appName !== "articles");
-  document.querySelector("#app-title").textContent = appName === "rebus" ? t("rebus") : t("articleGame");
+  elements.handwritingApp.classList.toggle("hidden", appName !== "handwriting");
+  document.querySelector("#app-title").textContent = appName === "rebus"
+    ? t("rebus")
+    : appName === "articles"
+      ? t("articleGame")
+      : t("handwriting");
   if (appName === "rebus") {
     pickWord();
     elements.input.focus();
   }
   if (appName === "articles") {
     pickArticleWord();
+  }
+  if (appName === "handwriting") {
+    pickHandwritingWord();
+    window.requestAnimationFrame(resizeHandwritingBoard);
   }
 }
 
@@ -1039,6 +1115,174 @@ function pickWord() {
   elements.input.maxLength = Math.max(currentWord.word.length + 4, hiddenLettersOf(currentWord.word).length + 2, 3);
   setHint("default");
   renderPrompt(currentWord.word);
+}
+
+function renderHandwritingScore() {
+  elements.handwritingPages.textContent = handwritingPages;
+  elements.handwritingRound.textContent = handwritingRound;
+}
+
+function pickHandwritingWord() {
+  if (!words.length) {
+    words = defaultRebusWords;
+  }
+
+  let nextIndex = Math.floor(Math.random() * words.length);
+  if (words.length > 1) {
+    while (nextIndex === handwritingCurrentIndex) {
+      nextIndex = Math.floor(Math.random() * words.length);
+    }
+  }
+
+  handwritingCurrentIndex = nextIndex;
+  handwritingCurrentWord = words[handwritingCurrentIndex];
+  elements.handwritingEmoji.textContent = handwritingCurrentWord.emoji || "✍️";
+  elements.handwritingWord.textContent = handwritingCurrentWord.word;
+  setHandwritingHint("default");
+  renderHandwritingScore();
+  clearHandwritingBoard();
+}
+
+function getHandwritingContext() {
+  return elements.handwritingBoard.getContext("2d");
+}
+
+function drawHandwritingPaper() {
+  const canvas = elements.handwritingBoard;
+  const context = getHandwritingContext();
+  if (!context) {
+    return;
+  }
+
+  const width = canvas.width;
+  const height = canvas.height;
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = "#fffdf8";
+  context.fillRect(0, 0, width, height);
+
+  const guideColor = "#d8e8f6";
+  const baselineColor = "#93bfe4";
+  const rowHeight = height / 3;
+  context.lineWidth = 2;
+  context.strokeStyle = guideColor;
+  for (let row = 1; row < 3; row += 1) {
+    const y = row * rowHeight;
+    context.beginPath();
+    context.moveTo(0, y);
+    context.lineTo(width, y);
+    context.stroke();
+  }
+
+  context.setLineDash([10, 12]);
+  context.strokeStyle = guideColor;
+  for (let row = 0; row < 3; row += 1) {
+    const midline = row * rowHeight + rowHeight * 0.42;
+    context.beginPath();
+    context.moveTo(0, midline);
+    context.lineTo(width, midline);
+    context.stroke();
+  }
+  context.setLineDash([]);
+
+  context.strokeStyle = baselineColor;
+  for (let row = 0; row < 3; row += 1) {
+    const baseline = row * rowHeight + rowHeight * 0.72;
+    context.beginPath();
+    context.moveTo(0, baseline);
+    context.lineTo(width, baseline);
+    context.stroke();
+  }
+}
+
+function resizeHandwritingBoard() {
+  const canvas = elements.handwritingBoard;
+  const rect = canvas.getBoundingClientRect();
+  const pixelRatio = window.devicePixelRatio || 1;
+  const nextWidth = Math.max(1, Math.round(rect.width * pixelRatio));
+  const nextHeight = Math.max(1, Math.round(rect.height * pixelRatio));
+
+  if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
+    drawHandwritingPaper();
+    handwritingHasInk = false;
+  } else if (!handwritingHasInk) {
+    drawHandwritingPaper();
+  }
+}
+
+function clearHandwritingBoard() {
+  handwritingHasInk = false;
+  window.requestAnimationFrame(resizeHandwritingBoard);
+}
+
+function getHandwritingPoint(event) {
+  const rect = elements.handwritingBoard.getBoundingClientRect();
+  const scaleX = elements.handwritingBoard.width / rect.width;
+  const scaleY = elements.handwritingBoard.height / rect.height;
+  return {
+    x: (event.clientX - rect.left) * scaleX,
+    y: (event.clientY - rect.top) * scaleY
+  };
+}
+
+function beginHandwritingStroke(event) {
+  const context = getHandwritingContext();
+  if (!context) {
+    return;
+  }
+
+  elements.handwritingBoard.setPointerCapture(event.pointerId);
+  handwritingDrawing = true;
+  handwritingPointerId = event.pointerId;
+  handwritingHasInk = true;
+  const point = getHandwritingPoint(event);
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.strokeStyle = "#20242a";
+  context.lineWidth = Math.max(4, (event.pressure || 0.5) * 9);
+  context.beginPath();
+  context.moveTo(point.x, point.y);
+  event.preventDefault();
+}
+
+function continueHandwritingStroke(event) {
+  if (!handwritingDrawing || event.pointerId !== handwritingPointerId) {
+    return;
+  }
+
+  const context = getHandwritingContext();
+  if (!context) {
+    return;
+  }
+  const point = getHandwritingPoint(event);
+  context.lineWidth = Math.max(4, (event.pressure || 0.5) * 9);
+  context.lineTo(point.x, point.y);
+  context.stroke();
+  event.preventDefault();
+}
+
+function endHandwritingStroke(event) {
+  if (event.pointerId !== handwritingPointerId) {
+    return;
+  }
+
+  handwritingDrawing = false;
+  handwritingPointerId = null;
+  event.preventDefault();
+}
+
+function finishHandwritingPage() {
+  if (!handwritingCurrentWord) {
+    return;
+  }
+
+  handwritingPages += 1;
+  handwritingRound += 1;
+  localStorage.setItem("handwritingPages", String(handwritingPages));
+  renderHandwritingScore();
+  setHandwritingHint("done");
+  showReward("🌟", t("handwritingDone"), 1200, pickHandwritingWord);
 }
 
 function showReward(emoji, text, duration = 1450, afterClose = null, textColorClass = "") {
@@ -2081,6 +2325,7 @@ function renderContestStatus() {
 elements.openGerman.addEventListener("click", () => showScreen("german"));
 elements.openRebus.addEventListener("click", () => showGermanApp("rebus"));
 elements.openArticles.addEventListener("click", () => showGermanApp("articles"));
+elements.openHandwriting.addEventListener("click", () => showGermanApp("handwriting"));
 elements.germanMenuButtons.forEach((button) => {
   button.addEventListener("click", showGermanMenu);
 });
@@ -2138,6 +2383,29 @@ elements.articleSpeak.addEventListener("click", () => {
   }
 });
 elements.articleSkip.addEventListener("click", nextArticleRound);
+elements.handwritingSpeak.addEventListener("click", () => {
+  if (handwritingCurrentWord) {
+    speak(handwritingCurrentWord.word);
+  }
+});
+elements.clearHandwriting.addEventListener("click", () => {
+  clearHandwritingBoard();
+  setHandwritingHint("default");
+});
+elements.skipHandwriting.addEventListener("click", () => {
+  handwritingRound += 1;
+  pickHandwritingWord();
+});
+elements.finishHandwriting.addEventListener("click", finishHandwritingPage);
+elements.handwritingBoard.addEventListener("pointerdown", beginHandwritingStroke);
+elements.handwritingBoard.addEventListener("pointermove", continueHandwritingStroke);
+elements.handwritingBoard.addEventListener("pointerup", endHandwritingStroke);
+elements.handwritingBoard.addEventListener("pointercancel", endHandwritingStroke);
+window.addEventListener("resize", () => {
+  if (!elements.handwritingApp.classList.contains("hidden")) {
+    resizeHandwritingBoard();
+  }
+});
 
 elements.saveWords.addEventListener("click", () => {
   const nextWords = parseRebusWords(elements.wordList.value);
@@ -2158,6 +2426,9 @@ elements.saveWords.addEventListener("click", () => {
   if (!elements.articleApp.classList.contains("hidden")) {
     pickArticleWord();
   }
+  if (!elements.handwritingApp.classList.contains("hidden")) {
+    pickHandwritingWord();
+  }
   elements.wordList.value = serializeRebusWords();
   elements.articleWordList.value = serializeArticleWords();
   setAdminNote("saved");
@@ -2176,6 +2447,9 @@ elements.resetWords.addEventListener("click", async () => {
   pickWord();
   if (!elements.articleApp.classList.contains("hidden")) {
     pickArticleWord();
+  }
+  if (!elements.handwritingApp.classList.contains("hidden")) {
+    pickHandwritingWord();
   }
   setAdminNote("reset");
 });

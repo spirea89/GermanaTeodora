@@ -68,6 +68,13 @@
                 <small>Choose the article</small>
               </span>
             </button>
+            <button class="choice-card handwriting-choice" id="open-handwriting" type="button">
+              <span class="choice-emoji" aria-hidden="true">✍️</span>
+              <span>
+                <strong>Handwriting</strong>
+                <small>Write with the pen</small>
+              </span>
+            </button>
           </section>
 
           <section class="german-app hidden" id="rebus-app">
@@ -141,6 +148,41 @@
               <button class="ghost-button german-menu-button" type="button">German apps</button>
               <button class="ghost-button" id="article-speak" type="button">🔊 Hear word</button>
               <button class="ghost-button" id="article-skip" type="button">↪ New word</button>
+            </section>
+          </section>
+
+          <section class="german-app hidden" id="handwriting-app">
+            <section class="score-row handwriting-score-row" aria-label="Handwriting progress">
+              <div>
+                <span class="score-label">Pages</span>
+                <strong id="handwriting-pages">0</strong>
+              </div>
+              <div>
+                <span class="score-label">Round</span>
+                <strong id="handwriting-round">1</strong>
+              </div>
+            </section>
+
+            <section class="card handwriting-card">
+              <div class="handwriting-target">
+                <span class="emoji-clue" id="handwriting-emoji" aria-hidden="true">✍️</span>
+                <div>
+                  <span class="score-label">Copy this word</span>
+                  <strong id="handwriting-word">Morgen</strong>
+                </div>
+              </div>
+              <div class="handwriting-board-wrap">
+                <canvas id="handwriting-board" aria-label="Handwriting board"></canvas>
+              </div>
+              <p class="hint" id="handwriting-hint">Write the word with the pen.</p>
+            </section>
+
+            <section class="controls">
+              <button class="ghost-button german-menu-button" type="button">German apps</button>
+              <button class="ghost-button" id="handwriting-speak" type="button">🔊 Hear word</button>
+              <button class="ghost-button" id="clear-handwriting" type="button">Clear</button>
+              <button class="ghost-button" id="skip-handwriting" type="button">↪ New word</button>
+              <button id="finish-handwriting" type="button">Done</button>
             </section>
           </section>
         </section>
@@ -313,6 +355,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260629-math-hub-sandbox"></script>
+    <script src="app.js?v=20260629-handwriting-sandbox"></script>
   </body>
 </html>
