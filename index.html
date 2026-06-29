@@ -180,11 +180,22 @@
             </button>
             <div>
               <p class="eyebrow">Math practice</p>
-              <h1 id="math-title">Number Sprint</h1>
+              <h1 id="math-title">Math apps</h1>
             </div>
-            <div class="timer-pill" id="timer-display">10:00</div>
+            <div class="timer-pill hidden" id="timer-display">10:00</div>
           </header>
 
+          <section class="math-hub" id="math-hub" aria-label="Math apps">
+            <button class="choice-card math-sprint-choice" id="open-number-sprint" type="button">
+              <span class="choice-emoji" aria-hidden="true">🏃</span>
+              <span>
+                <strong>Number Sprint</strong>
+                <small>Plus and minus to 100</small>
+              </span>
+            </button>
+          </section>
+
+          <section class="math-app hidden" id="number-sprint-app">
           <section class="math-setup" aria-label="Math setup">
             <div>
               <span class="score-label">Exercise</span>
@@ -286,8 +297,10 @@
           <section class="worksheet" id="worksheet" aria-label="Math worksheet"></section>
 
           <section class="controls">
+            <button class="ghost-button math-menu-button" type="button">Math apps</button>
             <button class="ghost-button" id="new-math" type="button">↻ New worksheet</button>
             <button class="ghost-button" id="finish-math" type="button">✓ Finish</button>
+          </section>
           </section>
         </section>
       </section>
@@ -300,6 +313,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260628-rebus-tile-case"></script>
+    <script src="app.js?v=20260629-math-hub-sandbox"></script>
   </body>
 </html>

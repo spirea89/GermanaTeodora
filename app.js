@@ -267,7 +267,9 @@ const translations = {
     adminSaved: "Saved. German practice will use this list.",
     adminReset: "Reset to the word lists stored in the GitHub files.",
     mathPractice: "Math practice",
+    mathApps: "Math apps",
     numberSprint: "Number Sprint",
+    numberSprintSub: "Plus and minus to 100",
     mathSetupLabel: "Math setup",
     exercise: "Exercise",
     exerciseName: "Plus and minus to 100",
@@ -360,7 +362,9 @@ const translations = {
     adminSaved: "Gespeichert. Die Deutsch-Übung benutzt diese Liste.",
     adminReset: "Die Wortlisten aus den GitHub-Dateien wurden wiederhergestellt.",
     mathPractice: "Matheübung",
+    mathApps: "Mathe-Apps",
     numberSprint: "Zahlensprint",
+    numberSprintSub: "Plus und Minus bis 100",
     mathSetupLabel: "Mathe-Einstellungen",
     exercise: "Aufgabe",
     exerciseName: "Plus und Minus bis 100",
@@ -423,6 +427,10 @@ const elements = {
   openRebus: document.querySelector("#open-rebus"),
   openArticles: document.querySelector("#open-articles"),
   germanMenuButtons: document.querySelectorAll(".german-menu-button"),
+  mathHub: document.querySelector("#math-hub"),
+  numberSprintApp: document.querySelector("#number-sprint-app"),
+  openNumberSprint: document.querySelector("#open-number-sprint"),
+  mathMenuButtons: document.querySelectorAll(".math-menu-button"),
   germanHome: document.querySelector("#german-home"),
   mathHome: document.querySelector("#math-home"),
   adminHome: document.querySelector("#admin-home"),
@@ -602,7 +610,10 @@ function applyLanguage() {
   }
 
   setText("#math-screen .eyebrow", "mathPractice");
-  setText("#math-title", "numberSprint");
+  setText("#math-title", "mathApps");
+  setText("#open-number-sprint strong", "numberSprint");
+  setText("#open-number-sprint small", "numberSprintSub");
+  elements.mathHub.setAttribute("aria-label", t("mathApps"));
   document.querySelector(".math-setup").setAttribute("aria-label", t("mathSetupLabel"));
   setText(".math-setup > div:nth-child(1) .score-label", "exercise");
   setText(".math-setup > div:nth-child(1) strong", "exerciseName");
@@ -615,6 +626,9 @@ function applyLanguage() {
   elements.startOptions.querySelector('[data-feedback="school"]').textContent = t("withSchool");
   elements.startOptions.querySelector('[data-feedback="contest"]').textContent = t("contest");
   elements.startMath.textContent = t("start");
+  elements.mathMenuButtons.forEach((button) => {
+    button.textContent = t("mathApps");
+  });
   document.querySelector(".math-progress").setAttribute("aria-label", t("mathProgress"));
   setText(".math-progress div:nth-child(1) .score-label", "correct");
   setText(".math-progress div:nth-child(2) .score-label", "left");
@@ -638,6 +652,9 @@ function applyLanguage() {
   elements.contestFinalScoreboard.setAttribute("aria-label", t("finalScores"));
   elements.newContest.textContent = t("newContest");
   renderContestStatus();
+  if (!elements.numberSprintApp.classList.contains("hidden")) {
+    document.querySelector("#math-title").textContent = t("numberSprint");
+  }
 
   if (elements.phrase.textContent === translations.en.wordClueDefault || elements.phrase.textContent === translations.de.wordClueDefault) {
     elements.phrase.textContent = t("wordClueDefault");
@@ -684,7 +701,7 @@ function showScreen(screenName) {
   }
 
   if (screenName === "math") {
-    ensureMathWorksheet();
+    showMathMenu();
   }
 
   if (screenName === "admin") {
@@ -711,6 +728,26 @@ function showGermanApp(appName) {
   }
   if (appName === "articles") {
     pickArticleWord();
+  }
+}
+
+function showMathMenu() {
+  resetMathWorksheet();
+  stopContestTimer();
+  elements.mathHub.classList.remove("hidden");
+  elements.numberSprintApp.classList.add("hidden");
+  elements.timerDisplay.classList.add("hidden");
+  document.querySelector("#math-title").textContent = t("mathApps");
+}
+
+function showMathApp(appName) {
+  elements.mathHub.classList.add("hidden");
+  elements.numberSprintApp.classList.toggle("hidden", appName !== "number-sprint");
+  elements.timerDisplay.classList.toggle("hidden", appName !== "number-sprint");
+  document.querySelector("#math-title").textContent = t("numberSprint");
+
+  if (appName === "number-sprint") {
+    ensureMathWorksheet();
   }
 }
 
@@ -2048,6 +2085,10 @@ elements.germanMenuButtons.forEach((button) => {
   button.addEventListener("click", showGermanMenu);
 });
 elements.openMath.addEventListener("click", () => showScreen("math"));
+elements.openNumberSprint.addEventListener("click", () => showMathApp("number-sprint"));
+elements.mathMenuButtons.forEach((button) => {
+  button.addEventListener("click", showMathMenu);
+});
 elements.openAdmin.addEventListener("click", () => showScreen("admin"));
 elements.languageToggle.addEventListener("click", () => {
   currentLanguage = currentLanguage === "en" ? "de" : "en";
