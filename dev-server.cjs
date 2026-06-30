@@ -19,7 +19,11 @@ const mimeTypes = {
 
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, `http://localhost:${port}`);
-  const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
+  const sandboxPrefix = "/sandbox";
+  const sandboxPath = url.pathname === sandboxPrefix || url.pathname.startsWith(`${sandboxPrefix}/`)
+    ? url.pathname.slice(sandboxPrefix.length) || "/"
+    : url.pathname;
+  const pathname = sandboxPath === "/" ? "/index.html" : sandboxPath;
   const filePath = path.join(root, decodeURIComponent(pathname));
 
   if (!filePath.startsWith(root)) {
