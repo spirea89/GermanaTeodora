@@ -443,8 +443,14 @@ h2 {
   border-style: dashed;
 }
 
+.tile.pending {
+  color: #b8b8b8;
+  background: #ffffff;
+  border-style: dashed;
+}
+
 .tile.filled {
-  color: var(--leaf-dark);
+  color: var(--ink);
   background: #effbf3;
   border-color: #a7d7b7;
 }

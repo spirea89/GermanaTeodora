@@ -545,7 +545,7 @@ let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
 let handwritingRound = 1;
-let handwritingHiddenLetters = [];
+let handwritingTargetLetters = [];
 let handwritingSolvedLetters = [];
 let handwritingNextLetterIndex = 0;
 let mathSelectedMinutes = 10;
@@ -1139,7 +1139,7 @@ function renderHandwritingScore() {
 
 function prepareHandwritingPrompt(word) {
   elements.handwritingPrompt.replaceChildren();
-  handwritingHiddenLetters = [];
+  handwritingTargetLetters = [];
   handwritingSolvedLetters = [];
   handwritingNextLetterIndex = 0;
 
@@ -1160,19 +1160,18 @@ function prepareHandwritingPrompt(word) {
       return;
     }
 
-    const letters = [...part].filter(isLetter);
     [...part].forEach((letter, index) => {
       const tile = document.createElement("span");
       tile.className = "tile";
-      if (!isLetter(letter) || index === 0 || index === part.length - 1 || letters.length <= 2) {
+      if (!isLetter(letter)) {
         tile.textContent = letter;
       } else {
-        const hiddenIndex = handwritingHiddenLetters.length;
-        handwritingHiddenLetters.push(letter);
+        const letterIndex = handwritingTargetLetters.length;
+        handwritingTargetLetters.push(letter);
         handwritingSolvedLetters.push("");
-        tile.textContent = "·";
-        tile.classList.add("missing");
-        tile.dataset.hiddenIndex = String(hiddenIndex);
+        tile.textContent = letter;
+        tile.classList.add("pending");
+        tile.dataset.letterIndex = String(letterIndex);
       }
       elements.handwritingPrompt.append(tile);
     });
@@ -1180,16 +1179,24 @@ function prepareHandwritingPrompt(word) {
 }
 
 function fillNextHandwritingLetter() {
-  const tile = elements.handwritingPrompt.querySelector(`[data-hidden-index="${handwritingNextLetterIndex}"]`);
+  const tile = elements.handwritingPrompt.querySelector(`[data-letter-index="${handwritingNextLetterIndex}"]`);
   if (!tile) {
     return;
   }
 
-  tile.textContent = handwritingHiddenLetters[handwritingNextLetterIndex];
-  tile.classList.remove("missing");
+  tile.textContent = handwritingTargetLetters[handwritingNextLetterIndex];
+  tile.classList.remove("pending");
   tile.classList.add("filled");
-  handwritingSolvedLetters[handwritingNextLetterIndex] = handwritingHiddenLetters[handwritingNextLetterIndex];
+  handwritingSolvedLetters[handwritingNextLetterIndex] = handwritingTargetLetters[handwritingNextLetterIndex];
   handwritingNextLetterIndex += 1;
+}
+
+function clearHandwritingInput() {
+  elements.handwritingRecognized.value = "";
+  window.requestAnimationFrame(() => {
+    elements.handwritingRecognized.focus();
+    elements.handwritingRecognized.select();
+  });
 }
 
 function processHandwritingRecognition(value) {
@@ -1199,16 +1206,16 @@ function processHandwritingRecognition(value) {
   }
 
   for (const letter of letters) {
-    const expected = handwritingHiddenLetters[handwritingNextLetterIndex];
+    const expected = handwritingTargetLetters[handwritingNextLetterIndex];
     if (!expected) {
       break;
     }
 
     if (sameGermanLetter(letter, expected)) {
       fillNextHandwritingLetter();
-      elements.handwritingRecognized.value = "";
+      clearHandwritingInput();
 
-      if (handwritingNextLetterIndex >= handwritingHiddenLetters.length) {
+      if (handwritingNextLetterIndex >= handwritingTargetLetters.length) {
         finishHandwritingPage();
         return;
       }
@@ -1251,7 +1258,7 @@ function finishHandwritingPage() {
     return;
   }
 
-  if (handwritingHiddenLetters.length && handwritingNextLetterIndex < handwritingHiddenLetters.length) {
+  if (handwritingTargetLetters.length && handwritingNextLetterIndex < handwritingTargetLetters.length) {
     setHandwritingHint("try");
     elements.handwritingRecognized.focus();
     return;
