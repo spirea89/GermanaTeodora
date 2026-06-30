@@ -1160,18 +1160,22 @@ function prepareHandwritingPrompt(word) {
       return;
     }
 
-    [...part].forEach((letter, index) => {
+    const letters = [...part].filter(isLetter);
+    let letterPosition = 0;
+    [...part].forEach((letter) => {
       const tile = document.createElement("span");
       tile.className = "tile";
       if (!isLetter(letter)) {
         tile.textContent = letter;
       } else {
         const letterIndex = handwritingTargetLetters.length;
+        const isEdgeLetter = letterPosition === 0 || letterPosition === letters.length - 1;
         handwritingTargetLetters.push(letter);
         handwritingSolvedLetters.push("");
-        tile.textContent = letter;
+        tile.textContent = isEdgeLetter ? letter : "·";
         tile.classList.add("pending");
         tile.dataset.letterIndex = String(letterIndex);
+        letterPosition += 1;
       }
       elements.handwritingPrompt.append(tile);
     });
