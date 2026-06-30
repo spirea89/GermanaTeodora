@@ -1209,28 +1209,26 @@ function processHandwritingRecognition(value) {
     return;
   }
 
-  for (const letter of letters) {
-    const expected = handwritingTargetLetters[handwritingNextLetterIndex];
-    if (!expected) {
-      break;
+  const letter = letters[letters.length - 1];
+  const expected = handwritingTargetLetters[handwritingNextLetterIndex];
+  if (!expected) {
+    return;
+  }
+
+  if (sameGermanLetter(letter, expected)) {
+    fillNextHandwritingLetter();
+    clearHandwritingInput();
+
+    if (handwritingNextLetterIndex >= handwritingTargetLetters.length) {
+      finishHandwritingPage();
+      return;
     }
 
-    if (sameGermanLetter(letter, expected)) {
-      fillNextHandwritingLetter();
-      clearHandwritingInput();
-
-      if (handwritingNextLetterIndex >= handwritingTargetLetters.length) {
-        finishHandwritingPage();
-        return;
-      }
-
-      setHandwritingHint("correct");
-    } else {
-      elements.handwritingRecognized.value = letter;
-      elements.handwritingRecognized.select();
-      setHandwritingHint("try");
-      break;
-    }
+    setHandwritingHint("correct");
+  } else {
+    elements.handwritingRecognized.value = letter;
+    elements.handwritingRecognized.select();
+    setHandwritingHint("try");
   }
 }
 
@@ -2379,8 +2377,8 @@ elements.handwritingSpeak.addEventListener("click", () => {
     speak(handwritingCurrentWord.word);
   }
 });
-elements.handwritingRecognized.addEventListener("input", (event) => {
-  processHandwritingRecognition(event.data || elements.handwritingRecognized.value);
+elements.handwritingRecognized.addEventListener("input", () => {
+  processHandwritingRecognition(elements.handwritingRecognized.value);
 });
 elements.clearHandwriting.addEventListener("click", () => {
   elements.handwritingRecognized.value = "";
