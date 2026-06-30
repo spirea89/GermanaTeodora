@@ -154,6 +154,33 @@ button:active {
   overflow-wrap: anywhere;
 }
 
+.choice-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.info-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  background: #edf8ff;
+  color: var(--sky);
+  border: 2px solid #c9def1;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.info-badge:focus-visible {
+  outline: 3px solid rgba(46, 116, 181, 0.28);
+  outline-offset: 3px;
+}
+
 .choice-card small {
   display: block;
   margin-top: 8px;

@@ -242,6 +242,7 @@ const translations = {
     articleSub: "Choose the article",
     handwriting: "Handwriting",
     handwritingSub: "Write with the pen",
+    handwritingInfo: "Designed for XP-PEN style handwriting devices.",
     handwritingProgress: "Handwriting progress",
     pages: "Pages",
     nextLetter: "Next letter",
@@ -348,6 +349,7 @@ const translations = {
     articleSub: "Artikel wählen",
     handwriting: "Schreiben",
     handwritingSub: "Mit dem Stift schreiben",
+    handwritingInfo: "Diese App ist für XP-PEN-ähnliche Schreibgeräte gedacht.",
     handwritingProgress: "Schreibfortschritt",
     pages: "Seiten",
     nextLetter: "Nächster Buchstabe",
@@ -604,6 +606,11 @@ function applyLanguage() {
   setText("#open-articles small", "articleSub");
   setText("#open-handwriting strong", "handwriting");
   setText("#open-handwriting small", "handwritingSub");
+  const handwritingInfo = document.querySelector("#handwriting-info");
+  if (handwritingInfo) {
+    handwritingInfo.setAttribute("title", t("handwritingInfo"));
+    handwritingInfo.setAttribute("aria-label", t("handwritingInfo"));
+  }
   setText(".score-row div:nth-child(1) .score-label", "stars");
   setText(".score-row div:nth-child(2) .score-label", "streak");
   setText(".score-row div:nth-child(3) .score-label", "round");
