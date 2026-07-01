@@ -888,7 +888,7 @@ function isLetter(character) {
 }
 
 function sameGermanLetter(left, right) {
-  return left.toLocaleLowerCase("de-DE") === right.toLocaleLowerCase("de-DE");
+  return left.normalize("NFC") === right.normalize("NFC");
 }
 
 function decorateWord(word) {
