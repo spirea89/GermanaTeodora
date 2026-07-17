@@ -478,7 +478,6 @@ const elements = {
   articleCorrect: document.querySelector("#article-correct"),
   articleStreak: document.querySelector("#article-streak"),
   articleRound: document.querySelector("#article-round"),
-  articleSpeak: document.querySelector("#article-speak"),
   articleSkip: document.querySelector("#article-skip"),
   handwritingEmoji: document.querySelector("#handwriting-emoji"),
   handwritingPrompt: document.querySelector("#handwriting-prompt"),
@@ -626,7 +625,6 @@ function applyLanguage() {
   setText(".article-score-row div:nth-child(2) .score-label", "streak");
   setText(".article-score-row div:nth-child(3) .score-label", "round");
   elements.articleOptions.setAttribute("aria-label", t("articleSub"));
-  elements.articleSpeak.textContent = t("hearWord");
   elements.articleSkip.textContent = t("newWord");
   document.querySelector(".handwriting-score-row").setAttribute("aria-label", t("handwritingProgress"));
   setText(".handwriting-score-row div:nth-child(1) .score-label", "pages");
@@ -2372,11 +2370,6 @@ elements.articleOptions.addEventListener("click", (event) => {
     return;
   }
   chooseArticle(button.dataset.article);
-});
-elements.articleSpeak.addEventListener("click", () => {
-  if (articleCurrentWord) {
-    speak(`${articleCurrentWord.article} ${articleCurrentWord.word}`);
-  }
 });
 elements.articleSkip.addEventListener("click", nextArticleRound);
 elements.handwritingSpeak.addEventListener("click", () => {
