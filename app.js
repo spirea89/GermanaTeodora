@@ -574,6 +574,7 @@ let articleRecognition = null;
 let articleIsListening = false;
 let articleCarSessionActive = false;
 let articleRecognitionHadResult = false;
+let articleRecognitionStartedAt = 0;
 let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
@@ -1474,7 +1475,7 @@ function advanceCarArticleRound() {
   }
 }
 
-function restartCarArticleListening(delay = 350) {
+function restartCarArticleListening(delay = 550) {
   if (articleMode === "car" && articleCarSessionActive && articleCurrentWord) {
     window.setTimeout(beginCarArticleListening, delay);
   }
@@ -1539,7 +1540,7 @@ function handleCarArticleAnswer(answer, rawAnswer = "") {
   });
 }
 
-function beginCarArticleListening() {
+async function beginCarArticleListening() {
   if (articleMode !== "car" || !articleCurrentWord) {
     return;
   }
@@ -1551,9 +1552,16 @@ function beginCarArticleListening() {
     return;
   }
 
+  const hasMicrophone = await requestArticleMicrophone();
+  if (!hasMicrophone) {
+    handleCarMicrophoneBlocked();
+    return;
+  }
+
   stopArticleRecognition();
   elements.articleHeard.textContent = "";
   articleRecognitionHadResult = false;
+  articleRecognitionStartedAt = 0;
   articleRecognition = new Recognition();
   articleRecognition.lang = "de-DE";
   articleRecognition.continuous = false;
@@ -1570,8 +1578,14 @@ function beginCarArticleListening() {
     handleCarArticleAnswer(answer, rawAnswer.trim());
   };
   articleRecognition.onerror = (event) => {
+    const heardFor = Date.now() - articleRecognitionStartedAt;
     if (event.error === "not-allowed" || event.error === "service-not-allowed" || event.error === "audio-capture") {
       handleCarMicrophoneBlocked();
+      return;
+    }
+    if ((event.error === "no-speech" || event.error === "aborted") && articleCarSessionActive && heardFor < 1500) {
+      stopArticleRecognition();
+      restartCarArticleListening(450);
       return;
     }
     handleCarArticleAnswer({ article: "", complete: false }, "");
@@ -1579,12 +1593,17 @@ function beginCarArticleListening() {
   articleRecognition.onend = () => {
     if (articleIsListening) {
       if (!articleRecognitionHadResult) {
+        const heardFor = Date.now() - articleRecognitionStartedAt;
+        if (articleCarSessionActive && heardFor < 1500) {
+          stopArticleRecognition();
+          restartCarArticleListening(450);
+          return;
+        }
         handleCarArticleAnswer({ article: "", complete: false }, "");
         return;
       }
       articleIsListening = false;
-      elements.articleListen.classList.remove("listening");
-      elements.articleListen.textContent = t("startListening");
+      updateArticleListenButton();
     }
   };
 
@@ -1593,6 +1612,7 @@ function beginCarArticleListening() {
   }
   try {
     articleIsListening = true;
+    articleRecognitionStartedAt = Date.now();
     updateArticleListenButton();
     articleRecognition.start();
     setArticleHint("default");
@@ -1603,14 +1623,8 @@ function beginCarArticleListening() {
   }
 }
 
-async function startCarArticleRound() {
+function startCarArticleRound() {
   if (articleMode !== "car" || !articleCurrentWord) {
-    return;
-  }
-
-  const hasMicrophone = await requestArticleMicrophone();
-  if (!hasMicrophone) {
-    handleCarMicrophoneBlocked();
     return;
   }
 
