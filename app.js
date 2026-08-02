@@ -276,6 +276,7 @@ const translations = {
     heardAnswer: (answer) => `I heard: ${answer}`,
     carPrompt: "Tap start. I will say the word and listen for der, die, or das.",
     carUnsupported: "Speech recognition is not available in this browser.",
+    carNeedsMic: "Please allow microphone access, then tap Start listening again.",
     carNoAnswer: "I did not hear the article and word. Try again.",
     carWrong: (article, word) => `The correct answer is ${article} ${word}.`,
     adminTitle: "German Words",
@@ -393,6 +394,7 @@ const translations = {
     heardAnswer: (answer) => `Ich habe gehört: ${answer}`,
     carPrompt: "Tippe auf Start. Ich sage das Wort und höre auf der, die oder das.",
     carUnsupported: "Spracherkennung ist in diesem Browser nicht verfügbar.",
+    carNeedsMic: "Bitte erlaube den Zugriff auf das Mikrofon und tippe dann noch einmal auf Start.",
     carNoAnswer: "Ich habe Artikel und Wort nicht gehört. Versuch es noch einmal.",
     carWrong: (article, word) => `Richtig ist ${article} ${word}.`,
     adminTitle: "Deutsche Wörter",
@@ -1385,6 +1387,20 @@ function getSpeechRecognitionConstructor() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
+async function requestArticleMicrophone() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    return true;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((track) => track.stop());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function updateArticleListenButton() {
   elements.articleListen.classList.toggle("listening", articleCarSessionActive);
   elements.articleListen.textContent = articleCarSessionActive
@@ -1462,6 +1478,13 @@ function restartCarArticleListening(delay = 350) {
   if (articleMode === "car" && articleCarSessionActive && articleCurrentWord) {
     window.setTimeout(beginCarArticleListening, delay);
   }
+}
+
+function handleCarMicrophoneBlocked() {
+  stopArticleCarSession();
+  elements.articleHint.dataset.state = "try";
+  elements.articleHint.className = "hint try";
+  elements.articleHint.textContent = t("carNeedsMic");
 }
 
 function handleCarArticleAnswer(answer, rawAnswer = "") {
@@ -1546,7 +1569,11 @@ function beginCarArticleListening() {
       || articleAnswerFromSpeech(rawAnswer, articleCurrentWord);
     handleCarArticleAnswer(answer, rawAnswer.trim());
   };
-  articleRecognition.onerror = () => {
+  articleRecognition.onerror = (event) => {
+    if (event.error === "not-allowed" || event.error === "service-not-allowed" || event.error === "audio-capture") {
+      handleCarMicrophoneBlocked();
+      return;
+    }
     handleCarArticleAnswer({ article: "", complete: false }, "");
   };
   articleRecognition.onend = () => {
@@ -1565,17 +1592,25 @@ function beginCarArticleListening() {
     return;
   }
   try {
-    articleRecognition.start();
     articleIsListening = true;
     updateArticleListenButton();
+    articleRecognition.start();
     setArticleHint("default");
   } catch {
+    articleIsListening = false;
+    updateArticleListenButton();
     handleCarArticleAnswer({ article: "", complete: false }, "");
   }
 }
 
-function startCarArticleRound() {
+async function startCarArticleRound() {
   if (articleMode !== "car" || !articleCurrentWord) {
+    return;
+  }
+
+  const hasMicrophone = await requestArticleMicrophone();
+  if (!hasMicrophone) {
+    handleCarMicrophoneBlocked();
     return;
   }
 
