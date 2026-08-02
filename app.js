@@ -196,6 +196,9 @@ const articleWordsStorageKey = "articleGameGermanWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
+const appVersion = "2026.08.02.2";
+const appVersionFile = "data/app-version.json";
+const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
 const wordRewards = [
   ["🎉", "Fantastic!"],
@@ -460,6 +463,7 @@ const translations = {
 
 const elements = {
   languageToggle: document.querySelector("#language-toggle"),
+  versionBadge: document.querySelector("#version-badge"),
   homeScreen: document.querySelector("#home-screen"),
   germanScreen: document.querySelector("#german-screen"),
   mathScreen: document.querySelector("#math-screen"),
@@ -1115,6 +1119,58 @@ async function loadBundledWordFiles(force = false) {
     return true;
   } catch {
     return false;
+  }
+}
+
+function updateVersionBadge(status = "") {
+  if (!elements.versionBadge) {
+    return;
+  }
+
+  elements.versionBadge.textContent = status ? `Version ${appVersion} · ${status}` : `Version ${appVersion}`;
+}
+
+function compareVersions(left, right) {
+  const leftParts = String(left).split(".").map((part) => Number(part) || 0);
+  const rightParts = String(right).split(".").map((part) => Number(part) || 0);
+  const length = Math.max(leftParts.length, rightParts.length);
+  for (let index = 0; index < length; index += 1) {
+    const difference = (leftParts[index] || 0) - (rightParts[index] || 0);
+    if (difference !== 0) {
+      return difference;
+    }
+  }
+  return 0;
+}
+
+async function checkForLatestVersion() {
+  updateVersionBadge();
+  try {
+    const response = await fetch(`${appVersionFile}?updated=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) {
+      return;
+    }
+
+    const latest = await response.json();
+    const latestVersion = String(latest.version || "").trim();
+    if (!latestVersion || compareVersions(latestVersion, appVersion) <= 0) {
+      localStorage.removeItem(appVersionReloadKey);
+      updateVersionBadge("latest");
+      return;
+    }
+
+    const reloadMarker = `${appVersion}->${latestVersion}`;
+    if (localStorage.getItem(appVersionReloadKey) === reloadMarker) {
+      updateVersionBadge(`new ${latestVersion}`);
+      return;
+    }
+
+    localStorage.setItem(appVersionReloadKey, reloadMarker);
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("v", latestVersion);
+    window.location.replace(nextUrl.toString());
+  } catch {
+    updateVersionBadge();
   }
 }
 
@@ -2803,6 +2859,7 @@ selectContestSeconds(30);
 renderScore();
 renderArticleScore();
 applyLanguage();
+void checkForLatestVersion();
 pickWord();
 void loadBundledWordFiles().then((loaded) => {
   if (!loaded) {
