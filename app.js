@@ -275,7 +275,7 @@ const translations = {
     heardAnswer: (answer) => `I heard: ${answer}`,
     carPrompt: "Tap start. I will say the word and listen for der, die, or das.",
     carUnsupported: "Speech recognition is not available in this browser.",
-    carNoAnswer: "I did not hear der, die, or das. Try again.",
+    carNoAnswer: "I did not hear the article and word. Try again.",
     carWrong: (article, word) => `The correct answer is ${article} ${word}.`,
     adminTitle: "German Words",
     adminCopy: "Rebus words. One item per line. Use: word, emoji, clue",
@@ -391,7 +391,7 @@ const translations = {
     heardAnswer: (answer) => `Ich habe gehört: ${answer}`,
     carPrompt: "Tippe auf Start. Ich sage das Wort und höre auf der, die oder das.",
     carUnsupported: "Spracherkennung ist in diesem Browser nicht verfügbar.",
-    carNoAnswer: "Ich habe der, die oder das nicht gehört. Versuch es noch einmal.",
+    carNoAnswer: "Ich habe Artikel und Wort nicht gehört. Versuch es noch einmal.",
     carWrong: (article, word) => `Richtig ist ${article} ${word}.`,
     adminTitle: "Deutsche Wörter",
     adminCopy: "Rebus-Wörter. Ein Eintrag pro Zeile: Wort, Emoji, Hinweis",
@@ -568,6 +568,7 @@ let articleRound = 1;
 let articleMode = "normal";
 let articleRecognition = null;
 let articleIsListening = false;
+let articleRecognitionHadResult = false;
 let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
@@ -1407,7 +1408,7 @@ function setArticleMode(mode) {
   setArticleHint("default");
 }
 
-function articleAnswerFromSpeech(value) {
+function normalizedArticleSpeech(value) {
   const normalized = normalize(value)
     .replace(/\bdeer\b/g, "der")
     .replace(/\bdear\b/g, "der")
@@ -1416,8 +1417,26 @@ function articleAnswerFromSpeech(value) {
     .replace(/\bthe\b/g, "die")
     .replace(/\bdass\b/g, "das")
     .replace(/\bdoes\b/g, "das");
+  return normalized.replace(/[^\p{L}\s-]/gu, " ").replace(/\s+/g, " ").trim();
+}
+
+function articleAnswerFromSpeech(value, wordItem) {
+  const normalized = normalizedArticleSpeech(value);
   const match = normalized.match(/\b(der|die|das)\b/);
-  return match ? match[1] : "";
+  const spokenArticle = match ? match[1] : "";
+  const spokenWord = normalizedArticleSpeech(wordItem?.word || "");
+  const hasWord = Boolean(spokenWord && normalized.includes(spokenWord));
+  return {
+    article: spokenArticle,
+    complete: Boolean(spokenArticle && hasWord)
+  };
+}
+
+function advanceCarArticleRound() {
+  nextArticleRound();
+  if (articleMode === "car" && articleCurrentWord) {
+    window.setTimeout(startCarArticleRound, 500);
+  }
 }
 
 function handleCarArticleAnswer(answer, rawAnswer = "") {
@@ -1430,14 +1449,14 @@ function handleCarArticleAnswer(answer, rawAnswer = "") {
     elements.articleHeard.textContent = t("heardAnswer", rawAnswer);
   }
 
-  if (!answer) {
+  if (!answer.complete) {
     setArticleHint("try", articleCurrentWord);
     elements.articleHint.textContent = t("carNoAnswer");
     speak(t("carNoAnswer"));
     return;
   }
 
-  if (answer === articleCurrentWord.article) {
+  if (answer.article === articleCurrentWord.article) {
     articleCorrect += 1;
     articleStreak += 1;
     localStorage.setItem("articleGameCorrect", String(articleCorrect));
@@ -1448,11 +1467,13 @@ function handleCarArticleAnswer(answer, rawAnswer = "") {
     showReward(
       "🏆",
       t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word),
-      1300,
-      nextArticleRound,
+      950,
+      null,
       `article-${articleCurrentWord.article}`
     );
-    speak(t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word));
+    speak(t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word), {
+      onend: () => window.setTimeout(advanceCarArticleRound, 300)
+    });
     return;
   }
 
@@ -1482,23 +1503,31 @@ function startCarArticleRound() {
 
   stopArticleRecognition();
   elements.articleHeard.textContent = "";
+  articleRecognitionHadResult = false;
   articleRecognition = new Recognition();
   articleRecognition.lang = "de-DE";
   articleRecognition.continuous = false;
   articleRecognition.interimResults = false;
   articleRecognition.maxAlternatives = 4;
   articleRecognition.onresult = (event) => {
+    articleRecognitionHadResult = true;
     const alternatives = Array.from(event.results?.[0] || []);
     const rawAnswer = alternatives.map((item) => item.transcript || "").find(Boolean) || "";
-    const answer = alternatives.map((item) => articleAnswerFromSpeech(item.transcript || "")).find(Boolean)
-      || articleAnswerFromSpeech(rawAnswer);
+    const answer = alternatives
+      .map((item) => articleAnswerFromSpeech(item.transcript || "", articleCurrentWord))
+      .find((result) => result.complete)
+      || articleAnswerFromSpeech(rawAnswer, articleCurrentWord);
     handleCarArticleAnswer(answer, rawAnswer.trim());
   };
   articleRecognition.onerror = () => {
-    handleCarArticleAnswer("", "");
+    handleCarArticleAnswer({ article: "", complete: false }, "");
   };
   articleRecognition.onend = () => {
     if (articleIsListening) {
+      if (!articleRecognitionHadResult) {
+        handleCarArticleAnswer({ article: "", complete: false }, "");
+        return;
+      }
       articleIsListening = false;
       elements.articleListen.classList.remove("listening");
       elements.articleListen.textContent = t("startListening");
@@ -1517,7 +1546,7 @@ function startCarArticleRound() {
         elements.articleListen.textContent = t("listening");
         setArticleHint("default");
       } catch {
-        handleCarArticleAnswer("", "");
+        handleCarArticleAnswer({ article: "", complete: false }, "");
       }
     }
   });
