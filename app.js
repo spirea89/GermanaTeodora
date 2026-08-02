@@ -268,6 +268,15 @@ const translations = {
     articleSuccess: (article, word) => `Yes! ${article} ${word}`,
     articleTry: () => "Almost. Try again.",
     articleNoWords: "Add words with der, die, or das in Administration.",
+    normalMode: "Normal mode",
+    carMode: "Car mode",
+    startListening: "Start listening",
+    listening: "Listening...",
+    heardAnswer: (answer) => `I heard: ${answer}`,
+    carPrompt: "Tap start. I will say the word and listen for der, die, or das.",
+    carUnsupported: "Speech recognition is not available in this browser.",
+    carNoAnswer: "I did not hear der, die, or das. Try again.",
+    carWrong: (article, word) => `The correct answer is ${article} ${word}.`,
     adminTitle: "German Words",
     adminCopy: "Rebus words. One item per line. Use: word, emoji, clue",
     adminArticleCopy: "DER/DIE/DAS words. One item per line. Use: word, article, emoji",
@@ -375,6 +384,15 @@ const translations = {
     articleSuccess: (article, word) => `Ja! ${article} ${word}`,
     articleTry: () => "Fast. Versuch es noch einmal.",
     articleNoWords: "Füge Wörter mit der, die oder das in der Verwaltung hinzu.",
+    normalMode: "Normalmodus",
+    carMode: "Automodus",
+    startListening: "Zuhören starten",
+    listening: "Ich höre zu...",
+    heardAnswer: (answer) => `Ich habe gehört: ${answer}`,
+    carPrompt: "Tippe auf Start. Ich sage das Wort und höre auf der, die oder das.",
+    carUnsupported: "Spracherkennung ist in diesem Browser nicht verfügbar.",
+    carNoAnswer: "Ich habe der, die oder das nicht gehört. Versuch es noch einmal.",
+    carWrong: (article, word) => `Richtig ist ${article} ${word}.`,
     adminTitle: "Deutsche Wörter",
     adminCopy: "Rebus-Wörter. Ein Eintrag pro Zeile: Wort, Emoji, Hinweis",
     adminArticleCopy: "DER/DIE/DAS-Wörter. Ein Eintrag pro Zeile: Wort, Artikel, Emoji",
@@ -473,7 +491,12 @@ const elements = {
   skip: document.querySelector("#skip-button"),
   articleEmoji: document.querySelector("#article-emoji"),
   articleWord: document.querySelector("#article-word"),
+  articleNormalMode: document.querySelector("#article-normal-mode"),
+  articleCarMode: document.querySelector("#article-car-mode"),
   articleOptions: document.querySelector("#article-options"),
+  articleCarPanel: document.querySelector("#article-car-panel"),
+  articleListen: document.querySelector("#article-listen"),
+  articleHeard: document.querySelector("#article-heard"),
   articleHint: document.querySelector("#article-hint"),
   articleCorrect: document.querySelector("#article-correct"),
   articleStreak: document.querySelector("#article-streak"),
@@ -542,6 +565,9 @@ let articleCurrentWord = null;
 let articleCorrect = Number(localStorage.getItem("articleGameCorrect") || 0);
 let articleStreak = 0;
 let articleRound = 1;
+let articleMode = "normal";
+let articleRecognition = null;
+let articleIsListening = false;
 let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
@@ -625,6 +651,9 @@ function applyLanguage() {
   setText(".article-score-row div:nth-child(2) .score-label", "streak");
   setText(".article-score-row div:nth-child(3) .score-label", "round");
   elements.articleOptions.setAttribute("aria-label", t("articleSub"));
+  elements.articleNormalMode.textContent = t("normalMode");
+  elements.articleCarMode.textContent = t("carMode");
+  elements.articleListen.textContent = articleIsListening ? t("listening") : t("startListening");
   elements.articleSkip.textContent = t("newWord");
   document.querySelector(".handwriting-score-row").setAttribute("aria-label", t("handwritingProgress"));
   setText(".handwriting-score-row div:nth-child(1) .score-label", "pages");
@@ -774,6 +803,9 @@ function setAdminNote(state) {
 }
 
 function showScreen(screenName) {
+  if (screenName !== "german") {
+    stopArticleRecognition();
+  }
   elements.homeScreen.classList.toggle("hidden", screenName !== "home");
   elements.germanScreen.classList.toggle("hidden", screenName !== "german");
   elements.mathScreen.classList.toggle("hidden", screenName !== "math");
@@ -793,6 +825,7 @@ function showScreen(screenName) {
 }
 
 function showGermanMenu() {
+  stopArticleRecognition();
   elements.germanHub.classList.remove("hidden");
   elements.rebusApp.classList.add("hidden");
   elements.articleApp.classList.add("hidden");
@@ -802,6 +835,9 @@ function showGermanMenu() {
 }
 
 function showGermanApp(appName) {
+  if (appName !== "articles") {
+    stopArticleRecognition();
+  }
   elements.germanHub.classList.add("hidden");
   elements.rebusApp.classList.toggle("hidden", appName !== "rebus");
   elements.articleApp.classList.toggle("hidden", appName !== "articles");
@@ -1339,6 +1375,154 @@ function renderArticleScore() {
   elements.articleRound.textContent = articleRound;
 }
 
+function getSpeechRecognitionConstructor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function stopArticleRecognition() {
+  if (articleRecognition) {
+    articleRecognition.onresult = null;
+    articleRecognition.onerror = null;
+    articleRecognition.onend = null;
+    try {
+      articleRecognition.stop();
+    } catch {
+      // Recognition may already be stopped by the browser.
+    }
+    articleRecognition = null;
+  }
+  articleIsListening = false;
+  elements.articleListen.classList.remove("listening");
+  elements.articleListen.textContent = t("startListening");
+}
+
+function setArticleMode(mode) {
+  articleMode = mode === "car" ? "car" : "normal";
+  stopArticleRecognition();
+  elements.articleNormalMode.classList.toggle("selected", articleMode === "normal");
+  elements.articleCarMode.classList.toggle("selected", articleMode === "car");
+  elements.articleOptions.classList.toggle("hidden", articleMode === "car");
+  elements.articleCarPanel.classList.toggle("hidden", articleMode !== "car");
+  elements.articleHeard.textContent = "";
+  setArticleHint("default");
+}
+
+function articleAnswerFromSpeech(value) {
+  const normalized = normalize(value)
+    .replace(/\bdeer\b/g, "der")
+    .replace(/\bdear\b/g, "der")
+    .replace(/\bdir\b/g, "der")
+    .replace(/\bdee\b/g, "die")
+    .replace(/\bthe\b/g, "die")
+    .replace(/\bdass\b/g, "das")
+    .replace(/\bdoes\b/g, "das");
+  const match = normalized.match(/\b(der|die|das)\b/);
+  return match ? match[1] : "";
+}
+
+function handleCarArticleAnswer(answer, rawAnswer = "") {
+  stopArticleRecognition();
+  if (!articleCurrentWord) {
+    return;
+  }
+
+  if (rawAnswer) {
+    elements.articleHeard.textContent = t("heardAnswer", rawAnswer);
+  }
+
+  if (!answer) {
+    setArticleHint("try", articleCurrentWord);
+    elements.articleHint.textContent = t("carNoAnswer");
+    speak(t("carNoAnswer"));
+    return;
+  }
+
+  if (answer === articleCurrentWord.article) {
+    articleCorrect += 1;
+    articleStreak += 1;
+    localStorage.setItem("articleGameCorrect", String(articleCorrect));
+    elements.articleWord.classList.remove("article-der", "article-die", "article-das");
+    elements.articleWord.classList.add(`article-${articleCurrentWord.article}`);
+    setArticleHint("success", articleCurrentWord);
+    renderArticleScore();
+    showReward(
+      "🏆",
+      t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word),
+      1300,
+      nextArticleRound,
+      `article-${articleCurrentWord.article}`
+    );
+    speak(t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word));
+    return;
+  }
+
+  articleStreak = 0;
+  elements.articleWord.classList.remove("article-der", "article-die", "article-das");
+  elements.articleWord.classList.add(`article-${articleCurrentWord.article}`);
+  elements.articleHint.dataset.state = "try";
+  elements.articleHint.className = "hint try";
+  elements.articleHint.textContent = t("carWrong", articleCurrentWord.article, articleCurrentWord.word);
+  renderArticleScore();
+  speak(t("carWrong", articleCurrentWord.article, articleCurrentWord.word), {
+    onend: () => window.setTimeout(nextArticleRound, 700)
+  });
+}
+
+function startCarArticleRound() {
+  if (articleMode !== "car" || !articleCurrentWord) {
+    return;
+  }
+
+  const Recognition = getSpeechRecognitionConstructor();
+  if (!Recognition) {
+    setArticleHint("try", articleCurrentWord);
+    elements.articleHint.textContent = t("carUnsupported");
+    return;
+  }
+
+  stopArticleRecognition();
+  elements.articleHeard.textContent = "";
+  articleRecognition = new Recognition();
+  articleRecognition.lang = "de-DE";
+  articleRecognition.continuous = false;
+  articleRecognition.interimResults = false;
+  articleRecognition.maxAlternatives = 4;
+  articleRecognition.onresult = (event) => {
+    const alternatives = Array.from(event.results?.[0] || []);
+    const rawAnswer = alternatives.map((item) => item.transcript || "").find(Boolean) || "";
+    const answer = alternatives.map((item) => articleAnswerFromSpeech(item.transcript || "")).find(Boolean)
+      || articleAnswerFromSpeech(rawAnswer);
+    handleCarArticleAnswer(answer, rawAnswer.trim());
+  };
+  articleRecognition.onerror = () => {
+    handleCarArticleAnswer("", "");
+  };
+  articleRecognition.onend = () => {
+    if (articleIsListening) {
+      articleIsListening = false;
+      elements.articleListen.classList.remove("listening");
+      elements.articleListen.textContent = t("startListening");
+    }
+  };
+
+  speak(articleCurrentWord.word, {
+    onend: () => {
+      if (articleMode !== "car" || !articleRecognition) {
+        return;
+      }
+      try {
+        articleRecognition.start();
+        articleIsListening = true;
+        elements.articleListen.classList.add("listening");
+        elements.articleListen.textContent = t("listening");
+        setArticleHint("default");
+      } catch {
+        handleCarArticleAnswer("", "");
+      }
+    }
+  });
+}
+
 function setArticleHint(state, wordItem = null) {
   elements.articleHint.dataset.state = state;
   elements.articleHint.className = "hint";
@@ -1357,16 +1541,19 @@ function setArticleHint(state, wordItem = null) {
     elements.articleHint.textContent = t("articleNoWords");
     return;
   }
-  elements.articleHint.textContent = t("articlePrompt");
+  elements.articleHint.textContent = articleMode === "car" ? t("carPrompt") : t("articlePrompt");
 }
 
 function pickArticleWord() {
   const candidates = articleWords();
+  stopArticleRecognition();
   renderArticleScore();
   elements.articleOptions.querySelectorAll("button").forEach((button) => {
     button.disabled = !candidates.length;
     button.classList.remove("selected", "correct", "wrong");
   });
+  elements.articleListen.disabled = !candidates.length;
+  elements.articleHeard.textContent = "";
 
   if (!candidates.length) {
     articleCurrentWord = null;
@@ -1466,8 +1653,9 @@ function refreshGermanVoice() {
   germanVoice = findGermanVoice();
 }
 
-function speak(text) {
+function speak(text, options = {}) {
   if (!("speechSynthesis" in window)) {
+    options.onend?.();
     return;
   }
 
@@ -1481,6 +1669,10 @@ function speak(text) {
     utterance.voice = germanVoice;
   }
   utterance.rate = 0.82;
+  if (typeof options.onend === "function") {
+    utterance.onend = options.onend;
+    utterance.onerror = options.onend;
+  }
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }
@@ -2364,13 +2556,19 @@ elements.skip.addEventListener("click", () => {
 });
 
 elements.speak.addEventListener("click", () => speak(currentWord.word));
+elements.articleNormalMode.addEventListener("click", () => setArticleMode("normal"));
+elements.articleCarMode.addEventListener("click", () => setArticleMode("car"));
 elements.articleOptions.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-article]");
   if (!button) {
     return;
   }
+  if (articleMode !== "normal") {
+    return;
+  }
   chooseArticle(button.dataset.article);
 });
+elements.articleListen.addEventListener("click", startCarArticleRound);
 elements.articleSkip.addEventListener("click", nextArticleRound);
 elements.handwritingSpeak.addEventListener("click", () => {
   if (handwritingCurrentWord) {
