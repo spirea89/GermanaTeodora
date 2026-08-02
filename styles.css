@@ -339,6 +339,49 @@ h2 {
   padding: clamp(20px, 5vw, 38px);
 }
 
+.article-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.article-mode-switch button,
+.article-car-panel button {
+  min-height: 58px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.article-mode-switch button.selected,
+.article-car-panel button.listening {
+  background: var(--sky);
+  color: #ffffff;
+  border-color: var(--sky);
+}
+
+.article-car-panel {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.article-car-panel button {
+  width: min(100%, 360px);
+}
+
+.article-heard {
+  min-height: 28px;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+  text-align: center;
+}
+
 .handwriting-card {
   display: grid;
   gap: 18px;

@@ -268,6 +268,16 @@ const translations = {
     articleSuccess: (article, word) => `Yes! ${article} ${word}`,
     articleTry: () => "Almost. Try again.",
     articleNoWords: "Add words with der, die, or das in Administration.",
+    normalMode: "Normal mode",
+    carMode: "Car mode",
+    startListening: "Start listening",
+    stopListening: "Stop",
+    listening: "Listening...",
+    heardAnswer: (answer) => `I heard: ${answer}`,
+    carPrompt: "Tap start. I will say the word and listen for der, die, or das.",
+    carUnsupported: "Speech recognition is not available in this browser.",
+    carNoAnswer: "I did not hear the article and word. Try again.",
+    carWrong: (article, word) => `The correct answer is ${article} ${word}.`,
     adminTitle: "German Words",
     adminCopy: "Rebus words. One item per line. Use: word, emoji, clue",
     adminArticleCopy: "DER/DIE/DAS words. One item per line. Use: word, article, emoji",
@@ -375,6 +385,16 @@ const translations = {
     articleSuccess: (article, word) => `Ja! ${article} ${word}`,
     articleTry: () => "Fast. Versuch es noch einmal.",
     articleNoWords: "Füge Wörter mit der, die oder das in der Verwaltung hinzu.",
+    normalMode: "Normalmodus",
+    carMode: "Automodus",
+    startListening: "Zuhören starten",
+    stopListening: "Stopp",
+    listening: "Ich höre zu...",
+    heardAnswer: (answer) => `Ich habe gehört: ${answer}`,
+    carPrompt: "Tippe auf Start. Ich sage das Wort und höre auf der, die oder das.",
+    carUnsupported: "Spracherkennung ist in diesem Browser nicht verfügbar.",
+    carNoAnswer: "Ich habe Artikel und Wort nicht gehört. Versuch es noch einmal.",
+    carWrong: (article, word) => `Richtig ist ${article} ${word}.`,
     adminTitle: "Deutsche Wörter",
     adminCopy: "Rebus-Wörter. Ein Eintrag pro Zeile: Wort, Emoji, Hinweis",
     adminArticleCopy: "DER/DIE/DAS-Wörter. Ein Eintrag pro Zeile: Wort, Artikel, Emoji",
@@ -473,7 +493,12 @@ const elements = {
   skip: document.querySelector("#skip-button"),
   articleEmoji: document.querySelector("#article-emoji"),
   articleWord: document.querySelector("#article-word"),
+  articleNormalMode: document.querySelector("#article-normal-mode"),
+  articleCarMode: document.querySelector("#article-car-mode"),
   articleOptions: document.querySelector("#article-options"),
+  articleCarPanel: document.querySelector("#article-car-panel"),
+  articleListen: document.querySelector("#article-listen"),
+  articleHeard: document.querySelector("#article-heard"),
   articleHint: document.querySelector("#article-hint"),
   articleCorrect: document.querySelector("#article-correct"),
   articleStreak: document.querySelector("#article-streak"),
@@ -542,6 +567,11 @@ let articleCurrentWord = null;
 let articleCorrect = Number(localStorage.getItem("articleGameCorrect") || 0);
 let articleStreak = 0;
 let articleRound = 1;
+let articleMode = "normal";
+let articleRecognition = null;
+let articleIsListening = false;
+let articleCarSessionActive = false;
+let articleRecognitionHadResult = false;
 let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
@@ -625,6 +655,11 @@ function applyLanguage() {
   setText(".article-score-row div:nth-child(2) .score-label", "streak");
   setText(".article-score-row div:nth-child(3) .score-label", "round");
   elements.articleOptions.setAttribute("aria-label", t("articleSub"));
+  elements.articleNormalMode.textContent = t("normalMode");
+  elements.articleCarMode.textContent = t("carMode");
+  elements.articleListen.textContent = articleCarSessionActive
+    ? (articleIsListening ? t("listening") : t("stopListening"))
+    : t("startListening");
   elements.articleSkip.textContent = t("newWord");
   document.querySelector(".handwriting-score-row").setAttribute("aria-label", t("handwritingProgress"));
   setText(".handwriting-score-row div:nth-child(1) .score-label", "pages");
@@ -774,6 +809,9 @@ function setAdminNote(state) {
 }
 
 function showScreen(screenName) {
+  if (screenName !== "german") {
+    stopArticleCarSession();
+  }
   elements.homeScreen.classList.toggle("hidden", screenName !== "home");
   elements.germanScreen.classList.toggle("hidden", screenName !== "german");
   elements.mathScreen.classList.toggle("hidden", screenName !== "math");
@@ -793,6 +831,7 @@ function showScreen(screenName) {
 }
 
 function showGermanMenu() {
+  stopArticleCarSession();
   elements.germanHub.classList.remove("hidden");
   elements.rebusApp.classList.add("hidden");
   elements.articleApp.classList.add("hidden");
@@ -802,6 +841,9 @@ function showGermanMenu() {
 }
 
 function showGermanApp(appName) {
+  if (appName !== "articles") {
+    stopArticleCarSession();
+  }
   elements.germanHub.classList.add("hidden");
   elements.rebusApp.classList.toggle("hidden", appName !== "rebus");
   elements.articleApp.classList.toggle("hidden", appName !== "articles");
@@ -1339,6 +1381,220 @@ function renderArticleScore() {
   elements.articleRound.textContent = articleRound;
 }
 
+function getSpeechRecognitionConstructor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function updateArticleListenButton() {
+  elements.articleListen.classList.toggle("listening", articleCarSessionActive);
+  elements.articleListen.textContent = articleCarSessionActive
+    ? (articleIsListening ? t("listening") : t("stopListening"))
+    : t("startListening");
+}
+
+function stopArticleRecognition() {
+  if (articleRecognition) {
+    articleRecognition.onresult = null;
+    articleRecognition.onerror = null;
+    articleRecognition.onend = null;
+    try {
+      articleRecognition.stop();
+    } catch {
+      // Recognition may already be stopped by the browser.
+    }
+    articleRecognition = null;
+  }
+  articleIsListening = false;
+  updateArticleListenButton();
+}
+
+function stopArticleCarSession() {
+  articleCarSessionActive = false;
+  stopArticleRecognition();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+function setArticleMode(mode) {
+  articleMode = mode === "car" ? "car" : "normal";
+  stopArticleCarSession();
+  elements.articleNormalMode.classList.toggle("selected", articleMode === "normal");
+  elements.articleCarMode.classList.toggle("selected", articleMode === "car");
+  elements.articleOptions.classList.toggle("hidden", articleMode === "car");
+  elements.articleCarPanel.classList.toggle("hidden", articleMode !== "car");
+  elements.articleHeard.textContent = "";
+  setArticleHint("default");
+}
+
+function normalizedArticleSpeech(value) {
+  const normalized = normalize(value)
+    .replace(/\bdeer\b/g, "der")
+    .replace(/\bdear\b/g, "der")
+    .replace(/\bdir\b/g, "der")
+    .replace(/\bdee\b/g, "die")
+    .replace(/\bthe\b/g, "die")
+    .replace(/\bdass\b/g, "das")
+    .replace(/\bdoes\b/g, "das");
+  return normalized.replace(/[^\p{L}\s-]/gu, " ").replace(/\s+/g, " ").trim();
+}
+
+function articleAnswerFromSpeech(value, wordItem) {
+  const normalized = normalizedArticleSpeech(value);
+  const match = normalized.match(/\b(der|die|das)\b/);
+  const spokenArticle = match ? match[1] : "";
+  const spokenWord = normalizedArticleSpeech(wordItem?.word || "");
+  const hasWord = Boolean(spokenWord && normalized.includes(spokenWord));
+  return {
+    article: spokenArticle,
+    complete: Boolean(spokenArticle && hasWord)
+  };
+}
+
+function advanceCarArticleRound() {
+  nextArticleRound();
+  if (articleMode === "car" && articleCarSessionActive && articleCurrentWord) {
+    window.setTimeout(startCarArticleRound, 500);
+  }
+}
+
+function restartCarArticleListening(delay = 350) {
+  if (articleMode === "car" && articleCarSessionActive && articleCurrentWord) {
+    window.setTimeout(beginCarArticleListening, delay);
+  }
+}
+
+function handleCarArticleAnswer(answer, rawAnswer = "") {
+  stopArticleRecognition();
+  if (!articleCurrentWord) {
+    return;
+  }
+
+  if (rawAnswer) {
+    elements.articleHeard.textContent = t("heardAnswer", rawAnswer);
+  }
+
+  if (!answer.complete) {
+    setArticleHint("try", articleCurrentWord);
+    elements.articleHint.textContent = t("carNoAnswer");
+    speak(t("carNoAnswer"), {
+      onend: () => restartCarArticleListening()
+    });
+    return;
+  }
+
+  if (answer.article === articleCurrentWord.article) {
+    articleCorrect += 1;
+    articleStreak += 1;
+    localStorage.setItem("articleGameCorrect", String(articleCorrect));
+    elements.articleWord.classList.remove("article-der", "article-die", "article-das");
+    elements.articleWord.classList.add(`article-${articleCurrentWord.article}`);
+    setArticleHint("success", articleCurrentWord);
+    renderArticleScore();
+    showReward(
+      "🏆",
+      t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word),
+      950,
+      null,
+      `article-${articleCurrentWord.article}`
+    );
+    speak(t("articleSuccess", articleCurrentWord.article, articleCurrentWord.word), {
+      onend: () => window.setTimeout(advanceCarArticleRound, 300)
+    });
+    return;
+  }
+
+  articleStreak = 0;
+  elements.articleWord.classList.remove("article-der", "article-die", "article-das");
+  elements.articleWord.classList.add(`article-${articleCurrentWord.article}`);
+  elements.articleHint.dataset.state = "try";
+  elements.articleHint.className = "hint try";
+  elements.articleHint.textContent = t("carWrong", articleCurrentWord.article, articleCurrentWord.word);
+  renderArticleScore();
+  speak(t("carWrong", articleCurrentWord.article, articleCurrentWord.word), {
+    onend: () => window.setTimeout(advanceCarArticleRound, 700)
+  });
+}
+
+function beginCarArticleListening() {
+  if (articleMode !== "car" || !articleCurrentWord) {
+    return;
+  }
+
+  const Recognition = getSpeechRecognitionConstructor();
+  if (!Recognition) {
+    setArticleHint("try", articleCurrentWord);
+    elements.articleHint.textContent = t("carUnsupported");
+    return;
+  }
+
+  stopArticleRecognition();
+  elements.articleHeard.textContent = "";
+  articleRecognitionHadResult = false;
+  articleRecognition = new Recognition();
+  articleRecognition.lang = "de-DE";
+  articleRecognition.continuous = false;
+  articleRecognition.interimResults = false;
+  articleRecognition.maxAlternatives = 4;
+  articleRecognition.onresult = (event) => {
+    articleRecognitionHadResult = true;
+    const alternatives = Array.from(event.results?.[0] || []);
+    const rawAnswer = alternatives.map((item) => item.transcript || "").find(Boolean) || "";
+    const answer = alternatives
+      .map((item) => articleAnswerFromSpeech(item.transcript || "", articleCurrentWord))
+      .find((result) => result.complete)
+      || articleAnswerFromSpeech(rawAnswer, articleCurrentWord);
+    handleCarArticleAnswer(answer, rawAnswer.trim());
+  };
+  articleRecognition.onerror = () => {
+    handleCarArticleAnswer({ article: "", complete: false }, "");
+  };
+  articleRecognition.onend = () => {
+    if (articleIsListening) {
+      if (!articleRecognitionHadResult) {
+        handleCarArticleAnswer({ article: "", complete: false }, "");
+        return;
+      }
+      articleIsListening = false;
+      elements.articleListen.classList.remove("listening");
+      elements.articleListen.textContent = t("startListening");
+    }
+  };
+
+  if (articleMode !== "car" || !articleCarSessionActive || !articleRecognition) {
+    return;
+  }
+  try {
+    articleRecognition.start();
+    articleIsListening = true;
+    updateArticleListenButton();
+    setArticleHint("default");
+  } catch {
+    handleCarArticleAnswer({ article: "", complete: false }, "");
+  }
+}
+
+function startCarArticleRound() {
+  if (articleMode !== "car" || !articleCurrentWord) {
+    return;
+  }
+
+  articleCarSessionActive = true;
+  updateArticleListenButton();
+  speak(articleCurrentWord.word, {
+    onend: () => beginCarArticleListening()
+  });
+}
+
+function toggleCarArticleSession() {
+  if (articleCarSessionActive) {
+    stopArticleCarSession();
+    setArticleHint("default");
+    return;
+  }
+  startCarArticleRound();
+}
+
 function setArticleHint(state, wordItem = null) {
   elements.articleHint.dataset.state = state;
   elements.articleHint.className = "hint";
@@ -1357,18 +1613,22 @@ function setArticleHint(state, wordItem = null) {
     elements.articleHint.textContent = t("articleNoWords");
     return;
   }
-  elements.articleHint.textContent = t("articlePrompt");
+  elements.articleHint.textContent = articleMode === "car" ? t("carPrompt") : t("articlePrompt");
 }
 
 function pickArticleWord() {
   const candidates = articleWords();
+  stopArticleRecognition();
   renderArticleScore();
   elements.articleOptions.querySelectorAll("button").forEach((button) => {
     button.disabled = !candidates.length;
     button.classList.remove("selected", "correct", "wrong");
   });
+  elements.articleListen.disabled = !candidates.length;
+  elements.articleHeard.textContent = "";
 
   if (!candidates.length) {
+    stopArticleCarSession();
     articleCurrentWord = null;
     elements.articleEmoji.textContent = "📘";
     elements.articleWord.textContent = "DER/DIE/DAS";
@@ -1466,8 +1726,9 @@ function refreshGermanVoice() {
   germanVoice = findGermanVoice();
 }
 
-function speak(text) {
+function speak(text, options = {}) {
   if (!("speechSynthesis" in window)) {
+    options.onend?.();
     return;
   }
 
@@ -1481,6 +1742,10 @@ function speak(text) {
     utterance.voice = germanVoice;
   }
   utterance.rate = 0.82;
+  if (typeof options.onend === "function") {
+    utterance.onend = options.onend;
+    utterance.onerror = options.onend;
+  }
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }
@@ -2364,13 +2629,19 @@ elements.skip.addEventListener("click", () => {
 });
 
 elements.speak.addEventListener("click", () => speak(currentWord.word));
+elements.articleNormalMode.addEventListener("click", () => setArticleMode("normal"));
+elements.articleCarMode.addEventListener("click", () => setArticleMode("car"));
 elements.articleOptions.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-article]");
   if (!button) {
     return;
   }
+  if (articleMode !== "normal") {
+    return;
+  }
   chooseArticle(button.dataset.article);
 });
+elements.articleListen.addEventListener("click", toggleCarArticleSession);
 elements.articleSkip.addEventListener("click", nextArticleRound);
 elements.handwritingSpeak.addEventListener("click", () => {
   if (handwritingCurrentWord) {
