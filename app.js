@@ -271,6 +271,7 @@ const translations = {
     normalMode: "Normal mode",
     carMode: "Car mode",
     startListening: "Start listening",
+    stopListening: "Stop",
     listening: "Listening...",
     heardAnswer: (answer) => `I heard: ${answer}`,
     carPrompt: "Tap start. I will say the word and listen for der, die, or das.",
@@ -387,6 +388,7 @@ const translations = {
     normalMode: "Normalmodus",
     carMode: "Automodus",
     startListening: "Zuhören starten",
+    stopListening: "Stopp",
     listening: "Ich höre zu...",
     heardAnswer: (answer) => `Ich habe gehört: ${answer}`,
     carPrompt: "Tippe auf Start. Ich sage das Wort und höre auf der, die oder das.",
@@ -568,6 +570,7 @@ let articleRound = 1;
 let articleMode = "normal";
 let articleRecognition = null;
 let articleIsListening = false;
+let articleCarSessionActive = false;
 let articleRecognitionHadResult = false;
 let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
@@ -654,7 +657,9 @@ function applyLanguage() {
   elements.articleOptions.setAttribute("aria-label", t("articleSub"));
   elements.articleNormalMode.textContent = t("normalMode");
   elements.articleCarMode.textContent = t("carMode");
-  elements.articleListen.textContent = articleIsListening ? t("listening") : t("startListening");
+  elements.articleListen.textContent = articleCarSessionActive
+    ? (articleIsListening ? t("listening") : t("stopListening"))
+    : t("startListening");
   elements.articleSkip.textContent = t("newWord");
   document.querySelector(".handwriting-score-row").setAttribute("aria-label", t("handwritingProgress"));
   setText(".handwriting-score-row div:nth-child(1) .score-label", "pages");
@@ -805,7 +810,7 @@ function setAdminNote(state) {
 
 function showScreen(screenName) {
   if (screenName !== "german") {
-    stopArticleRecognition();
+    stopArticleCarSession();
   }
   elements.homeScreen.classList.toggle("hidden", screenName !== "home");
   elements.germanScreen.classList.toggle("hidden", screenName !== "german");
@@ -826,7 +831,7 @@ function showScreen(screenName) {
 }
 
 function showGermanMenu() {
-  stopArticleRecognition();
+  stopArticleCarSession();
   elements.germanHub.classList.remove("hidden");
   elements.rebusApp.classList.add("hidden");
   elements.articleApp.classList.add("hidden");
@@ -837,7 +842,7 @@ function showGermanMenu() {
 
 function showGermanApp(appName) {
   if (appName !== "articles") {
-    stopArticleRecognition();
+    stopArticleCarSession();
   }
   elements.germanHub.classList.add("hidden");
   elements.rebusApp.classList.toggle("hidden", appName !== "rebus");
@@ -1380,6 +1385,13 @@ function getSpeechRecognitionConstructor() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
+function updateArticleListenButton() {
+  elements.articleListen.classList.toggle("listening", articleCarSessionActive);
+  elements.articleListen.textContent = articleCarSessionActive
+    ? (articleIsListening ? t("listening") : t("stopListening"))
+    : t("startListening");
+}
+
 function stopArticleRecognition() {
   if (articleRecognition) {
     articleRecognition.onresult = null;
@@ -1393,13 +1405,20 @@ function stopArticleRecognition() {
     articleRecognition = null;
   }
   articleIsListening = false;
-  elements.articleListen.classList.remove("listening");
-  elements.articleListen.textContent = t("startListening");
+  updateArticleListenButton();
+}
+
+function stopArticleCarSession() {
+  articleCarSessionActive = false;
+  stopArticleRecognition();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
 }
 
 function setArticleMode(mode) {
   articleMode = mode === "car" ? "car" : "normal";
-  stopArticleRecognition();
+  stopArticleCarSession();
   elements.articleNormalMode.classList.toggle("selected", articleMode === "normal");
   elements.articleCarMode.classList.toggle("selected", articleMode === "car");
   elements.articleOptions.classList.toggle("hidden", articleMode === "car");
@@ -1434,8 +1453,14 @@ function articleAnswerFromSpeech(value, wordItem) {
 
 function advanceCarArticleRound() {
   nextArticleRound();
-  if (articleMode === "car" && articleCurrentWord) {
+  if (articleMode === "car" && articleCarSessionActive && articleCurrentWord) {
     window.setTimeout(startCarArticleRound, 500);
+  }
+}
+
+function restartCarArticleListening(delay = 350) {
+  if (articleMode === "car" && articleCarSessionActive && articleCurrentWord) {
+    window.setTimeout(beginCarArticleListening, delay);
   }
 }
 
@@ -1452,7 +1477,9 @@ function handleCarArticleAnswer(answer, rawAnswer = "") {
   if (!answer.complete) {
     setArticleHint("try", articleCurrentWord);
     elements.articleHint.textContent = t("carNoAnswer");
-    speak(t("carNoAnswer"));
+    speak(t("carNoAnswer"), {
+      onend: () => restartCarArticleListening()
+    });
     return;
   }
 
@@ -1485,11 +1512,11 @@ function handleCarArticleAnswer(answer, rawAnswer = "") {
   elements.articleHint.textContent = t("carWrong", articleCurrentWord.article, articleCurrentWord.word);
   renderArticleScore();
   speak(t("carWrong", articleCurrentWord.article, articleCurrentWord.word), {
-    onend: () => window.setTimeout(nextArticleRound, 700)
+    onend: () => window.setTimeout(advanceCarArticleRound, 700)
   });
 }
 
-function startCarArticleRound() {
+function beginCarArticleListening() {
   if (articleMode !== "car" || !articleCurrentWord) {
     return;
   }
@@ -1534,22 +1561,38 @@ function startCarArticleRound() {
     }
   };
 
+  if (articleMode !== "car" || !articleCarSessionActive || !articleRecognition) {
+    return;
+  }
+  try {
+    articleRecognition.start();
+    articleIsListening = true;
+    updateArticleListenButton();
+    setArticleHint("default");
+  } catch {
+    handleCarArticleAnswer({ article: "", complete: false }, "");
+  }
+}
+
+function startCarArticleRound() {
+  if (articleMode !== "car" || !articleCurrentWord) {
+    return;
+  }
+
+  articleCarSessionActive = true;
+  updateArticleListenButton();
   speak(articleCurrentWord.word, {
-    onend: () => {
-      if (articleMode !== "car" || !articleRecognition) {
-        return;
-      }
-      try {
-        articleRecognition.start();
-        articleIsListening = true;
-        elements.articleListen.classList.add("listening");
-        elements.articleListen.textContent = t("listening");
-        setArticleHint("default");
-      } catch {
-        handleCarArticleAnswer({ article: "", complete: false }, "");
-      }
-    }
+    onend: () => beginCarArticleListening()
   });
+}
+
+function toggleCarArticleSession() {
+  if (articleCarSessionActive) {
+    stopArticleCarSession();
+    setArticleHint("default");
+    return;
+  }
+  startCarArticleRound();
 }
 
 function setArticleHint(state, wordItem = null) {
@@ -1585,6 +1628,7 @@ function pickArticleWord() {
   elements.articleHeard.textContent = "";
 
   if (!candidates.length) {
+    stopArticleCarSession();
     articleCurrentWord = null;
     elements.articleEmoji.textContent = "📘";
     elements.articleWord.textContent = "DER/DIE/DAS";
@@ -2597,7 +2641,7 @@ elements.articleOptions.addEventListener("click", (event) => {
   }
   chooseArticle(button.dataset.article);
 });
-elements.articleListen.addEventListener("click", startCarArticleRound);
+elements.articleListen.addEventListener("click", toggleCarArticleSession);
 elements.articleSkip.addEventListener("click", nextArticleRound);
 elements.handwritingSpeak.addEventListener("click", () => {
   if (handwritingCurrentWord) {
