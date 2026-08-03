@@ -196,7 +196,7 @@ const articleWordsStorageKey = "articleGameGermanWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.08.02.3";
+const appVersion = "2026.08.03.1";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -579,6 +579,7 @@ let articleIsListening = false;
 let articleCarSessionActive = false;
 let articleRecognitionHadResult = false;
 let articleRecognitionStartedAt = 0;
+let articleRecognitionSilenceTimer = 0;
 let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
@@ -1444,6 +1445,33 @@ function getSpeechRecognitionConstructor() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
+function primeArticleRecognition() {
+  const Recognition = getSpeechRecognitionConstructor();
+  if (!Recognition) {
+    return;
+  }
+
+  try {
+    const warmup = new Recognition();
+    warmup.lang = "de-DE";
+    warmup.continuous = false;
+    warmup.interimResults = false;
+    warmup.onresult = () => {};
+    warmup.onerror = () => {};
+    warmup.onend = () => {};
+    warmup.start();
+    window.setTimeout(() => {
+      try {
+        warmup.abort();
+      } catch {
+        // Warm-up recognition may already be stopped by the browser.
+      }
+    }, 220);
+  } catch {
+    // Some mobile browsers expose the API but still refuse warm-up starts.
+  }
+}
+
 async function requestArticleMicrophone() {
   if (!navigator.mediaDevices?.getUserMedia) {
     return true;
@@ -1466,6 +1494,8 @@ function updateArticleListenButton() {
 }
 
 function stopArticleRecognition() {
+  window.clearTimeout(articleRecognitionSilenceTimer);
+  articleRecognitionSilenceTimer = 0;
   if (articleRecognition) {
     articleRecognition.onresult = null;
     articleRecognition.onerror = null;
@@ -1479,6 +1509,16 @@ function stopArticleRecognition() {
   }
   articleIsListening = false;
   updateArticleListenButton();
+}
+
+function startArticleSilenceTimer() {
+  window.clearTimeout(articleRecognitionSilenceTimer);
+  articleRecognitionSilenceTimer = window.setTimeout(() => {
+    if (!articleIsListening || articleRecognitionHadResult) {
+      return;
+    }
+    handleCarArticleAnswer({ article: "", complete: false }, "");
+  }, 8500);
 }
 
 function stopArticleCarSession() {
@@ -1624,6 +1664,8 @@ async function beginCarArticleListening() {
   articleRecognition.interimResults = false;
   articleRecognition.maxAlternatives = 4;
   articleRecognition.onresult = (event) => {
+    window.clearTimeout(articleRecognitionSilenceTimer);
+    articleRecognitionSilenceTimer = 0;
     articleRecognitionHadResult = true;
     const alternatives = Array.from(event.results?.[0] || []);
     const rawAnswer = alternatives.map((item) => item.transcript || "").find(Boolean) || "";
@@ -1671,6 +1713,7 @@ async function beginCarArticleListening() {
     articleRecognitionStartedAt = Date.now();
     updateArticleListenButton();
     articleRecognition.start();
+    startArticleSilenceTimer();
     setArticleHint("default");
   } catch {
     articleIsListening = false;
@@ -1684,6 +1727,7 @@ function startCarArticleRound() {
     return;
   }
 
+  primeArticleRecognition();
   articleCarSessionActive = true;
   updateArticleListenButton();
   speak(articleCurrentWord.word, {
