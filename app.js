@@ -196,7 +196,7 @@ const articleWordsStorageKey = "articleGameGermanWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.08.03.3";
+const appVersion = "2026.08.03.1";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -281,7 +281,6 @@ const translations = {
     carUnsupported: "Speech recognition is not available in this browser.",
     carNeedsMic: "Please allow microphone access, then tap Start listening again.",
     carNoAnswer: "I did not hear the article and word. Try again.",
-    carSpeechSilent: "I can hear the microphone, but this browser is not sending the spoken words. Try allowing speech recognition in Chrome, then start again.",
     carWrong: (article, word) => `The correct answer is ${article} ${word}.`,
     adminTitle: "German Words",
     adminCopy: "Rebus words. One item per line. Use: word, emoji, clue",
@@ -400,7 +399,6 @@ const translations = {
     carUnsupported: "Spracherkennung ist in diesem Browser nicht verfügbar.",
     carNeedsMic: "Bitte erlaube den Zugriff auf das Mikrofon und tippe dann noch einmal auf Start.",
     carNoAnswer: "Ich habe Artikel und Wort nicht gehört. Versuch es noch einmal.",
-    carSpeechSilent: "Das Mikrofon hört dich, aber der Browser sendet keine gesprochenen Wörter. Prüfe die Spracherkennung in Chrome und starte noch einmal.",
     carWrong: (article, word) => `Richtig ist ${article} ${word}.`,
     adminTitle: "Deutsche Wörter",
     adminCopy: "Rebus-Wörter. Ein Eintrag pro Zeile: Wort, Emoji, Hinweis",
@@ -507,9 +505,6 @@ const elements = {
   articleCarPanel: document.querySelector("#article-car-panel"),
   articleListen: document.querySelector("#article-listen"),
   articleHeard: document.querySelector("#article-heard"),
-  articleVoiceLevel: document.querySelector("#article-voice-level"),
-  articleVoiceStatus: document.querySelector("#article-voice-status"),
-  articleDebug: document.querySelector("#article-debug"),
   articleHint: document.querySelector("#article-hint"),
   articleCorrect: document.querySelector("#article-correct"),
   articleStreak: document.querySelector("#article-streak"),
@@ -585,12 +580,6 @@ let articleCarSessionActive = false;
 let articleRecognitionHadResult = false;
 let articleRecognitionStartedAt = 0;
 let articleRecognitionSilenceTimer = 0;
-let articleMicStream = null;
-let articleAudioContext = null;
-let articleAnalyser = null;
-let articleAudioBuffer = null;
-let articleAudioMonitorId = 0;
-let articleAudioWasHeard = false;
 let handwritingCurrentIndex = -1;
 let handwritingCurrentWord = null;
 let handwritingPages = Number(localStorage.getItem("handwritingPages") || 0);
@@ -1483,124 +1472,18 @@ function primeArticleRecognition() {
   }
 }
 
-async function requestArticleMicrophoneStream() {
-  const cleanSpeechConstraints = {
-    audio: {
-      echoCancellation: true,
-      noiseSuppression: true,
-      autoGainControl: true
-    }
-  };
-
-  try {
-    return await navigator.mediaDevices.getUserMedia(cleanSpeechConstraints);
-  } catch (error) {
-    if (error?.name === "OverconstrainedError" || error?.name === "ConstraintNotSatisfiedError") {
-      return navigator.mediaDevices.getUserMedia({ audio: true });
-    }
-    throw error;
-  }
-}
-
-async function startArticleMicrophone() {
+async function requestArticleMicrophone() {
   if (!navigator.mediaDevices?.getUserMedia) {
     return true;
   }
 
-  if (articleMicStream && articleMicStream.active && articleAudioContext) {
-    if (articleAudioContext.state === "suspended") {
-      await articleAudioContext.resume();
-    }
-    return true;
-  }
-
   try {
-    articleMicStream = await requestArticleMicrophoneStream();
-    articleAudioContext = new (window.AudioContext || window.webkitAudioContext)();
-    await articleAudioContext.resume();
-    articleAnalyser = articleAudioContext.createAnalyser();
-    articleAnalyser.fftSize = 1024;
-    const source = articleAudioContext.createMediaStreamSource(articleMicStream);
-    source.connect(articleAnalyser);
-    articleAudioBuffer = new Float32Array(articleAnalyser.fftSize);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((track) => track.stop());
     return true;
   } catch {
     return false;
   }
-}
-
-function getArticleRms(buffer) {
-  let sum = 0;
-  for (let index = 0; index < buffer.length; index += 1) {
-    sum += buffer[index] * buffer[index];
-  }
-  return Math.sqrt(sum / buffer.length);
-}
-
-function updateArticleDebug(message = "") {
-  if (!elements.articleDebug) {
-    return;
-  }
-
-  elements.articleDebug.textContent = message;
-}
-
-function renderArticleDebugCapabilities() {
-  updateArticleDebug(
-    `secure:${window.isSecureContext ? "yes" : "no"} mic:${navigator.mediaDevices?.getUserMedia ? "yes" : "no"} speech:${getSpeechRecognitionConstructor() ? "yes" : "no"}`
-  );
-}
-
-function updateArticleVoiceMeter(rms = 0, state = "idle") {
-  if (!elements.articleVoiceLevel || !elements.articleVoiceStatus) {
-    return;
-  }
-
-  const percent = Math.min(100, Math.round(rms * 700));
-  elements.articleVoiceLevel.style.width = `${percent}%`;
-  elements.articleVoiceStatus.textContent = `${state} ${percent}%`;
-}
-
-function monitorArticleAudio() {
-  if (!articleIsListening || !articleAnalyser || !articleAudioBuffer) {
-    return;
-  }
-
-  articleAnalyser.getFloatTimeDomainData(articleAudioBuffer);
-  const rms = getArticleRms(articleAudioBuffer);
-  const hasVoice = rms > 0.018;
-  if (hasVoice) {
-    articleAudioWasHeard = true;
-  }
-  updateArticleVoiceMeter(rms, hasVoice ? "voice" : "listening");
-  articleAudioMonitorId = requestAnimationFrame(monitorArticleAudio);
-}
-
-function startArticleAudioMonitor() {
-  cancelAnimationFrame(articleAudioMonitorId);
-  articleAudioWasHeard = false;
-  monitorArticleAudio();
-}
-
-function stopArticleAudioMonitor() {
-  cancelAnimationFrame(articleAudioMonitorId);
-  articleAudioMonitorId = 0;
-  updateArticleVoiceMeter(0, articleCarSessionActive ? "waiting" : "idle");
-}
-
-function stopArticleMicrophone() {
-  stopArticleAudioMonitor();
-  if (articleMicStream) {
-    articleMicStream.getTracks().forEach((track) => track.stop());
-  }
-  if (articleAudioContext) {
-    void articleAudioContext.close();
-  }
-  articleMicStream = null;
-  articleAudioContext = null;
-  articleAnalyser = null;
-  articleAudioBuffer = null;
-  articleAudioWasHeard = false;
 }
 
 function updateArticleListenButton() {
@@ -1613,7 +1496,6 @@ function updateArticleListenButton() {
 function stopArticleRecognition() {
   window.clearTimeout(articleRecognitionSilenceTimer);
   articleRecognitionSilenceTimer = 0;
-  stopArticleAudioMonitor();
   if (articleRecognition) {
     articleRecognition.onresult = null;
     articleRecognition.onerror = null;
@@ -1635,10 +1517,6 @@ function startArticleSilenceTimer() {
     if (!articleIsListening || articleRecognitionHadResult) {
       return;
     }
-    if (articleAudioWasHeard) {
-      handleCarSpeechUnavailable();
-      return;
-    }
     handleCarArticleAnswer({ article: "", complete: false }, "");
   }, 8500);
 }
@@ -1646,7 +1524,6 @@ function startArticleSilenceTimer() {
 function stopArticleCarSession() {
   articleCarSessionActive = false;
   stopArticleRecognition();
-  stopArticleMicrophone();
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
@@ -1660,12 +1537,6 @@ function setArticleMode(mode) {
   elements.articleOptions.classList.toggle("hidden", articleMode === "car");
   elements.articleCarPanel.classList.toggle("hidden", articleMode !== "car");
   elements.articleHeard.textContent = "";
-  if (articleMode === "car") {
-    renderArticleDebugCapabilities();
-  } else {
-    updateArticleDebug("");
-    updateArticleVoiceMeter(0, "idle");
-  }
   setArticleHint("default");
 }
 
@@ -1708,20 +1579,9 @@ function restartCarArticleListening(delay = 550) {
 
 function handleCarMicrophoneBlocked() {
   stopArticleCarSession();
-  updateArticleVoiceMeter(0, "blocked");
-  renderArticleDebugCapabilities();
   elements.articleHint.dataset.state = "try";
   elements.articleHint.className = "hint try";
   elements.articleHint.textContent = t("carNeedsMic");
-}
-
-function handleCarSpeechUnavailable() {
-  stopArticleCarSession();
-  updateArticleVoiceMeter(0, "speech blocked");
-  renderArticleDebugCapabilities();
-  elements.articleHint.dataset.state = "try";
-  elements.articleHint.className = "hint try";
-  elements.articleHint.textContent = t("carSpeechSilent");
 }
 
 function handleCarArticleAnswer(answer, rawAnswer = "") {
@@ -1785,8 +1645,6 @@ async function beginCarArticleListening() {
   if (!Recognition) {
     setArticleHint("try", articleCurrentWord);
     elements.articleHint.textContent = t("carUnsupported");
-    updateArticleVoiceMeter(0, "unsupported");
-    renderArticleDebugCapabilities();
     return;
   }
 
@@ -1800,7 +1658,6 @@ async function beginCarArticleListening() {
   elements.articleHeard.textContent = "";
   articleRecognitionHadResult = false;
   articleRecognitionStartedAt = 0;
-  articleAudioWasHeard = false;
   articleRecognition = new Recognition();
   articleRecognition.lang = "de-DE";
   articleRecognition.continuous = false;
@@ -1840,10 +1697,6 @@ async function beginCarArticleListening() {
           restartCarArticleListening(450);
           return;
         }
-        if (articleAudioWasHeard) {
-          handleCarSpeechUnavailable();
-          return;
-        }
         handleCarArticleAnswer({ article: "", complete: false }, "");
         return;
       }
@@ -1860,7 +1713,6 @@ async function beginCarArticleListening() {
     articleRecognitionStartedAt = Date.now();
     updateArticleListenButton();
     articleRecognition.start();
-    startArticleAudioMonitor();
     startArticleSilenceTimer();
     setArticleHint("default");
   } catch {
@@ -1878,17 +1730,8 @@ function startCarArticleRound() {
   primeArticleRecognition();
   articleCarSessionActive = true;
   updateArticleListenButton();
-  updateArticleVoiceMeter(0, "starting");
-  renderArticleDebugCapabilities();
-  const microphoneReady = startArticleMicrophone();
   speak(articleCurrentWord.word, {
-    onend: async () => {
-      if (!await microphoneReady) {
-        handleCarMicrophoneBlocked();
-        return;
-      }
-      beginCarArticleListening();
-    }
+    onend: () => beginCarArticleListening()
   });
 }
 
