@@ -196,7 +196,7 @@ const articleWordsStorageKey = "articleGameGermanWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.08.03.2";
+const appVersion = "2026.08.03.3";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -507,6 +507,9 @@ const elements = {
   articleCarPanel: document.querySelector("#article-car-panel"),
   articleListen: document.querySelector("#article-listen"),
   articleHeard: document.querySelector("#article-heard"),
+  articleVoiceLevel: document.querySelector("#article-voice-level"),
+  articleVoiceStatus: document.querySelector("#article-voice-status"),
+  articleDebug: document.querySelector("#article-debug"),
   articleHint: document.querySelector("#article-hint"),
   articleCorrect: document.querySelector("#article-correct"),
   articleStreak: document.querySelector("#article-streak"),
@@ -1534,15 +1537,42 @@ function getArticleRms(buffer) {
   return Math.sqrt(sum / buffer.length);
 }
 
+function updateArticleDebug(message = "") {
+  if (!elements.articleDebug) {
+    return;
+  }
+
+  elements.articleDebug.textContent = message;
+}
+
+function renderArticleDebugCapabilities() {
+  updateArticleDebug(
+    `secure:${window.isSecureContext ? "yes" : "no"} mic:${navigator.mediaDevices?.getUserMedia ? "yes" : "no"} speech:${getSpeechRecognitionConstructor() ? "yes" : "no"}`
+  );
+}
+
+function updateArticleVoiceMeter(rms = 0, state = "idle") {
+  if (!elements.articleVoiceLevel || !elements.articleVoiceStatus) {
+    return;
+  }
+
+  const percent = Math.min(100, Math.round(rms * 700));
+  elements.articleVoiceLevel.style.width = `${percent}%`;
+  elements.articleVoiceStatus.textContent = `${state} ${percent}%`;
+}
+
 function monitorArticleAudio() {
   if (!articleIsListening || !articleAnalyser || !articleAudioBuffer) {
     return;
   }
 
   articleAnalyser.getFloatTimeDomainData(articleAudioBuffer);
-  if (getArticleRms(articleAudioBuffer) > 0.018) {
+  const rms = getArticleRms(articleAudioBuffer);
+  const hasVoice = rms > 0.018;
+  if (hasVoice) {
     articleAudioWasHeard = true;
   }
+  updateArticleVoiceMeter(rms, hasVoice ? "voice" : "listening");
   articleAudioMonitorId = requestAnimationFrame(monitorArticleAudio);
 }
 
@@ -1555,6 +1585,7 @@ function startArticleAudioMonitor() {
 function stopArticleAudioMonitor() {
   cancelAnimationFrame(articleAudioMonitorId);
   articleAudioMonitorId = 0;
+  updateArticleVoiceMeter(0, articleCarSessionActive ? "waiting" : "idle");
 }
 
 function stopArticleMicrophone() {
@@ -1629,6 +1660,12 @@ function setArticleMode(mode) {
   elements.articleOptions.classList.toggle("hidden", articleMode === "car");
   elements.articleCarPanel.classList.toggle("hidden", articleMode !== "car");
   elements.articleHeard.textContent = "";
+  if (articleMode === "car") {
+    renderArticleDebugCapabilities();
+  } else {
+    updateArticleDebug("");
+    updateArticleVoiceMeter(0, "idle");
+  }
   setArticleHint("default");
 }
 
@@ -1671,6 +1708,8 @@ function restartCarArticleListening(delay = 550) {
 
 function handleCarMicrophoneBlocked() {
   stopArticleCarSession();
+  updateArticleVoiceMeter(0, "blocked");
+  renderArticleDebugCapabilities();
   elements.articleHint.dataset.state = "try";
   elements.articleHint.className = "hint try";
   elements.articleHint.textContent = t("carNeedsMic");
@@ -1678,6 +1717,8 @@ function handleCarMicrophoneBlocked() {
 
 function handleCarSpeechUnavailable() {
   stopArticleCarSession();
+  updateArticleVoiceMeter(0, "speech blocked");
+  renderArticleDebugCapabilities();
   elements.articleHint.dataset.state = "try";
   elements.articleHint.className = "hint try";
   elements.articleHint.textContent = t("carSpeechSilent");
@@ -1744,6 +1785,8 @@ async function beginCarArticleListening() {
   if (!Recognition) {
     setArticleHint("try", articleCurrentWord);
     elements.articleHint.textContent = t("carUnsupported");
+    updateArticleVoiceMeter(0, "unsupported");
+    renderArticleDebugCapabilities();
     return;
   }
 
@@ -1835,6 +1878,8 @@ function startCarArticleRound() {
   primeArticleRecognition();
   articleCarSessionActive = true;
   updateArticleListenButton();
+  updateArticleVoiceMeter(0, "starting");
+  renderArticleDebugCapabilities();
   const microphoneReady = startArticleMicrophone();
   speak(articleCurrentWord.word, {
     onend: async () => {

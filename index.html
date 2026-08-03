@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20260803-production-piano-mic-logic">
+    <link rel="stylesheet" href="styles.css?v=20260803-production-car-debug-meter">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.08.03.2</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.08.03.3 debug</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -155,6 +155,14 @@
               </div>
               <div class="article-car-panel hidden" id="article-car-panel">
                 <button id="article-listen" type="button">Start listening</button>
+                <div class="voice-meter" aria-label="Microphone activity">
+                  <span class="score-label">Mic activity</span>
+                  <div class="voice-meter-track">
+                    <span id="article-voice-level"></span>
+                  </div>
+                  <strong id="article-voice-status">idle</strong>
+                </div>
+                <p class="article-debug" id="article-debug" aria-live="polite"></p>
                 <p class="article-heard" id="article-heard" aria-live="polite"></p>
               </div>
               <p class="hint" id="article-hint" aria-live="polite">Choose der, die, or das.</p>
@@ -368,6 +376,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260803-production-piano-mic-logic"></script>
+    <script src="app.js?v=20260803-production-car-debug-meter"></script>
   </body>
 </html>

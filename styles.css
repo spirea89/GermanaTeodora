@@ -397,6 +397,46 @@ h2 {
   text-align: center;
 }
 
+.article-debug {
+  min-height: 24px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.voice-meter {
+  display: grid;
+  gap: 6px;
+  width: min(100%, 360px);
+  padding: 10px;
+  border-radius: 8px;
+  background: #f7fbff;
+  border: 1px solid #c9def1;
+}
+
+.voice-meter-track {
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d9e7f4;
+}
+
+.voice-meter-track span {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sky);
+  transition: width 120ms ease;
+}
+
+.voice-meter strong {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .handwriting-card {
   display: grid;
   gap: 18px;
