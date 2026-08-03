@@ -151,6 +151,13 @@
               </div>
               <div class="article-car-panel hidden" id="article-car-panel">
                 <button id="article-listen" type="button">Start listening</button>
+                <div class="voice-meter" aria-label="Microphone activity">
+                  <span class="score-label">Mic activity</span>
+                  <div class="voice-meter-track">
+                    <span id="article-voice-level"></span>
+                  </div>
+                  <strong id="article-voice-status">idle</strong>
+                </div>
                 <p class="article-heard" id="article-heard" aria-live="polite"></p>
               </div>
               <p class="hint" id="article-hint" aria-live="polite">Choose der, die, or das.</p>
@@ -364,6 +371,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260803-sandbox-piano-mic-logic"></script>
+    <script src="app.js?v=20260803-sandbox-voice-meter"></script>
   </body>
 </html>
