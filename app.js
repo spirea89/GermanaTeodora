@@ -196,7 +196,7 @@ const articleWordsStorageKey = "articleGameGermanWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.08.03.1";
+const appVersion = "2026.08.03.2";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -273,6 +273,7 @@ const translations = {
     articleNoWords: "Add words with der, die, or das in Administration.",
     normalMode: "Normal mode",
     carMode: "Car mode",
+    carModeNote: "Car mode currently works only on laptop, not on mobile.",
     startListening: "Start listening",
     stopListening: "Stop",
     listening: "Listening...",
@@ -391,6 +392,7 @@ const translations = {
     articleNoWords: "Füge Wörter mit der, die oder das in der Verwaltung hinzu.",
     normalMode: "Normalmodus",
     carMode: "Automodus",
+    carModeNote: "Der Automodus funktioniert im Moment nur auf dem Laptop, nicht auf dem Handy oder Tablet.",
     startListening: "Zuhören starten",
     stopListening: "Stopp",
     listening: "Ich höre zu...",
@@ -504,6 +506,7 @@ const elements = {
   articleOptions: document.querySelector("#article-options"),
   articleCarPanel: document.querySelector("#article-car-panel"),
   articleListen: document.querySelector("#article-listen"),
+  articleCarNote: document.querySelector("#article-car-note"),
   articleHeard: document.querySelector("#article-heard"),
   articleHint: document.querySelector("#article-hint"),
   articleCorrect: document.querySelector("#article-correct"),
@@ -668,6 +671,7 @@ function applyLanguage() {
   elements.articleListen.textContent = articleCarSessionActive
     ? (articleIsListening ? t("listening") : t("stopListening"))
     : t("startListening");
+  elements.articleCarNote.textContent = t("carModeNote");
   elements.articleSkip.textContent = t("newWord");
   document.querySelector(".handwriting-score-row").setAttribute("aria-label", t("handwritingProgress"));
   setText(".handwriting-score-row div:nth-child(1) .score-label", "pages");
