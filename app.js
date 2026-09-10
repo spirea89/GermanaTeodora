@@ -196,7 +196,7 @@ const articleWordsStorageKey = "articleGameGermanWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.08.03.2";
+const appVersion = "2026.09.10.1";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -297,6 +297,19 @@ const translations = {
     mathApps: "Math apps",
     numberSprint: "Number Sprint",
     numberSprintSub: "Plus and minus to 100",
+    multiplication: "Multiplication",
+    multiplicationSub: "Practice multiplication tests",
+    multiplicationSetup: "Multiplication setup",
+    numberSize: "Number size",
+    chooseMultiplicationSize: "Choose multiplication number size",
+    oneByOne: "1 digit × 1 digit",
+    oneByTwo: "1 digit × 2 digits",
+    twoByTwo: "2 digits × 2 digits",
+    startTest: "Start test",
+    multiplicationProgress: "Multiplication progress",
+    multiplicationTest: "Multiplication test",
+    newTest: "↻ New test",
+    testScore: (correct, total) => `${correct} of ${total} correct`,
     mathSetupLabel: "Math setup",
     exercise: "Exercise",
     exerciseName: "Plus and minus to 100",
@@ -416,6 +429,19 @@ const translations = {
     mathApps: "Mathe-Apps",
     numberSprint: "Zahlensprint",
     numberSprintSub: "Plus und Minus bis 100",
+    multiplication: "Multiplikation",
+    multiplicationSub: "Multiplikationsaufgaben üben",
+    multiplicationSetup: "Multiplikations-Einstellungen",
+    numberSize: "Zahlengröße",
+    chooseMultiplicationSize: "Zahlengröße für die Multiplikation auswählen",
+    oneByOne: "1-stellig × 1-stellig",
+    oneByTwo: "1-stellig × 2-stellig",
+    twoByTwo: "2-stellig × 2-stellig",
+    startTest: "Test starten",
+    multiplicationProgress: "Multiplikations-Fortschritt",
+    multiplicationTest: "Multiplikationstest",
+    newTest: "↻ Neuer Test",
+    testScore: (correct, total) => `${correct} von ${total} richtig`,
     mathSetupLabel: "Mathe-Einstellungen",
     exercise: "Aufgabe",
     exerciseName: "Plus und Minus bis 100",
@@ -483,7 +509,9 @@ const elements = {
   germanMenuButtons: document.querySelectorAll(".german-menu-button"),
   mathHub: document.querySelector("#math-hub"),
   numberSprintApp: document.querySelector("#number-sprint-app"),
+  multiplicationApp: document.querySelector("#multiplication-app"),
   openNumberSprint: document.querySelector("#open-number-sprint"),
+  openMultiplication: document.querySelector("#open-multiplication"),
   mathMenuButtons: document.querySelectorAll(".math-menu-button"),
   germanHome: document.querySelector("#german-home"),
   mathHome: document.querySelector("#math-home"),
@@ -543,6 +571,14 @@ const elements = {
   worksheet: document.querySelector("#worksheet"),
   mathCorrect: document.querySelector("#math-correct"),
   mathLeft: document.querySelector("#math-left"),
+  multiplicationOptions: document.querySelector("#multiplication-options"),
+  startMultiplication: document.querySelector("#start-multiplication"),
+  multiplicationProgress: document.querySelector(".multiplication-progress"),
+  multiplicationWorksheet: document.querySelector("#multiplication-worksheet"),
+  multiplicationCorrect: document.querySelector("#multiplication-correct"),
+  multiplicationLeft: document.querySelector("#multiplication-left"),
+  newMultiplication: document.querySelector("#new-multiplication"),
+  finishMultiplication: document.querySelector("#finish-multiplication"),
   contestPanel: document.querySelector("#contest-panel"),
   contestSetup: document.querySelector("#contest-setup"),
   contestArena: document.querySelector("#contest-arena"),
@@ -597,6 +633,10 @@ let mathDeadline = 0;
 let mathStarted = false;
 let mathEnded = false;
 let mathFeedbackMode = "instant";
+let multiplicationMode = "1x1";
+let multiplicationProblems = [];
+let multiplicationStarted = false;
+let multiplicationEnded = false;
 let contestPlayerCount = 2;
 let contestSeconds = 30;
 let contestProblems = [];
@@ -722,6 +762,8 @@ function applyLanguage() {
   setText("#math-title", "mathApps");
   setText("#open-number-sprint strong", "numberSprint");
   setText("#open-number-sprint small", "numberSprintSub");
+  setText("#open-multiplication strong", "multiplication");
+  setText("#open-multiplication small", "multiplicationSub");
   elements.mathHub.setAttribute("aria-label", t("mathApps"));
   document.querySelector(".math-setup").setAttribute("aria-label", t("mathSetupLabel"));
   setText(".math-setup > div:nth-child(1) .score-label", "exercise");
@@ -744,6 +786,19 @@ function applyLanguage() {
   elements.worksheet.setAttribute("aria-label", t("worksheet"));
   elements.newMath.textContent = t("newWorksheet");
   elements.finishMath.textContent = t("finish");
+  document.querySelector(".multiplication-setup").setAttribute("aria-label", t("multiplicationSetup"));
+  setText(".multiplication-setup .score-label", "numberSize");
+  elements.multiplicationOptions.setAttribute("aria-label", t("chooseMultiplicationSize"));
+  elements.multiplicationOptions.querySelector('[data-multiplication-mode="1x1"]').textContent = t("oneByOne");
+  elements.multiplicationOptions.querySelector('[data-multiplication-mode="1x2"]').textContent = t("oneByTwo");
+  elements.multiplicationOptions.querySelector('[data-multiplication-mode="2x2"]').textContent = t("twoByTwo");
+  elements.startMultiplication.textContent = t("startTest");
+  elements.multiplicationProgress.setAttribute("aria-label", t("multiplicationProgress"));
+  setText(".multiplication-progress div:nth-child(1) .score-label", "correct");
+  setText(".multiplication-progress div:nth-child(2) .score-label", "left");
+  elements.multiplicationWorksheet.setAttribute("aria-label", t("multiplicationTest"));
+  elements.newMultiplication.textContent = t("newTest");
+  elements.finishMultiplication.textContent = t("finish");
   elements.contestPanel.setAttribute("aria-label", t("contestLabel"));
   setText("#contest-setup > div:nth-child(1) .score-label", "players");
   setText("#contest-setup > div:nth-child(2) .score-label", "seconds");
@@ -763,6 +818,8 @@ function applyLanguage() {
   renderContestStatus();
   if (!elements.numberSprintApp.classList.contains("hidden")) {
     document.querySelector("#math-title").textContent = t("numberSprint");
+  } else if (!elements.multiplicationApp.classList.contains("hidden")) {
+    document.querySelector("#math-title").textContent = t("multiplication");
   }
 
   if (elements.phrase.textContent === translations.en.wordClueDefault || elements.phrase.textContent === translations.de.wordClueDefault) {
@@ -879,9 +936,11 @@ function showGermanApp(appName) {
 
 function showMathMenu() {
   resetMathWorksheet();
+  resetMultiplicationTest();
   stopContestTimer();
   elements.mathHub.classList.remove("hidden");
   elements.numberSprintApp.classList.add("hidden");
+  elements.multiplicationApp.classList.add("hidden");
   elements.timerDisplay.classList.add("hidden");
   document.querySelector("#math-title").textContent = t("mathApps");
 }
@@ -889,11 +948,16 @@ function showMathMenu() {
 function showMathApp(appName) {
   elements.mathHub.classList.add("hidden");
   elements.numberSprintApp.classList.toggle("hidden", appName !== "number-sprint");
+  elements.multiplicationApp.classList.toggle("hidden", appName !== "multiplication");
   elements.timerDisplay.classList.toggle("hidden", appName !== "number-sprint");
-  document.querySelector("#math-title").textContent = t("numberSprint");
+  document.querySelector("#math-title").textContent = appName === "number-sprint"
+    ? t("numberSprint")
+    : t("multiplication");
 
   if (appName === "number-sprint") {
     ensureMathWorksheet();
+  } else if (appName === "multiplication") {
+    ensureMultiplicationTest();
   }
 }
 
@@ -2734,6 +2798,161 @@ function renderContestStatus() {
   }
 }
 
+function multiplicationRange(digits) {
+  return digits === 1 ? [1, 9] : [10, 99];
+}
+
+function createMultiplicationProblems() {
+  const [leftDigits, rightDigits] = multiplicationMode.split("x").map(Number);
+  const [leftMin, leftMax] = multiplicationRange(leftDigits);
+  const [rightMin, rightMax] = multiplicationRange(rightDigits);
+  const problems = [];
+  const used = new Set();
+
+  while (problems.length < 24) {
+    const left = randomInt(leftMin, leftMax);
+    const right = randomInt(rightMin, rightMax);
+    const key = `${left}x${right}`;
+    if (used.has(key)) {
+      continue;
+    }
+    used.add(key);
+    problems.push({ left, right, answer: left * right });
+  }
+
+  return problems;
+}
+
+function ensureMultiplicationTest() {
+  if (!multiplicationProblems.length) {
+    resetMultiplicationTest();
+  }
+}
+
+function resetMultiplicationTest() {
+  multiplicationProblems = createMultiplicationProblems();
+  multiplicationStarted = false;
+  multiplicationEnded = false;
+  renderMultiplicationTest();
+  updateMultiplicationProgress();
+}
+
+function renderMultiplicationTest() {
+  elements.multiplicationWorksheet.replaceChildren();
+  elements.multiplicationWorksheet.classList.toggle("answers-revealed", multiplicationEnded);
+
+  multiplicationProblems.forEach((problem, index) => {
+    const row = document.createElement("label");
+    row.className = "problem";
+
+    const equation = document.createElement("span");
+    equation.textContent = `${problem.left} × ${problem.right} =`;
+
+    const input = document.createElement("input");
+    input.type = "tel";
+    input.inputMode = "numeric";
+    input.pattern = "[0-9]*";
+    input.autocomplete = "off";
+    input.disabled = !multiplicationStarted || multiplicationEnded;
+    input.setAttribute("aria-label", `${problem.left} × ${problem.right}`);
+    input.addEventListener("input", () => {
+      input.value = input.value.replace(/\D/g, "").slice(0, 4);
+      markMultiplicationProblem(row, problem, input.value);
+      updateMultiplicationProgress();
+      if (Number(input.value) === problem.answer) {
+        focusNextMultiplicationInput(index);
+      }
+    });
+
+    const result = document.createElement("span");
+    result.className = "answer-result";
+    result.setAttribute("aria-live", "polite");
+    row.append(equation, input, result);
+    elements.multiplicationWorksheet.append(row);
+  });
+}
+
+function getMultiplicationInputs() {
+  return [...elements.multiplicationWorksheet.querySelectorAll("input")];
+}
+
+function markMultiplicationProblem(row, problem, value, revealAnswer = false) {
+  const result = row.querySelector(".answer-result");
+  row.classList.remove("correct", "wrong");
+  result.textContent = "";
+  if (!value) {
+    if (revealAnswer) {
+      result.textContent = `= ${problem.answer}`;
+    }
+    return;
+  }
+
+  const isCorrect = Number(value) === problem.answer;
+  row.classList.add(isCorrect ? "correct" : "wrong");
+  if (revealAnswer) {
+    result.textContent = isCorrect ? "✓" : `= ${problem.answer}`;
+  }
+}
+
+function focusNextMultiplicationInput(currentIndex) {
+  const next = getMultiplicationInputs().find((input, index) => index > currentIndex && !input.value && !input.disabled);
+  if (next) {
+    next.focus();
+  }
+}
+
+function countCorrectMultiplication() {
+  return getMultiplicationInputs().filter((input, index) => (
+    input.value !== "" && Number(input.value) === multiplicationProblems[index].answer
+  )).length;
+}
+
+function updateMultiplicationProgress() {
+  const correct = countCorrectMultiplication();
+  elements.multiplicationCorrect.textContent = String(correct);
+  elements.multiplicationLeft.textContent = String(Math.max(multiplicationProblems.length - correct, 0));
+}
+
+function selectMultiplicationMode(mode) {
+  multiplicationMode = mode;
+  [...elements.multiplicationOptions.querySelectorAll("button")].forEach((button) => {
+    button.classList.toggle("selected", button.dataset.multiplicationMode === mode);
+  });
+  resetMultiplicationTest();
+}
+
+function startMultiplicationTest() {
+  if (multiplicationEnded || !multiplicationProblems.length) {
+    resetMultiplicationTest();
+  }
+  multiplicationStarted = true;
+  multiplicationEnded = false;
+  renderMultiplicationTest();
+  getMultiplicationInputs()[0]?.focus();
+}
+
+function finishMultiplicationTest() {
+  if (!multiplicationStarted || multiplicationEnded) {
+    return;
+  }
+  multiplicationEnded = true;
+  getMultiplicationInputs().forEach((input) => {
+    input.disabled = true;
+  });
+  elements.multiplicationWorksheet.classList.add("answers-revealed");
+  [...elements.multiplicationWorksheet.querySelectorAll(".problem")].forEach((row, index) => {
+    const input = row.querySelector("input");
+    markMultiplicationProblem(row, multiplicationProblems[index], input.value, true);
+  });
+  const correct = countCorrectMultiplication();
+  updateMultiplicationProgress();
+  showReward(
+    correct === multiplicationProblems.length ? "🎉" : "👍",
+    correct === multiplicationProblems.length ? t("allDone") : t("testScore", correct, multiplicationProblems.length),
+    2400
+  );
+}
+
 elements.openGerman.addEventListener("click", () => showScreen("german"));
 elements.openRebus.addEventListener("click", () => showGermanApp("rebus"));
 elements.openArticles.addEventListener("click", () => showGermanApp("articles"));
@@ -2743,6 +2962,7 @@ elements.germanMenuButtons.forEach((button) => {
 });
 elements.openMath.addEventListener("click", () => showScreen("math"));
 elements.openNumberSprint.addEventListener("click", () => showMathApp("number-sprint"));
+elements.openMultiplication.addEventListener("click", () => showMathApp("multiplication"));
 elements.mathMenuButtons.forEach((button) => {
   button.addEventListener("click", showMathMenu);
 });
@@ -2905,6 +3125,15 @@ elements.startContest.addEventListener("click", startContest);
 elements.submitContest.addEventListener("click", submitContestAnswer);
 elements.nextContest.addEventListener("click", advanceContest);
 elements.newContest.addEventListener("click", showContestSetup);
+elements.multiplicationOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-multiplication-mode]");
+  if (button) {
+    selectMultiplicationMode(button.dataset.multiplicationMode);
+  }
+});
+elements.startMultiplication.addEventListener("click", startMultiplicationTest);
+elements.newMultiplication.addEventListener("click", resetMultiplicationTest);
+elements.finishMultiplication.addEventListener("click", finishMultiplicationTest);
 elements.contestAnswer.addEventListener("input", () => {
   elements.contestAnswer.value = elements.contestAnswer.value.replace(/\D/g, "").slice(0, 3);
 });

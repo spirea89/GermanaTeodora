@@ -169,6 +169,11 @@ button:active {
   overflow-wrap: anywhere;
 }
 
+.multiplication-choice strong {
+  font-size: clamp(1.75rem, 3.2vw, 2.8rem);
+  overflow-wrap: normal;
+}
+
 .choice-title-row {
   display: flex;
   align-items: center;
@@ -256,6 +261,7 @@ button:active {
 .controls,
 .studio-actions,
 .math-setup,
+.multiplication-setup,
 .math-progress {
   display: flex;
   align-items: center;
@@ -313,7 +319,8 @@ h2 {
 
 .score-row div,
 .math-progress div,
-.math-setup > div {
+.math-setup > div,
+.multiplication-setup > div {
   flex: 1;
   min-width: 0;
   padding: 12px;
@@ -606,6 +613,7 @@ input {
 .answer-row button,
 #save-words,
 #start-math,
+#start-multiplication,
 #finish-handwriting {
   min-height: 64px;
   padding: 0 24px;
@@ -719,13 +727,15 @@ textarea {
   text-align: center;
 }
 
-.math-setup {
+.math-setup,
+.multiplication-setup {
   gap: 12px;
   align-items: stretch;
   margin: 22px 0 12px;
 }
 
-.math-setup strong {
+.math-setup strong,
+.multiplication-setup strong {
   display: block;
   margin-top: 5px;
   font-size: 1.1rem;
@@ -743,6 +753,7 @@ textarea {
 }
 
 .time-options,
+.multiplication-options,
 .start-options,
 .contest-options {
   display: grid;
@@ -752,6 +763,10 @@ textarea {
 
 .time-options {
   grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.multiplication-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .contest-options {
@@ -768,6 +783,7 @@ textarea {
 }
 
 .time-options button,
+.multiplication-options button,
 .start-options button,
 .contest-options button {
   min-height: 54px;
@@ -779,6 +795,7 @@ textarea {
 }
 
 .time-options button.selected,
+.multiplication-options button.selected,
 .contest-options button.selected,
 .start-options button:focus {
   background: var(--sky);
@@ -1179,7 +1196,8 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .math-setup {
+  .math-setup,
+  .multiplication-setup {
     flex-direction: column;
   }
 
@@ -1225,16 +1243,19 @@ textarea {
     width: 100%;
   }
 
-  .math-setup {
+  .math-setup,
+  .multiplication-setup {
     flex-direction: row;
     flex-wrap: wrap;
   }
 
-  .math-setup > div {
+  .math-setup > div,
+  .multiplication-setup > div {
     flex-basis: calc(50% - 8px);
   }
 
-  #start-math {
+  #start-math,
+  #start-multiplication {
     flex: 1 0 100%;
   }
 
@@ -1264,6 +1285,10 @@ textarea {
 }
 
 @media (max-width: 560px) {
+  #math-title {
+    font-size: 2rem;
+  }
+
   .score-row,
   .math-progress {
     gap: 8px;
@@ -1284,6 +1309,10 @@ textarea {
 
   .time-options {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .multiplication-options {
+    grid-template-columns: 1fr;
   }
 
   .article-options {
