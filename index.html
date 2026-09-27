@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20260910-multiplication-tests">
+    <link rel="stylesheet" href="styles.css?v=20260927-focus-search">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.09.10.1</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.09.27.2</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -142,7 +142,34 @@
 
             <section class="article-mode-switch" aria-label="Article practice mode">
               <button class="selected" id="article-normal-mode" type="button" data-article-mode="normal">Normal mode</button>
+              <button id="article-focus-mode" type="button" data-article-mode="focus">Focus mode</button>
               <button id="article-car-mode" type="button" data-article-mode="car">Car mode</button>
+            </section>
+
+            <section class="article-focus-panel hidden" id="article-focus-panel" aria-label="Choose focus words">
+              <div class="article-focus-header">
+                <div>
+                  <strong id="article-focus-title">Choose focus words</strong>
+                  <p id="article-focus-summary" aria-live="polite">0 words selected</p>
+                </div>
+                <div class="article-focus-actions">
+                  <button id="article-focus-all" type="button">Select all</button>
+                  <button id="article-focus-clear" type="button">Clear</button>
+                </div>
+              </div>
+              <div class="article-focus-workspace">
+                <section class="article-focus-library" aria-label="Word library">
+                  <label class="article-focus-search-label" for="article-focus-search">Search the library</label>
+                  <input id="article-focus-search" type="search" autocomplete="off" placeholder="Type a German word">
+                  <p class="article-focus-empty hidden" id="article-focus-no-results">No matching words.</p>
+                  <div class="article-focus-list" id="article-focus-list"></div>
+                </section>
+                <aside class="article-focus-selected-panel" aria-label="Selected words">
+                  <strong id="article-focus-selected-title">Selected words</strong>
+                  <p class="article-focus-empty" id="article-focus-selected-empty">No words selected yet.</p>
+                  <div class="article-focus-selected-list" id="article-focus-selected-list"></div>
+                </aside>
+              </div>
             </section>
 
             <section class="card article-card">
@@ -409,6 +436,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260910-multiplication-tests"></script>
+    <script src="app.js?v=20260927-focus-search"></script>
   </body>
 </html>

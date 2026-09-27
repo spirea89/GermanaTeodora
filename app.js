@@ -193,10 +193,11 @@ const defaultArticleWords = commonArticleWords.map(([word, article, emoji]) => (
 const defaultWords = [...defaultRebusWords, ...defaultArticleWords];
 const wordsStorageKey = "wordGardenGermanWords";
 const articleWordsStorageKey = "articleGameGermanWords";
+const articleFocusStorageKey = "articleGameFocusWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.09.10.1";
+const appVersion = "2026.09.27.2";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -272,6 +273,19 @@ const translations = {
     articleTry: () => "Almost. Try again.",
     articleNoWords: "Add words with der, die, or das in Administration.",
     normalMode: "Normal mode",
+    focusMode: "Focus mode",
+    focusTitle: "Choose focus words",
+    focusSelected: (count) => `${count} ${count === 1 ? "word" : "words"} selected`,
+    focusSelectAll: "Select all",
+    focusClear: "Clear",
+    focusLibrary: "Word library",
+    focusSearchLabel: "Search the library",
+    focusSearchPlaceholder: "Type a German word",
+    focusNoResults: "No matching words.",
+    focusSelectedTitle: "Selected words",
+    focusSelectedEmpty: "No words selected yet.",
+    focusRemove: (word) => `Remove ${word}`,
+    focusNoWords: "Choose at least one focus word above.",
     carMode: "Car mode",
     carModeNote: "Car mode currently works only on laptop, not on mobile.",
     startListening: "Start listening",
@@ -404,6 +418,19 @@ const translations = {
     articleTry: () => "Fast. Versuch es noch einmal.",
     articleNoWords: "Füge Wörter mit der, die oder das in der Verwaltung hinzu.",
     normalMode: "Normalmodus",
+    focusMode: "Fokusmodus",
+    focusTitle: "Fokuswörter auswählen",
+    focusSelected: (count) => `${count} ${count === 1 ? "Wort" : "Wörter"} ausgewählt`,
+    focusSelectAll: "Alle auswählen",
+    focusClear: "Löschen",
+    focusLibrary: "Wortbibliothek",
+    focusSearchLabel: "Bibliothek durchsuchen",
+    focusSearchPlaceholder: "Deutsches Wort eingeben",
+    focusNoResults: "Keine passenden Wörter gefunden.",
+    focusSelectedTitle: "Ausgewählte Wörter",
+    focusSelectedEmpty: "Noch keine Wörter ausgewählt.",
+    focusRemove: (word) => `${word} entfernen`,
+    focusNoWords: "Wähle oben mindestens ein Fokuswort aus.",
     carMode: "Automodus",
     carModeNote: "Der Automodus funktioniert im Moment nur auf dem Laptop, nicht auf dem Handy oder Tablet.",
     startListening: "Zuhören starten",
@@ -530,7 +557,22 @@ const elements = {
   articleEmoji: document.querySelector("#article-emoji"),
   articleWord: document.querySelector("#article-word"),
   articleNormalMode: document.querySelector("#article-normal-mode"),
+  articleFocusMode: document.querySelector("#article-focus-mode"),
   articleCarMode: document.querySelector("#article-car-mode"),
+  articleFocusPanel: document.querySelector("#article-focus-panel"),
+  articleFocusTitle: document.querySelector("#article-focus-title"),
+  articleFocusSummary: document.querySelector("#article-focus-summary"),
+  articleFocusLibrary: document.querySelector(".article-focus-library"),
+  articleFocusSearchLabel: document.querySelector(".article-focus-search-label"),
+  articleFocusSearch: document.querySelector("#article-focus-search"),
+  articleFocusNoResults: document.querySelector("#article-focus-no-results"),
+  articleFocusList: document.querySelector("#article-focus-list"),
+  articleFocusSelectedPanel: document.querySelector(".article-focus-selected-panel"),
+  articleFocusSelectedTitle: document.querySelector("#article-focus-selected-title"),
+  articleFocusSelectedEmpty: document.querySelector("#article-focus-selected-empty"),
+  articleFocusSelectedList: document.querySelector("#article-focus-selected-list"),
+  articleFocusAll: document.querySelector("#article-focus-all"),
+  articleFocusClear: document.querySelector("#article-focus-clear"),
   articleOptions: document.querySelector("#article-options"),
   articleCarPanel: document.querySelector("#article-car-panel"),
   articleListen: document.querySelector("#article-listen"),
@@ -613,6 +655,8 @@ let articleCorrect = Number(localStorage.getItem("articleGameCorrect") || 0);
 let articleStreak = 0;
 let articleRound = 1;
 let articleMode = "normal";
+let articleFocusKeys = loadArticleFocusKeys();
+let articleFocusQuery = "";
 let articleRecognition = null;
 let articleIsListening = false;
 let articleCarSessionActive = false;
@@ -707,7 +751,20 @@ function applyLanguage() {
   setText(".article-score-row div:nth-child(3) .score-label", "round");
   elements.articleOptions.setAttribute("aria-label", t("articleSub"));
   elements.articleNormalMode.textContent = t("normalMode");
+  elements.articleFocusMode.textContent = t("focusMode");
   elements.articleCarMode.textContent = t("carMode");
+  elements.articleFocusPanel.setAttribute("aria-label", t("focusTitle"));
+  elements.articleFocusTitle.textContent = t("focusTitle");
+  elements.articleFocusAll.textContent = t("focusSelectAll");
+  elements.articleFocusClear.textContent = t("focusClear");
+  elements.articleFocusLibrary.setAttribute("aria-label", t("focusLibrary"));
+  elements.articleFocusSearchLabel.textContent = t("focusSearchLabel");
+  elements.articleFocusSearch.placeholder = t("focusSearchPlaceholder");
+  elements.articleFocusNoResults.textContent = t("focusNoResults");
+  elements.articleFocusSelectedPanel.setAttribute("aria-label", t("focusSelectedTitle"));
+  elements.articleFocusSelectedTitle.textContent = t("focusSelectedTitle");
+  elements.articleFocusSelectedEmpty.textContent = t("focusSelectedEmpty");
+  renderArticleFocusWords();
   elements.articleListen.textContent = articleCarSessionActive
     ? (articleIsListening ? t("listening") : t("stopListening"))
     : t("startListening");
@@ -1499,8 +1556,101 @@ function checkAnswer() {
   elements.input.select();
 }
 
+function articleFocusKey(item) {
+  return `${cleanArticle(item.article)}|${normalize(item.word)}`;
+}
+
+function loadArticleFocusKeys() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(articleFocusStorageKey) || "[]");
+    return new Set(Array.isArray(saved) ? saved.filter((item) => typeof item === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveArticleFocusKeys() {
+  localStorage.setItem(articleFocusStorageKey, JSON.stringify([...articleFocusKeys]));
+}
+
+function uniqueArticleWords(items) {
+  return [...new Map(items.map((item) => [articleFocusKey(item), item])).values()];
+}
+
+function renderArticleFocusWords() {
+  const available = uniqueArticleWords(articlePracticeWords.filter((item) => cleanArticle(item.article)));
+  const availableKeys = new Set(available.map(articleFocusKey));
+  articleFocusKeys = new Set([...articleFocusKeys].filter((key) => availableKeys.has(key)));
+  elements.articleFocusList.replaceChildren();
+  elements.articleFocusSelectedList.replaceChildren();
+
+  const query = normalize(articleFocusQuery);
+  const matches = available.filter((item) => (
+    !query || normalize(`${item.article} ${item.word}`).includes(query)
+  ));
+
+  matches.forEach((item) => {
+    const key = articleFocusKey(item);
+    const label = document.createElement("label");
+    label.className = "article-focus-word";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = articleFocusKeys.has(key);
+    checkbox.dataset.focusKey = key;
+
+    const emoji = document.createElement("span");
+    emoji.className = "article-focus-emoji";
+    emoji.textContent = item.emoji || "📘";
+
+    const word = document.createElement("span");
+    word.textContent = `${item.article} ${item.word}`;
+    label.append(checkbox, emoji, word);
+    elements.articleFocusList.append(label);
+  });
+
+  available.filter((item) => articleFocusKeys.has(articleFocusKey(item))).forEach((item) => {
+    const key = articleFocusKey(item);
+    const row = document.createElement("div");
+    row.className = "article-focus-selected-word";
+
+    const emoji = document.createElement("span");
+    emoji.className = "article-focus-emoji";
+    emoji.textContent = item.emoji || "📘";
+
+    const word = document.createElement("span");
+    word.textContent = `${item.article} ${item.word}`;
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.dataset.removeFocusKey = key;
+    remove.setAttribute("aria-label", t("focusRemove", `${item.article} ${item.word}`));
+    remove.textContent = "×";
+    row.append(emoji, word, remove);
+    elements.articleFocusSelectedList.append(row);
+  });
+
+  elements.articleFocusSummary.textContent = t("focusSelected", articleFocusKeys.size);
+  elements.articleFocusNoResults.classList.toggle("hidden", matches.length > 0);
+  elements.articleFocusSelectedEmpty.classList.toggle("hidden", articleFocusKeys.size > 0);
+}
+
+function setAllArticleFocusWords(selected) {
+  articleFocusKeys = selected
+    ? new Set(uniqueArticleWords(articlePracticeWords.filter((item) => cleanArticle(item.article))).map(articleFocusKey))
+    : new Set();
+  saveArticleFocusKeys();
+  renderArticleFocusWords();
+  if (articleMode === "focus") {
+    pickArticleWord();
+  }
+}
+
 function articleWords() {
-  return articlePracticeWords.filter((item) => cleanArticle(item.article));
+  const available = articlePracticeWords.filter((item) => cleanArticle(item.article));
+  return articleMode === "focus"
+    ? uniqueArticleWords(available.filter((item) => articleFocusKeys.has(articleFocusKey(item))))
+    : available;
 }
 
 function renderArticleScore() {
@@ -1598,14 +1748,19 @@ function stopArticleCarSession() {
 }
 
 function setArticleMode(mode) {
-  articleMode = mode === "car" ? "car" : "normal";
+  articleMode = ["normal", "focus", "car"].includes(mode) ? mode : "normal";
   stopArticleCarSession();
   elements.articleNormalMode.classList.toggle("selected", articleMode === "normal");
+  elements.articleFocusMode.classList.toggle("selected", articleMode === "focus");
   elements.articleCarMode.classList.toggle("selected", articleMode === "car");
+  elements.articleFocusPanel.classList.toggle("hidden", articleMode !== "focus");
   elements.articleOptions.classList.toggle("hidden", articleMode === "car");
   elements.articleCarPanel.classList.toggle("hidden", articleMode !== "car");
   elements.articleHeard.textContent = "";
-  setArticleHint("default");
+  pickArticleWord();
+  if (articleMode === "focus") {
+    window.requestAnimationFrame(() => elements.articleFocusSearch.focus());
+  }
 }
 
 function normalizedArticleSpeech(value) {
@@ -1827,7 +1982,7 @@ function setArticleHint(state, wordItem = null) {
   }
   if (state === "empty") {
     elements.articleHint.classList.add("try");
-    elements.articleHint.textContent = t("articleNoWords");
+    elements.articleHint.textContent = articleMode === "focus" ? t("focusNoWords") : t("articleNoWords");
     return;
   }
   elements.articleHint.textContent = articleMode === "car" ? t("carPrompt") : t("articlePrompt");
@@ -1854,8 +2009,8 @@ function pickArticleWord() {
   }
 
   let nextIndex = Math.floor(Math.random() * candidates.length);
-  if (candidates.length > 1) {
-    while (nextIndex === articleCurrentIndex) {
+  if (candidates.length > 1 && articleCurrentWord) {
+    while (articleFocusKey(candidates[nextIndex]) === articleFocusKey(articleCurrentWord)) {
       nextIndex = Math.floor(Math.random() * candidates.length);
     }
   }
@@ -3003,13 +3158,52 @@ elements.skip.addEventListener("click", () => {
 
 elements.speak.addEventListener("click", () => speak(currentWord.word));
 elements.articleNormalMode.addEventListener("click", () => setArticleMode("normal"));
+elements.articleFocusMode.addEventListener("click", () => setArticleMode("focus"));
 elements.articleCarMode.addEventListener("click", () => setArticleMode("car"));
+elements.articleFocusSearch.addEventListener("input", () => {
+  articleFocusQuery = elements.articleFocusSearch.value;
+  renderArticleFocusWords();
+});
+elements.articleFocusList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest('input[type="checkbox"][data-focus-key]');
+  if (!checkbox) {
+    return;
+  }
+  if (checkbox.checked) {
+    articleFocusKeys.add(checkbox.dataset.focusKey);
+    articleFocusQuery = "";
+    elements.articleFocusSearch.value = "";
+  } else {
+    articleFocusKeys.delete(checkbox.dataset.focusKey);
+  }
+  saveArticleFocusKeys();
+  renderArticleFocusWords();
+  elements.articleFocusSearch.focus();
+  if (articleMode === "focus") {
+    pickArticleWord();
+  }
+});
+elements.articleFocusSelectedList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-remove-focus-key]");
+  if (!button) {
+    return;
+  }
+  articleFocusKeys.delete(button.dataset.removeFocusKey);
+  saveArticleFocusKeys();
+  renderArticleFocusWords();
+  elements.articleFocusSearch.focus();
+  if (articleMode === "focus") {
+    pickArticleWord();
+  }
+});
+elements.articleFocusAll.addEventListener("click", () => setAllArticleFocusWords(true));
+elements.articleFocusClear.addEventListener("click", () => setAllArticleFocusWords(false));
 elements.articleOptions.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-article]");
   if (!button) {
     return;
   }
-  if (articleMode !== "normal") {
+  if (articleMode === "car") {
     return;
   }
   chooseArticle(button.dataset.article);
@@ -3050,6 +3244,7 @@ elements.saveWords.addEventListener("click", () => {
   }
   saveWordState(words);
   saveArticleWordState(articlePracticeWords);
+  renderArticleFocusWords();
   pickWord();
   if (!elements.articleApp.classList.contains("hidden")) {
     pickArticleWord();
@@ -3070,6 +3265,7 @@ elements.resetWords.addEventListener("click", async () => {
     saveWordState(words);
     saveArticleWordState(articlePracticeWords);
   }
+  renderArticleFocusWords();
   elements.wordList.value = serializeRebusWords();
   elements.articleWordList.value = serializeArticleWords();
   pickWord();
@@ -3157,6 +3353,7 @@ void loadBundledWordFiles().then((loaded) => {
     return;
   }
   pickWord();
+  renderArticleFocusWords();
   if (!elements.articleApp.classList.contains("hidden")) {
     pickArticleWord();
   }
