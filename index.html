@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20260927-focus-search">
+    <link rel="stylesheet" href="styles.css?v=20260928-focus-game-start">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.09.27.2</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.09.28.1</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -170,9 +170,11 @@
                   <div class="article-focus-selected-list" id="article-focus-selected-list"></div>
                 </aside>
               </div>
+              <p class="article-focus-start-note hidden" id="article-focus-start-note" aria-live="polite">Choose at least one focus word above.</p>
+              <button class="article-focus-start" id="article-focus-start" type="button">Start focus game</button>
             </section>
 
-            <section class="card article-card">
+            <section class="card article-card" id="article-card">
               <span class="emoji-clue" id="article-emoji" aria-hidden="true">📘</span>
               <div class="article-word" id="article-word">Sonne</div>
               <div class="article-options" id="article-options" aria-label="Choose the article">
@@ -190,6 +192,7 @@
 
             <section class="controls">
               <button class="ghost-button german-menu-button" type="button">German apps</button>
+              <button class="ghost-button hidden" id="article-focus-edit" type="button">Edit focus words</button>
               <button class="ghost-button" id="article-skip" type="button">↪ New word</button>
             </section>
           </section>
@@ -436,6 +439,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260927-focus-search"></script>
+    <script src="app.js?v=20260928-focus-game-start"></script>
   </body>
 </html>

@@ -197,7 +197,7 @@ const articleFocusStorageKey = "articleGameFocusWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.09.27.2";
+const appVersion = "2026.09.28.1";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -286,6 +286,8 @@ const translations = {
     focusSelectedEmpty: "No words selected yet.",
     focusRemove: (word) => `Remove ${word}`,
     focusNoWords: "Choose at least one focus word above.",
+    focusStart: "Start focus game",
+    focusEdit: "Edit focus words",
     carMode: "Car mode",
     carModeNote: "Car mode currently works only on laptop, not on mobile.",
     startListening: "Start listening",
@@ -431,6 +433,8 @@ const translations = {
     focusSelectedEmpty: "Noch keine Wörter ausgewählt.",
     focusRemove: (word) => `${word} entfernen`,
     focusNoWords: "Wähle oben mindestens ein Fokuswort aus.",
+    focusStart: "Fokusspiel starten",
+    focusEdit: "Fokuswörter bearbeiten",
     carMode: "Automodus",
     carModeNote: "Der Automodus funktioniert im Moment nur auf dem Laptop, nicht auf dem Handy oder Tablet.",
     startListening: "Zuhören starten",
@@ -573,6 +577,10 @@ const elements = {
   articleFocusSelectedList: document.querySelector("#article-focus-selected-list"),
   articleFocusAll: document.querySelector("#article-focus-all"),
   articleFocusClear: document.querySelector("#article-focus-clear"),
+  articleFocusStartNote: document.querySelector("#article-focus-start-note"),
+  articleFocusStart: document.querySelector("#article-focus-start"),
+  articleFocusEdit: document.querySelector("#article-focus-edit"),
+  articleCard: document.querySelector("#article-card"),
   articleOptions: document.querySelector("#article-options"),
   articleCarPanel: document.querySelector("#article-car-panel"),
   articleListen: document.querySelector("#article-listen"),
@@ -657,6 +665,7 @@ let articleRound = 1;
 let articleMode = "normal";
 let articleFocusKeys = loadArticleFocusKeys();
 let articleFocusQuery = "";
+let articleFocusPlaying = false;
 let articleRecognition = null;
 let articleIsListening = false;
 let articleCarSessionActive = false;
@@ -764,6 +773,9 @@ function applyLanguage() {
   elements.articleFocusSelectedPanel.setAttribute("aria-label", t("focusSelectedTitle"));
   elements.articleFocusSelectedTitle.textContent = t("focusSelectedTitle");
   elements.articleFocusSelectedEmpty.textContent = t("focusSelectedEmpty");
+  elements.articleFocusStartNote.textContent = t("focusNoWords");
+  elements.articleFocusStart.textContent = t("focusStart");
+  elements.articleFocusEdit.textContent = t("focusEdit");
   renderArticleFocusWords();
   elements.articleListen.textContent = articleCarSessionActive
     ? (articleIsListening ? t("listening") : t("stopListening"))
@@ -1641,7 +1653,7 @@ function setAllArticleFocusWords(selected) {
     : new Set();
   saveArticleFocusKeys();
   renderArticleFocusWords();
-  if (articleMode === "focus") {
+  if (articleMode === "focus" && articleFocusPlaying) {
     pickArticleWord();
   }
 }
@@ -1753,14 +1765,46 @@ function setArticleMode(mode) {
   elements.articleNormalMode.classList.toggle("selected", articleMode === "normal");
   elements.articleFocusMode.classList.toggle("selected", articleMode === "focus");
   elements.articleCarMode.classList.toggle("selected", articleMode === "car");
-  elements.articleFocusPanel.classList.toggle("hidden", articleMode !== "focus");
   elements.articleOptions.classList.toggle("hidden", articleMode === "car");
   elements.articleCarPanel.classList.toggle("hidden", articleMode !== "car");
   elements.articleHeard.textContent = "";
-  pickArticleWord();
   if (articleMode === "focus") {
-    window.requestAnimationFrame(() => elements.articleFocusSearch.focus());
+    showArticleFocusSetup();
+    return;
   }
+  articleFocusPlaying = false;
+  elements.articleFocusPanel.classList.add("hidden");
+  elements.articleCard.classList.remove("hidden");
+  elements.articleFocusEdit.classList.add("hidden");
+  elements.articleSkip.classList.remove("hidden");
+  pickArticleWord();
+}
+
+function showArticleFocusSetup() {
+  articleFocusPlaying = false;
+  stopArticleCarSession();
+  elements.articleFocusPanel.classList.remove("hidden");
+  elements.articleCard.classList.add("hidden");
+  elements.articleFocusEdit.classList.add("hidden");
+  elements.articleSkip.classList.add("hidden");
+  elements.articleFocusStartNote.classList.add("hidden");
+  renderArticleFocusWords();
+  window.requestAnimationFrame(() => elements.articleFocusSearch.focus());
+}
+
+function startArticleFocusGame() {
+  if (!articleWords().length) {
+    elements.articleFocusStartNote.classList.remove("hidden");
+    elements.articleFocusSearch.focus();
+    return;
+  }
+  articleFocusPlaying = true;
+  elements.articleFocusStartNote.classList.add("hidden");
+  elements.articleFocusPanel.classList.add("hidden");
+  elements.articleCard.classList.remove("hidden");
+  elements.articleFocusEdit.classList.remove("hidden");
+  elements.articleSkip.classList.remove("hidden");
+  pickArticleWord();
 }
 
 function normalizedArticleSpeech(value) {
@@ -3179,7 +3223,7 @@ elements.articleFocusList.addEventListener("change", (event) => {
   saveArticleFocusKeys();
   renderArticleFocusWords();
   elements.articleFocusSearch.focus();
-  if (articleMode === "focus") {
+  if (articleMode === "focus" && articleFocusPlaying) {
     pickArticleWord();
   }
 });
@@ -3192,12 +3236,14 @@ elements.articleFocusSelectedList.addEventListener("click", (event) => {
   saveArticleFocusKeys();
   renderArticleFocusWords();
   elements.articleFocusSearch.focus();
-  if (articleMode === "focus") {
+  if (articleMode === "focus" && articleFocusPlaying) {
     pickArticleWord();
   }
 });
 elements.articleFocusAll.addEventListener("click", () => setAllArticleFocusWords(true));
 elements.articleFocusClear.addEventListener("click", () => setAllArticleFocusWords(false));
+elements.articleFocusStart.addEventListener("click", startArticleFocusGame);
+elements.articleFocusEdit.addEventListener("click", showArticleFocusSetup);
 elements.articleOptions.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-article]");
   if (!button) {

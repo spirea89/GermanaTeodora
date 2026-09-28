@@ -424,6 +424,21 @@ h2 {
   padding: 0 14px;
 }
 
+.article-focus-start {
+  min-height: 60px;
+  border-radius: 8px;
+  background: var(--leaf);
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.article-focus-start-note {
+  margin: 0;
+  color: var(--berry);
+  font-weight: 900;
+  text-align: center;
+}
+
 .article-focus-workspace {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
