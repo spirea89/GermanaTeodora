@@ -67,6 +67,21 @@ button:active {
   font-weight: 900;
 }
 
+.version-badge {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  z-index: 20;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--muted);
+  border: 1px solid rgba(233, 220, 205, 0.9);
+  box-shadow: 0 8px 20px rgba(87, 60, 35, 0.12);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .app-shell {
   width: min(1120px, calc(100% - 32px));
   min-height: 100vh;
@@ -152,6 +167,11 @@ button:active {
   font-size: clamp(2rem, 5vw, 3.6rem);
   line-height: 1;
   overflow-wrap: anywhere;
+}
+
+.multiplication-choice strong {
+  font-size: clamp(1.75rem, 3.2vw, 2.8rem);
+  overflow-wrap: normal;
 }
 
 .choice-title-row {
@@ -241,6 +261,7 @@ button:active {
 .controls,
 .studio-actions,
 .math-setup,
+.multiplication-setup,
 .math-progress {
   display: flex;
   align-items: center;
@@ -298,7 +319,8 @@ h2 {
 
 .score-row div,
 .math-progress div,
-.math-setup > div {
+.math-setup > div,
+.multiplication-setup > div {
   flex: 1;
   min-width: 0;
   padding: 12px;
@@ -341,12 +363,13 @@ h2 {
 
 .article-mode-switch {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin: 0 0 14px;
 }
 
 .article-mode-switch button,
+.article-focus-actions button,
 .article-car-panel button {
   min-height: 58px;
   border-radius: 8px;
@@ -363,6 +386,176 @@ h2 {
   border-color: var(--sky);
 }
 
+.article-focus-panel {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+}
+
+.article-focus-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.article-focus-header strong {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.article-focus-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.article-focus-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.article-focus-actions button {
+  min-height: 46px;
+  padding: 0 14px;
+}
+
+.article-focus-start {
+  min-height: 60px;
+  border-radius: 8px;
+  background: var(--leaf);
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.article-focus-start-note {
+  margin: 0;
+  color: var(--berry);
+  font-weight: 900;
+  text-align: center;
+}
+
+.article-focus-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+  gap: 12px;
+}
+
+.article-focus-library,
+.article-focus-selected-panel {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fbfdff;
+  border: 1px solid #d9e7f4;
+}
+
+.article-focus-search-label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+#article-focus-search {
+  height: 54px;
+  padding: 0 14px;
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+.article-focus-empty {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.article-focus-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 310px;
+  margin-top: 10px;
+  padding: 2px 4px 2px 2px;
+  overflow-y: auto;
+}
+
+.article-focus-word {
+  display: grid;
+  grid-template-columns: 24px 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f7fbff;
+  border: 1px solid #c9def1;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.article-focus-word:has(input:checked) {
+  background: #eaf3ff;
+  border-color: var(--sky);
+}
+
+.article-focus-word input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--sky);
+}
+
+.article-focus-emoji {
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.article-focus-selected-panel > strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.article-focus-selected-list {
+  display: grid;
+  gap: 8px;
+  max-height: 364px;
+  overflow-y: auto;
+}
+
+.article-focus-selected-word {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 6px 6px 6px 10px;
+  border-radius: 8px;
+  background: #eaf3ff;
+  border: 1px solid var(--sky);
+  font-weight: 800;
+}
+
+.article-focus-selected-word button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--berry);
+  border: 1px solid #f0b7c8;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
 .article-car-panel {
   display: grid;
   justify-items: center;
@@ -372,6 +565,19 @@ h2 {
 
 .article-car-panel button {
   width: min(100%, 360px);
+}
+
+.article-car-note {
+  width: min(100%, 420px);
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff8e6;
+  color: #8a5c00;
+  border: 1px solid #f0d38a;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
 }
 
 .article-heard {
@@ -609,6 +815,7 @@ input {
 .answer-row button,
 #save-words,
 #start-math,
+#start-multiplication,
 #finish-handwriting {
   min-height: 64px;
   padding: 0 24px;
@@ -722,13 +929,15 @@ textarea {
   text-align: center;
 }
 
-.math-setup {
+.math-setup,
+.multiplication-setup {
   gap: 12px;
   align-items: stretch;
   margin: 22px 0 12px;
 }
 
-.math-setup strong {
+.math-setup strong,
+.multiplication-setup strong {
   display: block;
   margin-top: 5px;
   font-size: 1.1rem;
@@ -746,6 +955,7 @@ textarea {
 }
 
 .time-options,
+.multiplication-options,
 .start-options,
 .contest-options {
   display: grid;
@@ -755,6 +965,10 @@ textarea {
 
 .time-options {
   grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.multiplication-options {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .contest-options {
@@ -771,6 +985,7 @@ textarea {
 }
 
 .time-options button,
+.multiplication-options button,
 .start-options button,
 .contest-options button {
   min-height: 54px;
@@ -782,6 +997,7 @@ textarea {
 }
 
 .time-options button.selected,
+.multiplication-options button.selected,
 .contest-options button.selected,
 .start-options button:focus {
   background: var(--sky);
@@ -1182,7 +1398,8 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .math-setup {
+  .math-setup,
+  .multiplication-setup {
     flex-direction: column;
   }
 
@@ -1228,16 +1445,19 @@ textarea {
     width: 100%;
   }
 
-  .math-setup {
+  .math-setup,
+  .multiplication-setup {
     flex-direction: row;
     flex-wrap: wrap;
   }
 
-  .math-setup > div {
+  .math-setup > div,
+  .multiplication-setup > div {
     flex-basis: calc(50% - 8px);
   }
 
-  #start-math {
+  #start-math,
+  #start-multiplication {
     flex: 1 0 100%;
   }
 
@@ -1267,6 +1487,10 @@ textarea {
 }
 
 @media (max-width: 560px) {
+  #math-title {
+    font-size: 2rem;
+  }
+
   .score-row,
   .math-progress {
     gap: 8px;
@@ -1289,8 +1513,34 @@ textarea {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .multiplication-options {
+    grid-template-columns: 1fr;
+  }
+
   .article-options {
     grid-template-columns: 1fr;
+  }
+
+  .article-mode-switch,
+  .article-focus-list {
+    grid-template-columns: 1fr;
+  }
+
+  .article-focus-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .article-focus-selected-list {
+    max-height: 240px;
+  }
+
+  .article-focus-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .article-focus-actions button {
+    flex: 1;
   }
 
   .contest-options {

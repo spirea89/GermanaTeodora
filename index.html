@@ -3,11 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20260802-article-car-mode">
+    <link rel="stylesheet" href="styles.css?v=20260928-focus-game-start">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.09.28.1</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -30,7 +34,7 @@
               <small>Plus and minus to 100</small>
             </span>
           </button>
-          <button class="choice-card admin-choice" id="open-admin" type="button">
+          <button class="choice-card admin-choice hidden" id="open-admin" type="button">
             <span class="choice-emoji" aria-hidden="true">🛠️</span>
             <span>
               <strong>Administration</strong>
@@ -138,10 +142,39 @@
 
             <section class="article-mode-switch" aria-label="Article practice mode">
               <button class="selected" id="article-normal-mode" type="button" data-article-mode="normal">Normal mode</button>
+              <button id="article-focus-mode" type="button" data-article-mode="focus">Focus mode</button>
               <button id="article-car-mode" type="button" data-article-mode="car">Car mode</button>
             </section>
 
-            <section class="card article-card">
+            <section class="article-focus-panel hidden" id="article-focus-panel" aria-label="Choose focus words">
+              <div class="article-focus-header">
+                <div>
+                  <strong id="article-focus-title">Choose focus words</strong>
+                  <p id="article-focus-summary" aria-live="polite">0 words selected</p>
+                </div>
+                <div class="article-focus-actions">
+                  <button id="article-focus-all" type="button">Select all</button>
+                  <button id="article-focus-clear" type="button">Clear</button>
+                </div>
+              </div>
+              <div class="article-focus-workspace">
+                <section class="article-focus-library" aria-label="Word library">
+                  <label class="article-focus-search-label" for="article-focus-search">Search the library</label>
+                  <input id="article-focus-search" type="search" autocomplete="off" placeholder="Type a German word">
+                  <p class="article-focus-empty hidden" id="article-focus-no-results">No matching words.</p>
+                  <div class="article-focus-list" id="article-focus-list"></div>
+                </section>
+                <aside class="article-focus-selected-panel" aria-label="Selected words">
+                  <strong id="article-focus-selected-title">Selected words</strong>
+                  <p class="article-focus-empty" id="article-focus-selected-empty">No words selected yet.</p>
+                  <div class="article-focus-selected-list" id="article-focus-selected-list"></div>
+                </aside>
+              </div>
+              <p class="article-focus-start-note hidden" id="article-focus-start-note" aria-live="polite">Choose at least one focus word above.</p>
+              <button class="article-focus-start" id="article-focus-start" type="button">Start focus game</button>
+            </section>
+
+            <section class="card article-card" id="article-card">
               <span class="emoji-clue" id="article-emoji" aria-hidden="true">📘</span>
               <div class="article-word" id="article-word">Sonne</div>
               <div class="article-options" id="article-options" aria-label="Choose the article">
@@ -158,6 +191,7 @@
                   </div>
                   <strong id="article-voice-status">idle</strong>
                 </div>
+                <p class="article-car-note" id="article-car-note">Car mode currently works only on laptop, not on mobile.</p>
                 <p class="article-heard" id="article-heard" aria-live="polite"></p>
               </div>
               <p class="hint" id="article-hint" aria-live="polite">Choose der, die, or das.</p>
@@ -165,6 +199,7 @@
 
             <section class="controls">
               <button class="ghost-button german-menu-button" type="button">German apps</button>
+              <button class="ghost-button hidden" id="article-focus-edit" type="button">Edit focus words</button>
               <button class="ghost-button" id="article-skip" type="button">↪ New word</button>
             </section>
           </section>
@@ -249,6 +284,13 @@
               <span>
                 <strong>Number Sprint</strong>
                 <small>Plus and minus to 100</small>
+              </span>
+            </button>
+            <button class="choice-card multiplication-choice" id="open-multiplication" type="button">
+              <span class="choice-emoji" aria-hidden="true">✖️</span>
+              <span>
+                <strong>Multiplication</strong>
+                <small>Practice multiplication tests</small>
               </span>
             </button>
           </section>
@@ -360,6 +402,39 @@
             <button class="ghost-button" id="finish-math" type="button">✓ Finish</button>
           </section>
           </section>
+
+          <section class="math-app hidden" id="multiplication-app">
+            <section class="multiplication-setup" aria-label="Multiplication setup">
+              <div>
+                <span class="score-label">Number size</span>
+                <div class="multiplication-options" id="multiplication-options" aria-label="Choose multiplication number size">
+                  <button type="button" data-multiplication-mode="1x1" class="selected">1 digit × 1 digit</button>
+                  <button type="button" data-multiplication-mode="1x2">1 digit × 2 digits</button>
+                  <button type="button" data-multiplication-mode="2x2">2 digits × 2 digits</button>
+                </div>
+              </div>
+              <button id="start-multiplication" type="button">Start test</button>
+            </section>
+
+            <section class="math-progress multiplication-progress" aria-label="Multiplication progress">
+              <div>
+                <span class="score-label">Correct</span>
+                <strong id="multiplication-correct">0</strong>
+              </div>
+              <div>
+                <span class="score-label">Left</span>
+                <strong id="multiplication-left">24</strong>
+              </div>
+            </section>
+
+            <section class="worksheet multiplication-worksheet" id="multiplication-worksheet" aria-label="Multiplication test"></section>
+
+            <section class="controls multiplication-controls">
+              <button class="ghost-button math-menu-button" type="button">Math apps</button>
+              <button class="ghost-button" id="new-multiplication" type="button">↻ New test</button>
+              <button class="ghost-button" id="finish-multiplication" type="button">✓ Finish</button>
+            </section>
+          </section>
         </section>
       </section>
     </main>
@@ -371,6 +446,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260803-sandbox-voice-meter"></script>
+    <script src="app.js?v=20260928-focus-game-start-sandbox-voice-meter"></script>
   </body>
 </html>
