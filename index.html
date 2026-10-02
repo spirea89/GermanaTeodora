@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20261002-bat-tests">
+    <link rel="stylesheet" href="styles.css?v=20261002-bat-facts">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.10.02.2</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.10.02.3</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -280,6 +280,7 @@
 
             <div class="animal-mode-switch" aria-label="Animal activity">
               <button class="selected" id="animal-explore-mode" type="button">Explore</button>
+              <button id="animal-facts-mode" type="button">Useful information</button>
               <button id="animal-tests-mode" type="button">Tests</button>
             </div>
 
@@ -301,6 +302,49 @@
                 </aside>
               </div>
             </div>
+
+            <section class="animal-facts-view hidden" id="animal-facts-view" aria-labelledby="animal-facts-title">
+              <div class="animal-facts-heading">
+                <p class="eyebrow">Bat knowledge</p>
+                <h3 id="animal-facts-title">Useful information</h3>
+                <p id="animal-facts-intro">Explore the facts first, then test what you remember.</p>
+              </div>
+
+              <div class="animal-fact-categories" id="animal-fact-categories" aria-label="Fact categories"></div>
+
+              <div class="animal-facts-layout">
+                <nav class="animal-fact-list" id="animal-fact-list" aria-label="Interesting bat facts"></nav>
+
+                <article class="animal-fact-detail" id="animal-fact-detail" aria-live="polite">
+                  <div class="animal-fact-animation is-replaying" id="animal-fact-animation" data-animation="mammal" aria-label="Animated bat fact">
+                    <div class="animal-night-sky" aria-hidden="true">
+                      <span>✦</span><span>✦</span><span>✦</span><span>☾</span>
+                    </div>
+                    <div class="animal-sleep-branch" aria-hidden="true"></div>
+                    <img class="animal-fact-bat" id="animal-fact-bat" src="assets/fledermaus-3d.png" alt="">
+                    <div class="animal-echo-waves" aria-hidden="true">
+                      <span></span><span></span><span></span>
+                    </div>
+                    <span class="animal-fact-target" id="animal-fact-target" aria-hidden="true">🦟</span>
+                    <span class="animal-sleep-symbol" aria-hidden="true">Z z z</span>
+                    <span class="animal-scene-symbol" id="animal-scene-symbol" aria-hidden="true">🦇</span>
+                  </div>
+
+                  <div class="animal-fact-copy">
+                    <div class="animal-fact-meta">
+                      <span class="animal-fact-icon" id="animal-fact-icon" aria-hidden="true">🦇</span>
+                      <span id="animal-fact-progress">Fact 1 of 5</span>
+                    </div>
+                    <h3 id="animal-fact-title" tabindex="-1">Bats are mammals</h3>
+                    <p id="animal-fact-text">Bats are the only mammals capable of true flight.</p>
+                    <div class="animal-fact-actions">
+                      <button id="animal-fact-speak" type="button">🔊 Read aloud</button>
+                      <button class="ghost-button" id="animal-fact-replay" type="button">↻ Replay animation</button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
 
             <section class="animal-tests-view hidden" id="animal-tests-view" aria-labelledby="animal-tests-title">
               <div class="animal-tests-heading">
@@ -570,6 +614,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20261002-bat-tests-sandbox-voice-meter"></script>
+    <script src="app.js?v=20261002-bat-facts-sandbox-voice-meter"></script>
   </body>
 </html>

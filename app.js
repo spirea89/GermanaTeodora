@@ -198,7 +198,7 @@ const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
 const animalContentStorageKey = "deutschUndMatheAnimalExplorer";
-const appVersion = "2026.10.02.2";
+const appVersion = "2026.10.02.3";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -216,6 +216,188 @@ const defaultAnimals = [
       en: "Bats are nocturnal mammals. Tap a glowing point to explore their body parts.",
       de: "Fledermäuse sind nachtaktive Säugetiere. Tippe auf einen leuchtenden Punkt und entdecke ihre Körperteile."
     },
+    facts: [
+      {
+        id: "mammal",
+        category: "body-wings",
+        icon: "🍼",
+        sceneIcon: "🦇",
+        animation: "mammal",
+        title: { en: "A flying mammal", de: "Ein fliegendes Säugetier" },
+        text: {
+          en: "Bats are mammals, not birds. They have fur and their babies drink their mother's milk. They are the only mammals capable of true, powered flight.",
+          de: "Fledermäuse sind Säugetiere und keine Vögel. Sie haben Fell und ihre Jungen trinken Muttermilch. Sie sind die einzigen Säugetiere, die aktiv fliegen können."
+        }
+      },
+      {
+        id: "size",
+        category: "body-wings",
+        icon: "📏",
+        sceneIcon: "3–14 cm",
+        animation: "size",
+        title: { en: "Small bodies", de: "Kleine Körper" },
+        text: {
+          en: "According to the worksheet, a bat's body can be about 3 to 14 centimetres long. Different bat species can therefore look very different in size.",
+          de: "Laut Arbeitsblatt kann der Körper einer Fledermaus etwa 3 bis 14 Zentimeter lang sein. Die verschiedenen Arten können deshalb sehr unterschiedlich groß aussehen."
+        }
+      },
+      {
+        id: "weight",
+        category: "body-wings",
+        icon: "⚖️",
+        sceneIcon: "2–200 g",
+        animation: "weight",
+        title: { en: "Light as a feather", de: "Leichtgewichte" },
+        text: {
+          en: "The worksheet gives a weight range of about 2 to 200 grams. Even a comparatively large bat can be surprisingly light.",
+          de: "Das Arbeitsblatt nennt ein Gewicht von ungefähr 2 bis 200 Gramm. Selbst eine vergleichsweise große Fledermaus kann erstaunlich leicht sein."
+        }
+      },
+      {
+        id: "flight-membrane",
+        category: "body-wings",
+        icon: "🪽",
+        sceneIcon: "〰️",
+        animation: "flight",
+        title: { en: "Wings made of skin", de: "Flügel aus Flughaut" },
+        text: {
+          en: "Bat wings do not have feathers. A thin, elastic flight membrane stretches between the fingers, body and legs and makes controlled flight possible.",
+          de: "Fledermausflügel haben keine Federn. Eine dünne, elastische Flughaut spannt sich zwischen Fingern, Körper und Beinen und ermöglicht einen kontrollierten Flug."
+        }
+      },
+      {
+        id: "finger-support",
+        category: "body-wings",
+        icon: "🦴",
+        sceneIcon: "✋",
+        animation: "flight",
+        title: { en: "Extra-long fingers", de: "Besonders lange Finger" },
+        text: {
+          en: "A bat's wing is a modified hand. Its long finger bones spread and support the flight membrane like the ribs of an umbrella.",
+          de: "Der Flügel einer Fledermaus ist eine umgebildete Hand. Die langen Fingerknochen spannen und stützen die Flughaut wie die Streben eines Regenschirms."
+        }
+      },
+      {
+        id: "nocturnal",
+        category: "senses-life",
+        icon: "🌙",
+        sceneIcon: "🌙",
+        animation: "night",
+        title: { en: "Awake at night", de: "In der Nacht wach" },
+        text: {
+          en: "Bats are nocturnal. They usually rest during the day and fly out in the evening or at night to search for food.",
+          de: "Fledermäuse sind nachtaktiv. Tagsüber ruhen sie meistens, am Abend oder in der Nacht fliegen sie aus und suchen Nahrung."
+        }
+      },
+      {
+        id: "upside-down-sleep",
+        category: "senses-life",
+        icon: "💤",
+        sceneIcon: "Zzz",
+        animation: "sleep",
+        title: { en: "Sleeping upside down", de: "Kopfüber schlafen" },
+        text: {
+          en: "Bats rest upside down in dark, quiet places such as caves, attics and old walls. Curved claws hold them securely while their body uses very little strength.",
+          de: "Fledermäuse ruhen kopfüber an dunklen, ruhigen Orten wie Höhlen, Dachböden und alten Gemäuern. Gebogene Krallen halten sie sicher fest, ohne dass der Körper viel Kraft braucht."
+        }
+      },
+      {
+        id: "hearing",
+        category: "senses-life",
+        icon: "👂",
+        sceneIcon: "♫",
+        animation: "hearing",
+        title: { en: "Super hearing", de: "Supergehör" },
+        text: {
+          en: "Hearing is a bat's most important sense. Its large outer ears collect even very quiet sounds and the faint echoes of ultrasonic calls.",
+          de: "Der Hörsinn ist der wichtigste Sinn der Fledermaus. Ihre großen Ohrmuscheln fangen selbst sehr leise Geräusche und die schwachen Echos der Ultraschalllaute auf."
+        }
+      },
+      {
+        id: "echolocation",
+        category: "senses-life",
+        icon: "📡",
+        sceneIcon: "🦟",
+        animation: "echolocation",
+        title: { en: "Seeing with sound", de: "Mit Tönen sehen" },
+        text: {
+          en: "A bat sends out ultrasonic calls. The sound bounces off insects and obstacles and returns as an echo, creating an acoustic picture of the surroundings. People hear these calls only faintly or not at all.",
+          de: "Eine Fledermaus sendet Ultraschalllaute aus. Der Schall wird von Insekten und Hindernissen zurückgeworfen und kehrt als Echo zurück. So entsteht ein akustisches Bild der Umgebung. Menschen hören diese Laute nur sehr leise oder gar nicht."
+        }
+      },
+      {
+        id: "hibernation",
+        category: "senses-life",
+        icon: "❄️",
+        sceneIcon: "❄️",
+        animation: "hibernate",
+        title: { en: "Saving energy in winter", de: "Energie sparen im Winter" },
+        text: {
+          en: "During hibernation, a bat's body temperature drops greatly to save energy. Fat reserves help it survive the winter and warm up again.",
+          de: "Im Winterschlaf sinkt die Körpertemperatur der Fledermaus stark, damit sie Energie spart. Fettvorräte helfen ihr, den Winter zu überstehen und sich wieder aufzuwärmen."
+        }
+      },
+      {
+        id: "insect-food",
+        category: "species-young",
+        icon: "🦟",
+        sceneIcon: "🦟",
+        animation: "food",
+        title: { en: "Insect hunters", de: "Insektenjäger" },
+        text: {
+          en: "The bat species living in our region mainly eat insects. Echolocation helps them find moths, mosquitoes and other small prey in darkness.",
+          de: "Die bei uns lebenden Fledermausarten fressen hauptsächlich Insekten. Mit der Echoortung finden sie Motten, Mücken und andere kleine Beutetiere in der Dunkelheit."
+        }
+      },
+      {
+        id: "fruit-nectar",
+        category: "species-young",
+        icon: "🍌",
+        sceneIcon: "🌺",
+        animation: "food",
+        title: { en: "Fruit and nectar", de: "Früchte und Nektar" },
+        text: {
+          en: "Some tropical bats are vegetarian. Depending on the species, they feed on fruit or drink sweet nectar from flowers.",
+          de: "Einige tropische Fledermäuse ernähren sich vegetarisch. Je nach Art fressen sie Früchte oder trinken süßen Nektar aus Blüten."
+        }
+      },
+      {
+        id: "vampire-bats",
+        category: "species-young",
+        icon: "🧛",
+        sceneIcon: "3",
+        animation: "number",
+        title: { en: "Only three vampire species", de: "Nur drei Vampirarten" },
+        text: {
+          en: "Only three bat species in the world feed on the blood of other animals. Most bats eat insects, fruit, nectar or other food instead.",
+          de: "Nur drei Fledermausarten auf der Welt ernähren sich vom Blut anderer Tiere. Die meisten Fledermäuse fressen stattdessen Insekten, Früchte, Nektar oder andere Nahrung."
+        }
+      },
+      {
+        id: "one-baby",
+        category: "species-young",
+        icon: "👶",
+        sceneIcon: "1",
+        animation: "baby",
+        title: { en: "Usually one baby", de: "Meistens nur ein Junges" },
+        text: {
+          en: "Bats reproduce slowly. A mother bat usually has only one young in a year and feeds it with milk like other mammals.",
+          de: "Fledermäuse vermehren sich langsam. Eine Fledermausmutter bekommt meistens nur ein Junges im Jahr und säugt es wie andere Säugetiere mit Milch."
+        }
+      },
+      {
+        id: "pregnancy",
+        category: "species-young",
+        icon: "📅",
+        sceneIcon: "40–70",
+        animation: "number",
+        title: { en: "40 to 70 days", de: "40 bis 70 Tage" },
+        text: {
+          en: "Depending on the species and living conditions, pregnancy can last about 40 to 70 days, according to the worksheet.",
+          de: "Je nach Art und Lebensumständen kann die Trächtigkeit laut Arbeitsblatt ungefähr 40 bis 70 Tage dauern."
+        }
+      }
+    ],
     tests: [
       {
         id: "body-wings",
@@ -527,6 +709,14 @@ const translations = {
     readAloud: "🔊 Read aloud",
     animalActivity: "Animal activity",
     exploreAnimal: "Explore",
+    usefulInformation: "Useful information",
+    batKnowledge: "Bat knowledge",
+    factsIntro: "Explore the facts first, then test what you remember.",
+    factCategories: "Fact categories",
+    interestingFacts: "Interesting bat facts",
+    factProgress: (current, total) => `Fact ${current} of ${total}`,
+    replayAnimation: "↻ Replay animation",
+    animatedFact: "Animated bat fact",
     animalTests: "Tests",
     knowledgeCheck: "Knowledge check",
     chooseTest: "Choose a bat test",
@@ -718,6 +908,14 @@ const translations = {
     readAloud: "🔊 Vorlesen",
     animalActivity: "Tier-Aktivität",
     exploreAnimal: "Entdecken",
+    usefulInformation: "Nützliche Informationen",
+    batKnowledge: "Fledermauswissen",
+    factsIntro: "Entdecke zuerst die spannenden Fakten und teste danach dein Wissen.",
+    factCategories: "Themenbereiche",
+    interestingFacts: "Spannende Fledermausfakten",
+    factProgress: (current, total) => `Fakt ${current} von ${total}`,
+    replayAnimation: "↻ Animation wiederholen",
+    animatedFact: "Animierter Fledermausfakt",
     animalTests: "Tests",
     knowledgeCheck: "Wissenstest",
     chooseTest: "Wähle einen Fledermaus-Test",
@@ -926,8 +1124,25 @@ const elements = {
   animalName: document.querySelector("#animal-name"),
   animalIntro: document.querySelector("#animal-intro"),
   animalExploreMode: document.querySelector("#animal-explore-mode"),
+  animalFactsMode: document.querySelector("#animal-facts-mode"),
   animalTestsMode: document.querySelector("#animal-tests-mode"),
   animalExploreView: document.querySelector("#animal-explore-view"),
+  animalFactsView: document.querySelector("#animal-facts-view"),
+  animalFactsTitle: document.querySelector("#animal-facts-title"),
+  animalFactsIntro: document.querySelector("#animal-facts-intro"),
+  animalFactCategories: document.querySelector("#animal-fact-categories"),
+  animalFactList: document.querySelector("#animal-fact-list"),
+  animalFactDetail: document.querySelector("#animal-fact-detail"),
+  animalFactAnimation: document.querySelector("#animal-fact-animation"),
+  animalFactBat: document.querySelector("#animal-fact-bat"),
+  animalFactTarget: document.querySelector("#animal-fact-target"),
+  animalSceneSymbol: document.querySelector("#animal-scene-symbol"),
+  animalFactIcon: document.querySelector("#animal-fact-icon"),
+  animalFactProgress: document.querySelector("#animal-fact-progress"),
+  animalFactTitle: document.querySelector("#animal-fact-title"),
+  animalFactText: document.querySelector("#animal-fact-text"),
+  animalFactSpeak: document.querySelector("#animal-fact-speak"),
+  animalFactReplay: document.querySelector("#animal-fact-replay"),
   animalTestsView: document.querySelector("#animal-tests-view"),
   animalTestsTitle: document.querySelector("#animal-tests-title"),
   animalTestsIntro: document.querySelector("#animal-tests-intro"),
@@ -1128,6 +1343,8 @@ let animals = loadAnimalContent();
 let currentAnimalId = animals[0]?.id || "bat";
 let currentAnimalPartId = null;
 let animalActivityMode = "explore";
+let currentAnimalFactCategoryId = animals[0]?.tests?.[0]?.id || "body-wings";
+let currentAnimalFactId = null;
 let currentAnimalTestId = null;
 let animalTestQuestionIndex = 0;
 let animalTestScoreValue = 0;
@@ -1256,7 +1473,16 @@ function applyLanguage() {
   elements.animalSpeak.textContent = t("readAloud");
   document.querySelector(".animal-mode-switch").setAttribute("aria-label", t("animalActivity"));
   elements.animalExploreMode.textContent = t("exploreAnimal");
+  elements.animalFactsMode.textContent = t("usefulInformation");
   elements.animalTestsMode.textContent = t("animalTests");
+  setText(".animal-facts-heading .eyebrow", "batKnowledge");
+  elements.animalFactsTitle.textContent = t("usefulInformation");
+  elements.animalFactsIntro.textContent = t("factsIntro");
+  elements.animalFactCategories.setAttribute("aria-label", t("factCategories"));
+  elements.animalFactList.setAttribute("aria-label", t("interestingFacts"));
+  elements.animalFactAnimation.setAttribute("aria-label", t("animatedFact"));
+  elements.animalFactSpeak.textContent = t("readAloud");
+  elements.animalFactReplay.textContent = t("replayAnimation");
   setText(".animal-tests-heading .eyebrow", "knowledgeCheck");
   elements.animalTestsTitle.textContent = t("chooseTest");
   elements.animalTestsIntro.textContent = t("testsIntro");
@@ -1265,6 +1491,7 @@ function applyLanguage() {
   elements.animalTestsMenu.textContent = t("allTests").replace(/^←\s*/, "");
   elements.optionalMenu.textContent = t("optionalGames");
   renderAnimalExplorer();
+  renderAnimalFacts();
   renderAnimalTestHub();
   setAnimalActivityMode(animalActivityMode);
 
@@ -2881,8 +3108,104 @@ function selectAnimalPart(partId) {
   elements.animalPartTitle.focus({ preventScroll: true });
 }
 
+function getCurrentAnimalFact() {
+  return getCurrentAnimal()?.facts?.find((fact) => fact.id === currentAnimalFactId) || null;
+}
+
+function replayAnimalFactAnimation() {
+  elements.animalFactAnimation.classList.remove("is-replaying");
+  void elements.animalFactAnimation.offsetWidth;
+  elements.animalFactAnimation.classList.add("is-replaying");
+}
+
+function renderAnimalFacts() {
+  const animal = getCurrentAnimal();
+  const categories = animal?.tests || [];
+  if (!animal || !categories.length) {
+    return;
+  }
+
+  if (!categories.some((category) => category.id === currentAnimalFactCategoryId)) {
+    currentAnimalFactCategoryId = categories[0].id;
+  }
+
+  elements.animalFactCategories.replaceChildren();
+  categories.forEach((category) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.animalFactCategory = category.id;
+    button.classList.toggle("selected", category.id === currentAnimalFactCategoryId);
+    button.setAttribute("aria-pressed", String(category.id === currentAnimalFactCategoryId));
+    button.textContent = `${category.icon} ${localizedAnimalText(category.title)}`;
+    elements.animalFactCategories.append(button);
+  });
+
+  const categoryFacts = animal.facts?.filter((fact) => fact.category === currentAnimalFactCategoryId) || [];
+  if (!categoryFacts.some((fact) => fact.id === currentAnimalFactId)) {
+    currentAnimalFactId = categoryFacts[0]?.id || null;
+  }
+
+  elements.animalFactList.replaceChildren();
+  categoryFacts.forEach((fact, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "animal-fact-choice";
+    button.dataset.animalFact = fact.id;
+    button.classList.toggle("selected", fact.id === currentAnimalFactId);
+    button.setAttribute("aria-pressed", String(fact.id === currentAnimalFactId));
+
+    const icon = document.createElement("span");
+    icon.className = "animal-fact-choice-icon";
+    icon.textContent = fact.icon;
+    icon.setAttribute("aria-hidden", "true");
+    const copy = document.createElement("span");
+    const title = document.createElement("strong");
+    title.textContent = localizedAnimalText(fact.title);
+    const number = document.createElement("small");
+    number.textContent = t("factProgress", index + 1, categoryFacts.length);
+    copy.append(title, number);
+    button.append(icon, copy);
+    elements.animalFactList.append(button);
+  });
+
+  const fact = getCurrentAnimalFact();
+  if (!fact) {
+    return;
+  }
+  const factIndex = categoryFacts.findIndex((item) => item.id === fact.id);
+  elements.animalFactAnimation.dataset.animation = fact.animation || "mammal";
+  elements.animalFactBat.src = animal.image;
+  elements.animalFactBat.alt = localizedAnimalText(animal.alt);
+  elements.animalFactTarget.textContent = fact.animation === "echolocation" ? "🦟" : fact.sceneIcon;
+  elements.animalSceneSymbol.textContent = fact.sceneIcon;
+  elements.animalFactIcon.textContent = fact.icon;
+  elements.animalFactProgress.textContent = t("factProgress", factIndex + 1, categoryFacts.length);
+  elements.animalFactTitle.textContent = localizedAnimalText(fact.title);
+  elements.animalFactText.textContent = localizedAnimalText(fact.text);
+  replayAnimalFactAnimation();
+}
+
+function setAnimalFactCategory(categoryId) {
+  if (!getCurrentAnimal()?.tests?.some((test) => test.id === categoryId)) {
+    return;
+  }
+  currentAnimalFactCategoryId = categoryId;
+  currentAnimalFactId = null;
+  renderAnimalFacts();
+}
+
+function selectAnimalFact(factId) {
+  if (!getCurrentAnimal()?.facts?.some((fact) => fact.id === factId)) {
+    return;
+  }
+  currentAnimalFactId = factId;
+  renderAnimalFacts();
+  elements.animalFactTitle.focus({ preventScroll: true });
+}
+
 function showOptionalMenu() {
   currentAnimalPartId = null;
+  currentAnimalFactId = null;
   currentAnimalTestId = null;
   animalActivityMode = "explore";
   elements.optionalHub.classList.remove("hidden");
@@ -2893,6 +3216,8 @@ function showOptionalMenu() {
 function showAnimalApp(animalId) {
   currentAnimalId = animals.some((animal) => animal.id === animalId) ? animalId : animals[0]?.id;
   currentAnimalPartId = null;
+  currentAnimalFactCategoryId = getCurrentAnimal()?.tests?.[0]?.id || "body-wings";
+  currentAnimalFactId = null;
   currentAnimalTestId = null;
   animalActivityMode = "explore";
   elements.optionalHub.classList.add("hidden");
@@ -2907,13 +3232,19 @@ function getCurrentAnimalTest() {
 }
 
 function setAnimalActivityMode(mode) {
-  animalActivityMode = mode === "tests" ? "tests" : "explore";
+  animalActivityMode = ["explore", "facts", "tests"].includes(mode) ? mode : "explore";
   elements.animalExploreMode.classList.toggle("selected", animalActivityMode === "explore");
+  elements.animalFactsMode.classList.toggle("selected", animalActivityMode === "facts");
   elements.animalTestsMode.classList.toggle("selected", animalActivityMode === "tests");
   elements.animalExploreMode.setAttribute("aria-pressed", String(animalActivityMode === "explore"));
+  elements.animalFactsMode.setAttribute("aria-pressed", String(animalActivityMode === "facts"));
   elements.animalTestsMode.setAttribute("aria-pressed", String(animalActivityMode === "tests"));
   elements.animalExploreView.classList.toggle("hidden", animalActivityMode !== "explore");
+  elements.animalFactsView.classList.toggle("hidden", animalActivityMode !== "facts");
   elements.animalTestsView.classList.toggle("hidden", animalActivityMode !== "tests");
+  if (animalActivityMode === "facts") {
+    renderAnimalFacts();
+  }
   if (animalActivityMode === "tests") {
     if (currentAnimalTestId) {
       const test = getCurrentAnimalTest();
@@ -4193,7 +4524,30 @@ elements.animalSpeak.addEventListener("click", () => {
   });
 });
 elements.animalExploreMode.addEventListener("click", () => setAnimalActivityMode("explore"));
+elements.animalFactsMode.addEventListener("click", () => setAnimalActivityMode("facts"));
 elements.animalTestsMode.addEventListener("click", () => setAnimalActivityMode("tests"));
+elements.animalFactCategories.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-animal-fact-category]");
+  if (button) {
+    setAnimalFactCategory(button.dataset.animalFactCategory);
+  }
+});
+elements.animalFactList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-animal-fact]");
+  if (button) {
+    selectAnimalFact(button.dataset.animalFact);
+  }
+});
+elements.animalFactSpeak.addEventListener("click", () => {
+  const fact = getCurrentAnimalFact();
+  if (!fact) {
+    return;
+  }
+  speak(`${localizedAnimalText(fact.title)}. ${localizedAnimalText(fact.text)}`, {
+    lang: currentLanguage === "de" ? "de-DE" : "en-US"
+  });
+});
+elements.animalFactReplay.addEventListener("click", replayAnimalFactAnimation);
 elements.animalTestHub.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-animal-test]");
   if (button) {
