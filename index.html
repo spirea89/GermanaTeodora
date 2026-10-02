@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20260928-focus-game-start">
+    <link rel="stylesheet" href="styles.css?v=20261002-bat-tests">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.09.28.1</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.10.02.2</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -34,7 +34,14 @@
               <small>Plus and minus to 100</small>
             </span>
           </button>
-          <button class="choice-card admin-choice hidden" id="open-admin" type="button">
+          <button class="choice-card optional-choice" id="open-optional" type="button">
+            <span class="choice-emoji" aria-hidden="true">🦇</span>
+            <span>
+              <strong>Optional</strong>
+              <small>Discover amazing animals</small>
+            </span>
+          </button>
+          <button class="choice-card admin-choice" id="open-admin" type="button">
             <span class="choice-emoji" aria-hidden="true">🛠️</span>
             <span>
               <strong>Administration</strong>
@@ -232,6 +239,106 @@
         </section>
       </section>
 
+      <section class="screen optional-screen hidden" id="optional-screen" aria-labelledby="optional-title">
+        <section class="optional-panel">
+          <header class="top-bar">
+            <button class="icon-button" id="optional-home" type="button" aria-label="Back to practice chooser" title="Home">
+              <span aria-hidden="true">⌂</span>
+            </button>
+            <div>
+              <p class="eyebrow">Optional</p>
+              <h1 id="optional-title">Animal explorers</h1>
+            </div>
+            <span class="top-spacer" aria-hidden="true"></span>
+          </header>
+
+          <section class="optional-hub" id="optional-hub" aria-label="Optional games">
+            <button class="choice-card bat-choice" id="open-bat" type="button">
+              <span class="choice-emoji" aria-hidden="true">🦇</span>
+              <span>
+                <strong>Fledermaus</strong>
+                <small>Discover the parts of a bat</small>
+              </span>
+            </button>
+          </section>
+
+          <section class="animal-app hidden" id="animal-app">
+            <div class="animal-heading">
+              <div>
+                <p class="eyebrow" id="animal-kind">Animal explorer</p>
+                <h2 id="animal-name">Fledermaus</h2>
+              </div>
+              <p id="animal-intro">Tap a glowing point on the bat to learn what that body part does.</p>
+            </div>
+
+            <div class="animal-mode-switch" aria-label="Animal activity">
+              <button class="selected" id="animal-explore-mode" type="button">Explore</button>
+              <button id="animal-tests-mode" type="button">Tests</button>
+            </div>
+
+            <div id="animal-explore-view">
+              <div class="animal-explorer">
+                <section class="animal-stage" id="animal-stage" aria-label="Interactive 3D-style bat">
+                  <div class="animal-model-layer" id="animal-model-layer">
+                    <img id="animal-image" src="assets/fledermaus-3d.png" alt="3D-style bat with outstretched wings">
+                    <div class="animal-hotspots" id="animal-hotspots"></div>
+                  </div>
+                </section>
+
+                <aside class="animal-info" id="animal-info" aria-live="polite">
+                  <span class="animal-info-icon" id="animal-info-icon" aria-hidden="true">👆</span>
+                  <p class="animal-info-label" id="animal-info-label">Selected body part</p>
+                  <h3 id="animal-part-title" tabindex="-1">Choose a body part</h3>
+                  <p id="animal-part-text">Tap one of the glowing points on the bat.</p>
+                  <button id="animal-speak" type="button" disabled>🔊 Read aloud</button>
+                </aside>
+              </div>
+            </div>
+
+            <section class="animal-tests-view hidden" id="animal-tests-view" aria-labelledby="animal-tests-title">
+              <div class="animal-tests-heading">
+                <p class="eyebrow">Knowledge check</p>
+                <h3 id="animal-tests-title">Choose a bat test</h3>
+                <p id="animal-tests-intro">Each short test has five questions and gives immediate feedback.</p>
+              </div>
+              <div class="animal-test-hub" id="animal-test-hub"></div>
+
+              <section class="animal-test-runner hidden" id="animal-test-runner" aria-live="polite">
+                <div class="animal-test-progress">
+                  <button class="ghost-button" id="animal-test-back" type="button">← All tests</button>
+                  <div>
+                    <span id="animal-test-progress-label">Question 1 of 5</span>
+                    <strong id="animal-test-score">0 points</strong>
+                  </div>
+                </div>
+                <div class="animal-test-card">
+                  <span class="animal-test-icon" id="animal-test-icon" aria-hidden="true">🦇</span>
+                  <p class="animal-test-name" id="animal-test-name">Bat test</p>
+                  <h3 id="animal-test-question" tabindex="-1">Question</h3>
+                  <div class="animal-test-options" id="animal-test-options"></div>
+                  <p class="animal-test-feedback" id="animal-test-feedback" tabindex="-1" aria-live="polite"></p>
+                  <button class="hidden" id="animal-test-next" type="button">Next question</button>
+                </div>
+              </section>
+
+              <section class="animal-test-results hidden" id="animal-test-results" aria-live="polite">
+                <span class="animal-test-result-icon" id="animal-test-result-icon" aria-hidden="true">🏆</span>
+                <h3 id="animal-test-result-title" tabindex="-1">Test complete!</h3>
+                <p id="animal-test-result-score">5 of 5 correct</p>
+                <div class="animal-test-result-actions">
+                  <button id="animal-test-retry" type="button">Try again</button>
+                  <button class="ghost-button" id="animal-tests-menu" type="button">All tests</button>
+                </div>
+              </section>
+            </section>
+
+            <div class="controls animal-controls">
+              <button class="ghost-button" id="optional-menu" type="button">Optional games</button>
+            </div>
+          </section>
+        </section>
+      </section>
+
       <section class="screen admin-screen hidden" id="admin-screen" aria-labelledby="admin-title">
         <aside class="studio-panel admin-panel" id="studio-panel" aria-label="Administration">
           <div class="studio-header">
@@ -255,6 +362,23 @@
             <button class="ghost-button" id="reset-words" type="button">Reset</button>
           </div>
           <p class="admin-note" id="admin-note" aria-live="polite">Saved words are used in the German game on this device.</p>
+
+          <section class="animal-admin-section" aria-labelledby="animal-admin-title">
+            <div class="animal-admin-header">
+              <div>
+                <p class="eyebrow">Optional</p>
+                <h2 id="animal-admin-title">Animal explorer text</h2>
+              </div>
+              <select id="animal-admin-select" aria-label="Choose animal"></select>
+            </div>
+            <p class="studio-copy" id="animal-admin-copy">Edit the name and description shown when each body part is selected.</p>
+            <div class="animal-admin-parts" id="animal-admin-parts"></div>
+            <div class="studio-actions">
+              <button id="save-animal-text" type="button">Save animal text</button>
+              <button class="ghost-button" id="reset-animal-text" type="button">Reset animal text</button>
+            </div>
+            <p class="admin-note" id="animal-admin-note" aria-live="polite">Changes are saved on this device.</p>
+          </section>
         </aside>
       </section>
 
@@ -439,6 +563,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=20260928-focus-game-start"></script>
+    <script src="app.js?v=20261002-bat-tests"></script>
   </body>
 </html>
