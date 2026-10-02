@@ -7,6 +7,14 @@ Editable built-in word lists:
 
 After changing either file on GitHub, open Administration in the app and choose Reset to load the updated list on that device.
 
+## Animal explorer
+
+- The Optional section contains reusable animal explorers, beginning with the Fledermaus.
+- Bat anatomy and hotspot content are defined in `app.js` under `defaultAnimals`.
+- Body-part names and descriptions can be edited from Administration and are saved locally on that device.
+- The Fledermaus explorer includes three five-question knowledge tests with immediate feedback and scoring.
+- The bat artwork is stored at `assets/fledermaus-3d.png`.
+
 ## Release flow
 
 - Live app: https://spirea89.github.io/GermanaTeodora/

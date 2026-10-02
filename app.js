@@ -197,9 +197,290 @@ const articleFocusStorageKey = "articleGameFocusWords";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
-const appVersion = "2026.09.28.1";
+const animalContentStorageKey = "deutschUndMatheAnimalExplorer";
+const appVersion = "2026.10.02.2";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
+
+const defaultAnimals = [
+  {
+    id: "bat",
+    icon: "🦇",
+    image: "assets/fledermaus-3d.png",
+    name: { en: "Bat (Fledermaus)", de: "Fledermaus" },
+    alt: {
+      en: "3D-style bat with its wings spread",
+      de: "3D-Darstellung einer Fledermaus mit ausgebreiteten Flügeln"
+    },
+    intro: {
+      en: "Bats are nocturnal mammals. Tap a glowing point to explore their body parts.",
+      de: "Fledermäuse sind nachtaktive Säugetiere. Tippe auf einen leuchtenden Punkt und entdecke ihre Körperteile."
+    },
+    tests: [
+      {
+        id: "body-wings",
+        icon: "🪽",
+        title: { en: "Body & wings", de: "Körper & Flügel" },
+        subtitle: { en: "Anatomy, size and flight", de: "Körperbau, Größe und Flug" },
+        questions: [
+          {
+            question: { en: "Which animal group do bats belong to?", de: "Zu welcher Tiergruppe gehören Fledermäuse?" },
+            options: [
+              { text: { en: "Mammals", de: "Säugetiere" }, correct: true },
+              { text: { en: "Birds", de: "Vögel" } },
+              { text: { en: "Reptiles", de: "Reptilien" } }
+            ],
+            explanation: { en: "Bats are the only mammals capable of true flight.", de: "Fledermäuse sind die einzigen Säugetiere, die aktiv fliegen können." }
+          },
+          {
+            question: { en: "How large can a bat be, according to the worksheet?", de: "Wie groß kann eine Fledermaus laut Arbeitsblatt werden?" },
+            options: [
+              { text: { en: "About 3–14 cm", de: "Etwa 3–14 cm" }, correct: true },
+              { text: { en: "About 30–50 cm", de: "Etwa 30–50 cm" } },
+              { text: { en: "About 1 metre", de: "Etwa 1 Meter" } }
+            ],
+            explanation: { en: "The worksheet gives a body-size range of roughly 3 to 14 cm.", de: "Das Arbeitsblatt nennt eine Körpergröße von ungefähr 3 bis 14 cm." }
+          },
+          {
+            question: { en: "How much can a bat weigh, according to the worksheet?", de: "Wie schwer kann eine Fledermaus laut Arbeitsblatt sein?" },
+            options: [
+              { text: { en: "About 2–200 g", de: "Etwa 2–200 g" }, correct: true },
+              { text: { en: "About 1–3 kg", de: "Etwa 1–3 kg" } },
+              { text: { en: "More than 10 kg", de: "Mehr als 10 kg" } }
+            ],
+            explanation: { en: "Different species vary greatly; the worksheet states about 2 to 200 g.", de: "Die Arten unterscheiden sich stark; das Arbeitsblatt nennt ungefähr 2 bis 200 g." }
+          },
+          {
+            question: { en: "What are a bat's wings made of?", de: "Woraus bestehen die Flügel einer Fledermaus?" },
+            options: [
+              { text: { en: "A flight membrane", de: "Aus einer Flughaut" }, correct: true },
+              { text: { en: "Feathers", de: "Aus Federn" } },
+              { text: { en: "Scales", de: "Aus Schuppen" } }
+            ],
+            explanation: { en: "A thin flight membrane stretches over the arms, hands, fingers and legs.", de: "Eine dünne Flughaut spannt sich über Arme, Hände, Finger und Beine." }
+          },
+          {
+            question: { en: "What supports and spreads the flight membrane?", de: "Was spannt und stützt die Flughaut?" },
+            options: [
+              { text: { en: "Long finger bones", de: "Lange Fingerknochen" }, correct: true },
+              { text: { en: "Feathers", de: "Federn" } },
+              { text: { en: "Horns", de: "Hörner" } }
+            ],
+            explanation: { en: "The wing is a modified hand with very long fingers.", de: "Der Flügel ist eine umgebildete Hand mit sehr langen Fingern." }
+          }
+        ]
+      },
+      {
+        id: "senses-life",
+        icon: "👂",
+        title: { en: "Senses & daily life", de: "Sinne & Lebensweise" },
+        subtitle: { en: "Hearing, night and winter", de: "Hören, Nacht und Winter" },
+        questions: [
+          {
+            question: { en: "When are bats active?", de: "Wann sind Fledermäuse aktiv?" },
+            options: [
+              { text: { en: "At night", de: "In der Nacht" }, correct: true },
+              { text: { en: "Only at midday", de: "Nur zu Mittag" } },
+              { text: { en: "Only in bright sunshine", de: "Nur bei hellem Sonnenschein" } }
+            ],
+            explanation: { en: "Bats are nocturnal and usually rest during the day.", de: "Fledermäuse sind nachtaktiv und ruhen normalerweise am Tag." }
+          },
+          {
+            question: { en: "Where and how do bats sleep?", de: "Wo und wie schlafen Fledermäuse?" },
+            options: [
+              { text: { en: "Upside down in dark, quiet places", de: "Kopfüber an dunklen, ruhigen Orten" }, correct: true },
+              { text: { en: "Standing in open fields", de: "Stehend auf offenen Feldern" } },
+              { text: { en: "Floating on water", de: "Auf dem Wasser treibend" } }
+            ],
+            explanation: { en: "They rest upside down in caves, attics and old walls.", de: "Sie ruhen kopfüber in Höhlen, auf Dachböden und in alten Gemäuern." }
+          },
+          {
+            question: { en: "What is a bat's most important sense?", de: "Was ist der wichtigste Sinn der Fledermaus?" },
+            options: [
+              { text: { en: "Hearing", de: "Der Hörsinn" }, correct: true },
+              { text: { en: "Taste", de: "Der Geschmackssinn" } },
+              { text: { en: "Touch alone", de: "Nur der Tastsinn" } }
+            ],
+            explanation: { en: "Their excellent hearing lets them detect very quiet echoes.", de: "Mit ihrem ausgezeichneten Gehör können sie sehr leise Echos wahrnehmen." }
+          },
+          {
+            question: { en: "How does echolocation help a bat?", de: "Wie hilft die Echoortung einer Fledermaus?" },
+            options: [
+              { text: { en: "Echoes reveal prey and obstacles", de: "Echos zeigen Beute und Hindernisse" }, correct: true },
+              { text: { en: "It warms the wings", de: "Sie wärmt die Flügel" } },
+              { text: { en: "It changes the fur colour", de: "Sie verändert die Fellfarbe" } }
+            ],
+            explanation: { en: "Ultrasonic calls bounce back and form an acoustic picture of the surroundings.", de: "Ultraschalllaute werden zurückgeworfen und ergeben ein akustisches Bild der Umgebung." }
+          },
+          {
+            question: { en: "What happens to body temperature during hibernation?", de: "Was passiert im Winterschlaf mit der Körpertemperatur?" },
+            options: [
+              { text: { en: "It drops greatly", de: "Sie sinkt stark" }, correct: true },
+              { text: { en: "It rises greatly", de: "Sie steigt stark" } },
+              { text: { en: "It always stays exactly the same", de: "Sie bleibt immer genau gleich" } }
+            ],
+            explanation: { en: "Lowering body temperature saves energy; stored fat helps the bat warm up again.", de: "Die niedrigere Körpertemperatur spart Energie; Fettvorräte helfen später beim Aufwärmen." }
+          }
+        ]
+      },
+      {
+        id: "species-young",
+        icon: "🦇",
+        title: { en: "Species & young", de: "Arten & Nachwuchs" },
+        subtitle: { en: "Food, families and bat facts", de: "Nahrung, Familien und Fledermauswissen" },
+        questions: [
+          {
+            question: { en: "What do the bat species living here mainly eat?", de: "Was fressen die bei uns lebenden Fledermausarten hauptsächlich?" },
+            options: [
+              { text: { en: "Insects", de: "Insekten" }, correct: true },
+              { text: { en: "Grain", de: "Körner" } },
+              { text: { en: "Grass", de: "Gras" } }
+            ],
+            explanation: { en: "The worksheet says the species living in our region are insect eaters.", de: "Laut Arbeitsblatt sind die bei uns lebenden Arten Insektenfresser." }
+          },
+          {
+            question: { en: "What can vegetarian tropical bats eat?", de: "Was können vegetarische Fledermäuse in den Tropen fressen?" },
+            options: [
+              { text: { en: "Fruit and nectar", de: "Früchte und Nektar" }, correct: true },
+              { text: { en: "Only stones", de: "Nur Steine" } },
+              { text: { en: "Only leaves", de: "Nur Blätter" } }
+            ],
+            explanation: { en: "Some tropical species feed on fruit or nectar.", de: "Einige tropische Arten ernähren sich von Früchten oder Nektar." }
+          },
+          {
+            question: { en: "How many bat species feed on the blood of other animals?", de: "Wie viele Fledermausarten leben vom Blut anderer Tiere?" },
+            options: [
+              { text: { en: "Only three species", de: "Nur drei Arten" }, correct: true },
+              { text: { en: "All species", de: "Alle Arten" } },
+              { text: { en: "About 900 species", de: "Etwa 900 Arten" } }
+            ],
+            explanation: { en: "Only three vampire-bat species feed on blood.", de: "Nur drei Vampirfledermausarten ernähren sich von Blut." }
+          },
+          {
+            question: { en: "How many young does a mother bat usually have in one year?", de: "Wie viele Junge bekommt eine Fledermausmutter meistens im Jahr?" },
+            options: [
+              { text: { en: "One", de: "Eines" }, correct: true },
+              { text: { en: "Ten", de: "Zehn" } },
+              { text: { en: "Twenty", de: "Zwanzig" } }
+            ],
+            explanation: { en: "Bat reproduction is slow; a mother usually has only one baby per year.", de: "Fledermäuse vermehren sich langsam; ein Muttertier bekommt meistens nur ein Baby im Jahr." }
+          },
+          {
+            question: { en: "How long can pregnancy last?", de: "Wie lange kann die Trächtigkeit dauern?" },
+            options: [
+              { text: { en: "About 40–70 days", de: "Etwa 40–70 Tage" }, correct: true },
+              { text: { en: "Exactly two days", de: "Genau zwei Tage" } },
+              { text: { en: "About three years", de: "Etwa drei Jahre" } }
+            ],
+            explanation: { en: "Depending on living conditions, the worksheet gives a range of about 40 to 70 days.", de: "Je nach Lebensumständen nennt das Arbeitsblatt ungefähr 40 bis 70 Tage." }
+          }
+        ]
+      }
+    ],
+    parts: [
+      {
+        id: "fur-body",
+        icon: "🧥",
+        title: { en: "Furry body", de: "Behaarter Körper" },
+        text: {
+          en: "The bat is a nocturnal mammal. Depending on the species, it can be about 3 to 14 cm long and weigh roughly 2 to 200 g. Many species build fat reserves for hibernation.",
+          de: "Die Fledermaus ist ein nachtaktives Säugetier. Je nach Art kann sie etwa 3 bis 14 cm groß und ungefähr 2 bis 200 g schwer sein. Viele Arten legen Fettvorräte für den Winterschlaf an."
+        },
+        points: [{ x: 50, y: 57 }]
+      },
+      {
+        id: "legs-claws",
+        icon: "🦶",
+        title: { en: "Legs with claws", de: "Beine mit Krallen" },
+        text: {
+          en: "When resting, bats hang upside down. Their curved claws let them hold on securely while using very little strength.",
+          de: "Beim Nächtigen hängt die Fledermaus kopfüber. Mit ihren gebogenen Krallen kann sie sich sicher festhalten und braucht dabei nur wenig Kraft."
+        },
+        points: [{ x: 38, y: 79 }, { x: 62, y: 79 }]
+      },
+      {
+        id: "thumb-claw",
+        icon: "☝️",
+        title: { en: "Thumb claw", de: "Daumenkralle" },
+        text: {
+          en: "A small thumb with a claw sits at the front edge of each wing. It helps the bat grip and climb.",
+          de: "Am vorderen Rand jedes Flügels sitzt ein kleiner Daumen mit einer Kralle. Die Daumenkralle hilft der Fledermaus beim Festhalten und Klettern."
+        },
+        points: [{ x: 20, y: 13 }, { x: 80, y: 13 }]
+      },
+      {
+        id: "finger-bones",
+        icon: "🦴",
+        title: { en: "Finger bones", de: "Fingerknochen" },
+        text: {
+          en: "The long finger bones spread and support the wing. A flight membrane stretches between the fingers.",
+          de: "Die langen Fingerknochen spannen und stützen den Flügel. Zwischen den Fingern befindet sich eine Flughaut."
+        },
+        points: [{ x: 28, y: 32 }, { x: 72, y: 32 }]
+      },
+      {
+        id: "wing-membrane",
+        icon: "🪽",
+        title: { en: "Flight membrane", de: "Flughaut" },
+        text: {
+          en: "A bat's wings are made of a thin flight membrane rather than feathers. It stretches between the fingers, body and legs and makes controlled flight possible.",
+          de: "Die Flügel der Fledermaus bestehen nicht aus Federn, sondern aus einer dünnen Flughaut. Sie spannt sich zwischen Fingern, Körper und Beinen und ermöglicht das Fliegen."
+        },
+        points: [{ x: 18, y: 48 }, { x: 82, y: 48 }]
+      },
+      {
+        id: "wrist",
+        icon: "✋",
+        title: { en: "Wrist", de: "Handgelenk" },
+        text: {
+          en: "The wrist connects the forearm with the long fingers. Moving this joint helps shape and steer the wing during flight.",
+          de: "Das Handgelenk verbindet den Unterarm mit den langen Fingern. Durch seine Bewegung kann die Fledermaus den Flügel beim Fliegen formen und steuern."
+        },
+        points: [{ x: 34, y: 36 }, { x: 66, y: 36 }]
+      },
+      {
+        id: "ear-flap",
+        icon: "🔉",
+        title: { en: "Ear flap", de: "Ohrdeckel" },
+        text: {
+          en: "The small ear flap inside the ear helps sort incoming sounds. This is important when the bat listens for returning echoes.",
+          de: "Der Ohrdeckel ist eine kleine Falte im Ohr. Er hilft dabei, eintreffende Geräusche zu ordnen – besonders beim Hören der zurückkehrenden Echos."
+        },
+        points: [{ x: 47, y: 25 }]
+      },
+      {
+        id: "outer-ear",
+        icon: "👂",
+        title: { en: "Outer ear", de: "Ohrmuschel" },
+        text: {
+          en: "Hearing is the bat's most important sense. The large outer ears collect quiet sounds and the echoes of its ultrasonic calls.",
+          de: "Der Hörsinn ist der wichtigste Sinn der Fledermaus. Die großen Ohrmuscheln fangen leise Geräusche und die Echos ihrer Ultraschalllaute auf."
+        },
+        points: [{ x: 43, y: 18 }, { x: 57, y: 18 }]
+      },
+      {
+        id: "snout-teeth",
+        icon: "🦷",
+        title: { en: "Snout with teeth", de: "Schnauze mit Zähnen" },
+        text: {
+          en: "Many bats hunt insects. They emit ultrasonic calls and use the returning echo to form a picture of obstacles and prey; people can barely hear these calls or not hear them at all.",
+          de: "Viele Fledermäuse jagen Insekten. Sie senden Ultraschalllaute aus und machen sich aus dem Echo ein Bild von Hindernissen und Beute. Menschen hören diese Laute nur als sehr leises „Chirpen“ oder gar nicht."
+        },
+        points: [{ x: 50, y: 38 }]
+      },
+      {
+        id: "tail",
+        icon: "➰",
+        title: { en: "Tail", de: "Schwanz" },
+        text: {
+          en: "The tail lies inside the membrane between the legs. Together they help the bat steer, brake and sometimes catch insects in flight.",
+          de: "Der Schwanz liegt in der Haut zwischen den Beinen. Zusammen helfen sie der Fledermaus beim Steuern und Bremsen und manchmal auch beim Fangen von Insekten."
+        },
+        points: [{ x: 50, y: 84 }]
+      }
+    ]
+  }
+];
 
 const wordRewards = [
   ["🎉", "Fantastic!"],
@@ -233,8 +514,39 @@ const translations = {
     germanSub: "Words, listening, missing letters",
     math: "Math",
     mathSub: "Plus and minus to 100",
+    optional: "Optional",
+    optionalSub: "Discover amazing animals",
+    optionalGames: "Optional games",
+    animalExplorers: "Animal explorers",
+    animalExplorer: "Animal explorer",
+    batSub: "Discover the parts of a bat",
+    animalInstruction: "Tap a glowing point on the bat to learn what that body part does.",
+    selectedBodyPart: "Selected body part",
+    chooseBodyPart: "Choose a body part",
+    chooseBodyPartText: "Tap one of the glowing points on the bat.",
+    readAloud: "🔊 Read aloud",
+    animalActivity: "Animal activity",
+    exploreAnimal: "Explore",
+    animalTests: "Tests",
+    knowledgeCheck: "Knowledge check",
+    chooseTest: "Choose a bat test",
+    testsIntro: "Each short test has five questions and gives immediate feedback.",
+    testQuestions: (count) => `${count} questions`,
+    allTests: "← All tests",
+    questionProgress: (current, total) => `Question ${current} of ${total}`,
+    testPoints: (points) => `${points} ${points === 1 ? "point" : "points"}`,
+    correctAnswer: "Correct!",
+    wrongAnswer: "Not quite.",
+    nextQuestion: "Next question",
+    seeResults: "See result",
+    testComplete: "Test complete!",
+    testResultScore: (score, total) => `${score} of ${total} correct`,
+    testPerfect: "Excellent — you know bats very well!",
+    testGood: "Great work — almost everything was correct!",
+    testPractice: "Good start — explore the bat and try again!",
+    tryAgain: "Try again",
     administration: "Administration",
-    adminSub: "Add German practice words",
+    adminSub: "Edit learning content",
     backHome: "Back to practice chooser",
     homeTitle: "Home",
     writingPractice: "Writing practice",
@@ -310,6 +622,18 @@ const translations = {
     adminReady: "Saved words are used in the German game on this device.",
     adminSaved: "Saved. German practice will use this list.",
     adminReset: "Reset to the word lists stored in the GitHub files.",
+    animalAdminTitle: "Animal explorer text",
+    animalAdminCopy: "Edit the name and description shown when each body part is selected.",
+    chooseAnimal: "Choose animal",
+    germanName: "German name",
+    germanDescription: "German description",
+    englishName: "English name",
+    englishDescription: "English description",
+    saveAnimalText: "Save animal text",
+    resetAnimalText: "Reset animal text",
+    animalAdminReady: "Changes are saved on this device.",
+    animalAdminSaved: "Saved. The animal game now uses this text.",
+    animalAdminReset: "The original animal text has been restored.",
     mathPractice: "Math practice",
     mathApps: "Math apps",
     numberSprint: "Number Sprint",
@@ -381,8 +705,39 @@ const translations = {
     germanSub: "Wörter, Hören, fehlende Buchstaben",
     math: "Mathe",
     mathSub: "Plus und Minus bis 100",
+    optional: "Optional",
+    optionalSub: "Erstaunliche Tiere entdecken",
+    optionalGames: "Optionale Spiele",
+    animalExplorers: "Tier-Entdecker",
+    animalExplorer: "Tier-Entdecker",
+    batSub: "Körperteile einer Fledermaus entdecken",
+    animalInstruction: "Tippe auf einen leuchtenden Punkt der Fledermaus und erfahre mehr über dieses Körperteil.",
+    selectedBodyPart: "Ausgewähltes Körperteil",
+    chooseBodyPart: "Wähle ein Körperteil",
+    chooseBodyPartText: "Tippe auf einen leuchtenden Punkt der Fledermaus.",
+    readAloud: "🔊 Vorlesen",
+    animalActivity: "Tier-Aktivität",
+    exploreAnimal: "Entdecken",
+    animalTests: "Tests",
+    knowledgeCheck: "Wissenstest",
+    chooseTest: "Wähle einen Fledermaus-Test",
+    testsIntro: "Jeder kurze Test hat fünf Fragen und zeigt sofort eine Erklärung.",
+    testQuestions: (count) => `${count} Fragen`,
+    allTests: "← Alle Tests",
+    questionProgress: (current, total) => `Frage ${current} von ${total}`,
+    testPoints: (points) => `${points} ${points === 1 ? "Punkt" : "Punkte"}`,
+    correctAnswer: "Richtig!",
+    wrongAnswer: "Noch nicht ganz.",
+    nextQuestion: "Nächste Frage",
+    seeResults: "Ergebnis ansehen",
+    testComplete: "Test geschafft!",
+    testResultScore: (score, total) => `${score} von ${total} richtig`,
+    testPerfect: "Ausgezeichnet – du kennst Fledermäuse sehr gut!",
+    testGood: "Super gemacht – fast alles war richtig!",
+    testPractice: "Guter Anfang – entdecke die Fledermaus und versuche es noch einmal!",
+    tryAgain: "Noch einmal",
     administration: "Verwaltung",
-    adminSub: "Neue deutsche Wörter hinzufügen",
+    adminSub: "Lerninhalte bearbeiten",
     backHome: "Zur Auswahl zurück",
     homeTitle: "Start",
     writingPractice: "Schreibübung",
@@ -458,6 +813,18 @@ const translations = {
     adminReady: "Gespeicherte Wörter werden auf diesem Gerät im Deutsch-Spiel benutzt.",
     adminSaved: "Gespeichert. Die Deutsch-Übung benutzt diese Liste.",
     adminReset: "Die Wortlisten aus den GitHub-Dateien wurden wiederhergestellt.",
+    animalAdminTitle: "Texte für Tier-Entdecker",
+    animalAdminCopy: "Bearbeite Name und Beschreibung, die bei jedem Körperteil angezeigt werden.",
+    chooseAnimal: "Tier auswählen",
+    germanName: "Deutscher Name",
+    germanDescription: "Deutsche Beschreibung",
+    englishName: "Englischer Name",
+    englishDescription: "Englische Beschreibung",
+    saveAnimalText: "Tiertexte speichern",
+    resetAnimalText: "Tiertexte zurücksetzen",
+    animalAdminReady: "Änderungen werden auf diesem Gerät gespeichert.",
+    animalAdminSaved: "Gespeichert. Das Tierspiel benutzt jetzt diese Texte.",
+    animalAdminReset: "Die ursprünglichen Tiertexte wurden wiederhergestellt.",
     mathPractice: "Matheübung",
     mathApps: "Mathe-Apps",
     numberSprint: "Zahlensprint",
@@ -528,9 +895,11 @@ const elements = {
   homeScreen: document.querySelector("#home-screen"),
   germanScreen: document.querySelector("#german-screen"),
   mathScreen: document.querySelector("#math-screen"),
+  optionalScreen: document.querySelector("#optional-screen"),
   adminScreen: document.querySelector("#admin-screen"),
   openGerman: document.querySelector("#open-german"),
   openMath: document.querySelector("#open-math"),
+  openOptional: document.querySelector("#open-optional"),
   openAdmin: document.querySelector("#open-admin"),
   germanHub: document.querySelector("#german-hub"),
   rebusApp: document.querySelector("#rebus-app"),
@@ -548,7 +917,46 @@ const elements = {
   mathMenuButtons: document.querySelectorAll(".math-menu-button"),
   germanHome: document.querySelector("#german-home"),
   mathHome: document.querySelector("#math-home"),
+  optionalHome: document.querySelector("#optional-home"),
   adminHome: document.querySelector("#admin-home"),
+  optionalHub: document.querySelector("#optional-hub"),
+  openBat: document.querySelector("#open-bat"),
+  animalApp: document.querySelector("#animal-app"),
+  animalKind: document.querySelector("#animal-kind"),
+  animalName: document.querySelector("#animal-name"),
+  animalIntro: document.querySelector("#animal-intro"),
+  animalExploreMode: document.querySelector("#animal-explore-mode"),
+  animalTestsMode: document.querySelector("#animal-tests-mode"),
+  animalExploreView: document.querySelector("#animal-explore-view"),
+  animalTestsView: document.querySelector("#animal-tests-view"),
+  animalTestsTitle: document.querySelector("#animal-tests-title"),
+  animalTestsIntro: document.querySelector("#animal-tests-intro"),
+  animalTestHub: document.querySelector("#animal-test-hub"),
+  animalTestRunner: document.querySelector("#animal-test-runner"),
+  animalTestResults: document.querySelector("#animal-test-results"),
+  animalTestBack: document.querySelector("#animal-test-back"),
+  animalTestProgressLabel: document.querySelector("#animal-test-progress-label"),
+  animalTestScore: document.querySelector("#animal-test-score"),
+  animalTestIcon: document.querySelector("#animal-test-icon"),
+  animalTestName: document.querySelector("#animal-test-name"),
+  animalTestQuestion: document.querySelector("#animal-test-question"),
+  animalTestOptions: document.querySelector("#animal-test-options"),
+  animalTestFeedback: document.querySelector("#animal-test-feedback"),
+  animalTestNext: document.querySelector("#animal-test-next"),
+  animalTestResultIcon: document.querySelector("#animal-test-result-icon"),
+  animalTestResultTitle: document.querySelector("#animal-test-result-title"),
+  animalTestResultScore: document.querySelector("#animal-test-result-score"),
+  animalTestRetry: document.querySelector("#animal-test-retry"),
+  animalTestsMenu: document.querySelector("#animal-tests-menu"),
+  animalStage: document.querySelector("#animal-stage"),
+  animalImage: document.querySelector("#animal-image"),
+  animalHotspots: document.querySelector("#animal-hotspots"),
+  animalInfoIcon: document.querySelector("#animal-info-icon"),
+  animalInfoLabel: document.querySelector("#animal-info-label"),
+  animalPartTitle: document.querySelector("#animal-part-title"),
+  animalPartText: document.querySelector("#animal-part-text"),
+  animalSpeak: document.querySelector("#animal-speak"),
+  optionalMenu: document.querySelector("#optional-menu"),
   emoji: document.querySelector("#emoji-clue"),
   phrase: document.querySelector("#phrase-clue"),
   prompt: document.querySelector("#word-prompt"),
@@ -614,6 +1022,13 @@ const elements = {
   saveWords: document.querySelector("#save-words"),
   resetWords: document.querySelector("#reset-words"),
   adminNote: document.querySelector("#admin-note"),
+  animalAdminTitle: document.querySelector("#animal-admin-title"),
+  animalAdminCopy: document.querySelector("#animal-admin-copy"),
+  animalAdminSelect: document.querySelector("#animal-admin-select"),
+  animalAdminParts: document.querySelector("#animal-admin-parts"),
+  saveAnimalText: document.querySelector("#save-animal-text"),
+  resetAnimalText: document.querySelector("#reset-animal-text"),
+  animalAdminNote: document.querySelector("#animal-admin-note"),
   timeOptions: document.querySelector("#time-options"),
   startOptions: document.querySelector("#start-options"),
   timerDisplay: document.querySelector("#timer-display"),
@@ -709,6 +1124,15 @@ let contestTimer = null;
 let contestDeadline = 0;
 let contestAnswered = false;
 let currentLanguage = translations[localStorage.getItem("practiceLanguage")] ? localStorage.getItem("practiceLanguage") : "en";
+let animals = loadAnimalContent();
+let currentAnimalId = animals[0]?.id || "bat";
+let currentAnimalPartId = null;
+let animalActivityMode = "explore";
+let currentAnimalTestId = null;
+let animalTestQuestionIndex = 0;
+let animalTestScoreValue = 0;
+let animalTestAnswered = false;
+let animalTestSelectedOptionIndex = -1;
 
 function t(key, ...args) {
   const value = translations[currentLanguage][key] || translations.en[key] || key;
@@ -733,10 +1157,12 @@ function applyLanguage() {
   setText("#open-german small", "germanSub");
   setText("#open-math strong", "math");
   setText("#open-math small", "mathSub");
+  setText("#open-optional strong", "optional");
+  setText("#open-optional small", "optionalSub");
   setText("#open-admin strong", "administration");
   setText("#open-admin small", "adminSub");
 
-  [elements.germanHome, elements.mathHome, elements.adminHome].forEach((button) => {
+  [elements.germanHome, elements.mathHome, elements.optionalHome, elements.adminHome].forEach((button) => {
     button.setAttribute("aria-label", t("backHome"));
     button.setAttribute("title", t("homeTitle"));
   });
@@ -815,6 +1241,33 @@ function applyLanguage() {
     document.querySelector("#app-title").textContent = t("handwriting");
   }
 
+  setText("#optional-screen .eyebrow", "optional");
+  if (elements.animalApp.classList.contains("hidden")) {
+    setText("#optional-title", "animalExplorers");
+  } else {
+    document.querySelector("#optional-title").textContent = localizedAnimalText(getCurrentAnimal()?.name);
+  }
+  elements.optionalHub.setAttribute("aria-label", t("optionalGames"));
+  const batAnimal = animals.find((animal) => animal.id === "bat") || animals[0];
+  document.querySelector("#open-bat strong").textContent = localizedAnimalText(batAnimal?.name);
+  setText("#open-bat small", "batSub");
+  elements.animalKind.textContent = t("animalExplorer");
+  elements.animalInfoLabel.textContent = t("selectedBodyPart");
+  elements.animalSpeak.textContent = t("readAloud");
+  document.querySelector(".animal-mode-switch").setAttribute("aria-label", t("animalActivity"));
+  elements.animalExploreMode.textContent = t("exploreAnimal");
+  elements.animalTestsMode.textContent = t("animalTests");
+  setText(".animal-tests-heading .eyebrow", "knowledgeCheck");
+  elements.animalTestsTitle.textContent = t("chooseTest");
+  elements.animalTestsIntro.textContent = t("testsIntro");
+  elements.animalTestBack.textContent = t("allTests");
+  elements.animalTestRetry.textContent = t("tryAgain");
+  elements.animalTestsMenu.textContent = t("allTests").replace(/^←\s*/, "");
+  elements.optionalMenu.textContent = t("optionalGames");
+  renderAnimalExplorer();
+  renderAnimalTestHub();
+  setAnimalActivityMode(animalActivityMode);
+
   setText("#admin-screen .eyebrow", "administration");
   setText("#admin-title", "adminTitle");
   const adminCopies = document.querySelectorAll("#admin-screen .studio-copy");
@@ -833,9 +1286,14 @@ function applyLanguage() {
   }
   elements.saveWords.textContent = t("saveWords");
   elements.resetWords.textContent = t("reset");
-  if (!elements.adminNote.dataset.state || elements.adminNote.dataset.state === "ready") {
-    setAdminNote("ready");
-  }
+  elements.animalAdminTitle.textContent = t("animalAdminTitle");
+  elements.animalAdminCopy.textContent = t("animalAdminCopy");
+  elements.animalAdminSelect.setAttribute("aria-label", t("chooseAnimal"));
+  elements.saveAnimalText.textContent = t("saveAnimalText");
+  elements.resetAnimalText.textContent = t("resetAnimalText");
+  setAdminNote(elements.adminNote.dataset.state || "ready");
+  setAnimalAdminNote(elements.animalAdminNote.dataset.state || "ready");
+  renderAnimalAdmin();
 
   setText("#math-screen .eyebrow", "mathPractice");
   setText("#math-title", "mathApps");
@@ -963,6 +1421,7 @@ function showScreen(screenName) {
   elements.homeScreen.classList.toggle("hidden", screenName !== "home");
   elements.germanScreen.classList.toggle("hidden", screenName !== "german");
   elements.mathScreen.classList.toggle("hidden", screenName !== "math");
+  elements.optionalScreen.classList.toggle("hidden", screenName !== "optional");
   elements.adminScreen.classList.toggle("hidden", screenName !== "admin");
 
   if (screenName === "german") {
@@ -971,6 +1430,10 @@ function showScreen(screenName) {
 
   if (screenName === "math") {
     showMathMenu();
+  }
+
+  if (screenName === "optional") {
+    showOptionalMenu();
   }
 
   if (screenName === "admin") {
@@ -2284,10 +2747,14 @@ function speak(text, options = {}) {
     refreshGermanVoice();
   }
 
+  const requestedLanguage = options.lang || "de-DE";
+  const requestedVoice = /^de([-_]|$)/i.test(requestedLanguage)
+    ? germanVoice
+    : window.speechSynthesis.getVoices().find((voice) => voice.lang.toLowerCase().startsWith(requestedLanguage.slice(0, 2).toLowerCase()));
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = germanVoice?.lang || "de-DE";
-  if (germanVoice) {
-    utterance.voice = germanVoice;
+  utterance.lang = requestedVoice?.lang || requestedLanguage;
+  if (requestedVoice) {
+    utterance.voice = requestedVoice;
   }
   utterance.rate = 0.82;
   if (typeof options.onend === "function") {
@@ -2296,6 +2763,414 @@ function speak(text, options = {}) {
   }
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
+}
+
+function cloneDefaultAnimals() {
+  return JSON.parse(JSON.stringify(defaultAnimals));
+}
+
+function localizedAnimalText(value, language = currentLanguage) {
+  return value?.[language] || value?.de || value?.en || "";
+}
+
+function loadAnimalContent() {
+  let savedAnimals = [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(animalContentStorageKey) || "[]");
+    savedAnimals = Array.isArray(parsed) ? parsed : [];
+  } catch {
+    savedAnimals = [];
+  }
+
+  return cloneDefaultAnimals().map((defaultAnimal) => {
+    const savedAnimal = savedAnimals.find((item) => item?.id === defaultAnimal.id);
+    if (!savedAnimal) {
+      return defaultAnimal;
+    }
+    return {
+      ...defaultAnimal,
+      parts: defaultAnimal.parts.map((defaultPart) => {
+        const savedPart = savedAnimal.parts?.find((item) => item?.id === defaultPart.id);
+        if (!savedPart) {
+          return defaultPart;
+        }
+        return {
+          ...defaultPart,
+          title: {
+            en: String(savedPart.title?.en || defaultPart.title.en),
+            de: String(savedPart.title?.de || defaultPart.title.de)
+          },
+          text: {
+            en: String(savedPart.text?.en || defaultPart.text.en),
+            de: String(savedPart.text?.de || defaultPart.text.de)
+          }
+        };
+      })
+    };
+  });
+}
+
+function saveAnimalContent() {
+  localStorage.setItem(animalContentStorageKey, JSON.stringify(animals));
+}
+
+function getCurrentAnimal() {
+  return animals.find((animal) => animal.id === currentAnimalId) || animals[0] || null;
+}
+
+function getCurrentAnimalPart() {
+  return getCurrentAnimal()?.parts.find((part) => part.id === currentAnimalPartId) || null;
+}
+
+function renderAnimalExplorer() {
+  const animal = getCurrentAnimal();
+  if (!animal) {
+    return;
+  }
+
+  elements.animalName.textContent = localizedAnimalText(animal.name);
+  elements.animalIntro.textContent = localizedAnimalText(animal.intro);
+  elements.animalImage.src = animal.image;
+  elements.animalImage.alt = localizedAnimalText(animal.alt);
+  elements.animalStage.setAttribute("aria-label", localizedAnimalText(animal.name));
+  elements.animalHotspots.replaceChildren();
+
+  animal.parts.forEach((part) => {
+    part.points.forEach((point, pointIndex) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "animal-hotspot";
+      button.dataset.animalPart = part.id;
+      button.style.setProperty("--hotspot-x", `${point.x}%`);
+      button.style.setProperty("--hotspot-y", `${point.y}%`);
+      button.textContent = "+";
+      button.setAttribute("aria-label", localizedAnimalText(part.title));
+      button.setAttribute("title", localizedAnimalText(part.title));
+      button.classList.toggle("selected", part.id === currentAnimalPartId);
+      button.setAttribute("aria-pressed", String(part.id === currentAnimalPartId));
+      if (pointIndex > 0) {
+        button.classList.add("alternate");
+      }
+      elements.animalHotspots.append(button);
+    });
+  });
+
+  const selectedPart = getCurrentAnimalPart();
+  elements.animalInfoLabel.textContent = t("selectedBodyPart");
+  if (!selectedPart) {
+    elements.animalInfoIcon.textContent = "👆";
+    elements.animalPartTitle.textContent = t("chooseBodyPart");
+    elements.animalPartText.textContent = t("chooseBodyPartText");
+    elements.animalSpeak.disabled = true;
+    return;
+  }
+
+  elements.animalInfoIcon.textContent = selectedPart.icon;
+  elements.animalPartTitle.textContent = localizedAnimalText(selectedPart.title);
+  elements.animalPartText.textContent = localizedAnimalText(selectedPart.text);
+  elements.animalSpeak.disabled = false;
+}
+
+function selectAnimalPart(partId) {
+  const animal = getCurrentAnimal();
+  if (!animal?.parts.some((part) => part.id === partId)) {
+    return;
+  }
+  currentAnimalPartId = partId;
+  renderAnimalExplorer();
+  elements.animalPartTitle.focus({ preventScroll: true });
+}
+
+function showOptionalMenu() {
+  currentAnimalPartId = null;
+  currentAnimalTestId = null;
+  animalActivityMode = "explore";
+  elements.optionalHub.classList.remove("hidden");
+  elements.animalApp.classList.add("hidden");
+  document.querySelector("#optional-title").textContent = t("animalExplorers");
+}
+
+function showAnimalApp(animalId) {
+  currentAnimalId = animals.some((animal) => animal.id === animalId) ? animalId : animals[0]?.id;
+  currentAnimalPartId = null;
+  currentAnimalTestId = null;
+  animalActivityMode = "explore";
+  elements.optionalHub.classList.add("hidden");
+  elements.animalApp.classList.remove("hidden");
+  document.querySelector("#optional-title").textContent = localizedAnimalText(getCurrentAnimal()?.name);
+  renderAnimalExplorer();
+  setAnimalActivityMode("explore");
+}
+
+function getCurrentAnimalTest() {
+  return getCurrentAnimal()?.tests?.find((test) => test.id === currentAnimalTestId) || null;
+}
+
+function setAnimalActivityMode(mode) {
+  animalActivityMode = mode === "tests" ? "tests" : "explore";
+  elements.animalExploreMode.classList.toggle("selected", animalActivityMode === "explore");
+  elements.animalTestsMode.classList.toggle("selected", animalActivityMode === "tests");
+  elements.animalExploreMode.setAttribute("aria-pressed", String(animalActivityMode === "explore"));
+  elements.animalTestsMode.setAttribute("aria-pressed", String(animalActivityMode === "tests"));
+  elements.animalExploreView.classList.toggle("hidden", animalActivityMode !== "explore");
+  elements.animalTestsView.classList.toggle("hidden", animalActivityMode !== "tests");
+  if (animalActivityMode === "tests") {
+    if (currentAnimalTestId) {
+      const test = getCurrentAnimalTest();
+      if (test && animalTestQuestionIndex >= test.questions.length) {
+        renderAnimalTestResults();
+      } else {
+        renderAnimalTestQuestion();
+      }
+    } else {
+      showAnimalTestMenu();
+    }
+  }
+}
+
+function renderAnimalTestHub() {
+  const tests = getCurrentAnimal()?.tests || [];
+  elements.animalTestHub.replaceChildren();
+  tests.forEach((test, index) => {
+    const card = document.createElement("article");
+    card.className = "animal-test-choice";
+    const number = document.createElement("span");
+    number.className = "animal-test-number";
+    number.textContent = `${index + 1}`;
+    const icon = document.createElement("span");
+    icon.className = "animal-test-choice-icon";
+    icon.textContent = test.icon;
+    icon.setAttribute("aria-hidden", "true");
+    const title = document.createElement("h4");
+    title.textContent = localizedAnimalText(test.title);
+    const subtitle = document.createElement("p");
+    subtitle.textContent = localizedAnimalText(test.subtitle);
+    const count = document.createElement("span");
+    count.className = "animal-test-count";
+    count.textContent = t("testQuestions", test.questions.length);
+    const start = document.createElement("button");
+    start.type = "button";
+    start.dataset.animalTest = test.id;
+    start.textContent = t("startTest");
+    card.append(number, icon, title, subtitle, count, start);
+    elements.animalTestHub.append(card);
+  });
+}
+
+function showAnimalTestMenu() {
+  currentAnimalTestId = null;
+  animalTestQuestionIndex = 0;
+  animalTestScoreValue = 0;
+  animalTestAnswered = false;
+  animalTestSelectedOptionIndex = -1;
+  renderAnimalTestHub();
+  elements.animalTestHub.classList.remove("hidden");
+  elements.animalTestRunner.classList.add("hidden");
+  elements.animalTestResults.classList.add("hidden");
+}
+
+function startAnimalTest(testId) {
+  const test = getCurrentAnimal()?.tests?.find((item) => item.id === testId);
+  if (!test) {
+    return;
+  }
+  currentAnimalTestId = test.id;
+  animalTestQuestionIndex = 0;
+  animalTestScoreValue = 0;
+  animalTestAnswered = false;
+  animalTestSelectedOptionIndex = -1;
+  renderAnimalTestQuestion();
+}
+
+function renderAnimalTestQuestion() {
+  const test = getCurrentAnimalTest();
+  const question = test?.questions[animalTestQuestionIndex];
+  if (!test || !question) {
+    showAnimalTestMenu();
+    return;
+  }
+
+  elements.animalTestHub.classList.add("hidden");
+  elements.animalTestRunner.classList.remove("hidden");
+  elements.animalTestResults.classList.add("hidden");
+  elements.animalTestProgressLabel.textContent = t("questionProgress", animalTestQuestionIndex + 1, test.questions.length);
+  elements.animalTestScore.textContent = t("testPoints", animalTestScoreValue);
+  elements.animalTestIcon.textContent = test.icon;
+  elements.animalTestName.textContent = localizedAnimalText(test.title);
+  elements.animalTestQuestion.textContent = localizedAnimalText(question.question);
+  elements.animalTestOptions.replaceChildren();
+
+  question.options.forEach((option, optionIndex) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.animalTestOption = `${optionIndex}`;
+    button.textContent = localizedAnimalText(option.text);
+    if (animalTestAnswered) {
+      button.disabled = true;
+      button.classList.toggle("correct", Boolean(option.correct));
+      button.classList.toggle("wrong", optionIndex === animalTestSelectedOptionIndex && !option.correct);
+    }
+    elements.animalTestOptions.append(button);
+  });
+
+  if (animalTestAnswered) {
+    const selectedOption = question.options[animalTestSelectedOptionIndex];
+    const prefix = selectedOption?.correct ? t("correctAnswer") : t("wrongAnswer");
+    elements.animalTestFeedback.className = `animal-test-feedback ${selectedOption?.correct ? "success" : "try"}`;
+    elements.animalTestFeedback.textContent = `${prefix} ${localizedAnimalText(question.explanation)}`;
+    elements.animalTestNext.textContent = animalTestQuestionIndex === test.questions.length - 1
+      ? t("seeResults")
+      : t("nextQuestion");
+    elements.animalTestNext.classList.remove("hidden");
+  } else {
+    elements.animalTestFeedback.className = "animal-test-feedback";
+    elements.animalTestFeedback.textContent = "";
+    elements.animalTestNext.classList.add("hidden");
+  }
+}
+
+function answerAnimalTest(optionIndex) {
+  if (animalTestAnswered) {
+    return;
+  }
+  const test = getCurrentAnimalTest();
+  const question = test?.questions[animalTestQuestionIndex];
+  const option = question?.options[optionIndex];
+  if (!option) {
+    return;
+  }
+  animalTestAnswered = true;
+  animalTestSelectedOptionIndex = optionIndex;
+  if (option.correct) {
+    animalTestScoreValue += 1;
+  }
+  renderAnimalTestQuestion();
+  elements.animalTestFeedback.focus({ preventScroll: true });
+}
+
+function advanceAnimalTest() {
+  const test = getCurrentAnimalTest();
+  if (!test || !animalTestAnswered) {
+    return;
+  }
+  animalTestQuestionIndex += 1;
+  animalTestAnswered = false;
+  animalTestSelectedOptionIndex = -1;
+  if (animalTestQuestionIndex >= test.questions.length) {
+    renderAnimalTestResults();
+    return;
+  }
+  renderAnimalTestQuestion();
+  elements.animalTestQuestion.focus({ preventScroll: true });
+}
+
+function renderAnimalTestResults() {
+  const test = getCurrentAnimalTest();
+  if (!test) {
+    showAnimalTestMenu();
+    return;
+  }
+  const total = test.questions.length;
+  const resultMessage = animalTestScoreValue === total
+    ? t("testPerfect")
+    : animalTestScoreValue >= Math.ceil(total * 0.6)
+      ? t("testGood")
+      : t("testPractice");
+  elements.animalTestHub.classList.add("hidden");
+  elements.animalTestRunner.classList.add("hidden");
+  elements.animalTestResults.classList.remove("hidden");
+  elements.animalTestResultIcon.textContent = animalTestScoreValue === total ? "🏆" : animalTestScoreValue >= 3 ? "🌟" : "🦇";
+  elements.animalTestResultTitle.textContent = t("testComplete");
+  elements.animalTestResultScore.textContent = `${t("testResultScore", animalTestScoreValue, total)}. ${resultMessage}`;
+  elements.animalTestResultTitle.focus({ preventScroll: true });
+}
+
+function setAnimalAdminNote(state) {
+  elements.animalAdminNote.dataset.state = state;
+  const key = state === "saved"
+    ? "animalAdminSaved"
+    : state === "reset"
+      ? "animalAdminReset"
+      : "animalAdminReady";
+  elements.animalAdminNote.textContent = t(key);
+}
+
+function makeAnimalAdminField(labelText, field, language, value, multiline = false) {
+  const label = document.createElement("label");
+  label.className = "animal-admin-field";
+  const caption = document.createElement("span");
+  caption.textContent = labelText;
+  const input = document.createElement(multiline ? "textarea" : "input");
+  if (!multiline) {
+    input.type = "text";
+  } else {
+    input.rows = 3;
+  }
+  input.value = value;
+  input.dataset.animalField = field;
+  input.dataset.animalLanguage = language;
+  label.append(caption, input);
+  return label;
+}
+
+function renderAnimalAdmin() {
+  const previousAnimalId = elements.animalAdminSelect.value || currentAnimalId || animals[0]?.id;
+  elements.animalAdminSelect.replaceChildren();
+  animals.forEach((animal) => {
+    const option = document.createElement("option");
+    option.value = animal.id;
+    option.textContent = localizedAnimalText(animal.name);
+    elements.animalAdminSelect.append(option);
+  });
+  elements.animalAdminSelect.value = animals.some((animal) => animal.id === previousAnimalId)
+    ? previousAnimalId
+    : animals[0]?.id;
+
+  const animal = animals.find((item) => item.id === elements.animalAdminSelect.value);
+  elements.animalAdminParts.replaceChildren();
+  animal?.parts.forEach((part, index) => {
+    const editor = document.createElement("details");
+    editor.className = "animal-admin-part";
+    editor.dataset.animalPartEditor = part.id;
+    editor.open = index === 0;
+    const summary = document.createElement("summary");
+    summary.textContent = `${part.icon} ${localizedAnimalText(part.title)}`;
+    const fields = document.createElement("div");
+    fields.className = "animal-admin-fields";
+    fields.append(
+      makeAnimalAdminField(t("germanName"), "title", "de", part.title.de),
+      makeAnimalAdminField(t("germanDescription"), "text", "de", part.text.de, true),
+      makeAnimalAdminField(t("englishName"), "title", "en", part.title.en),
+      makeAnimalAdminField(t("englishDescription"), "text", "en", part.text.en, true)
+    );
+    editor.append(summary, fields);
+    elements.animalAdminParts.append(editor);
+  });
+}
+
+function saveAnimalAdminText() {
+  const animal = animals.find((item) => item.id === elements.animalAdminSelect.value);
+  if (!animal) {
+    return;
+  }
+  elements.animalAdminParts.querySelectorAll("[data-animal-part-editor]").forEach((editor) => {
+    const part = animal.parts.find((item) => item.id === editor.dataset.animalPartEditor);
+    if (!part) {
+      return;
+    }
+    editor.querySelectorAll("[data-animal-field]").forEach((input) => {
+      const field = input.dataset.animalField;
+      const language = input.dataset.animalLanguage;
+      const value = input.value.trim();
+      if (value && part[field]?.[language] !== undefined) {
+        part[field][language] = value;
+      }
+    });
+  });
+  saveAnimalContent();
+  renderAnimalAdmin();
+  renderAnimalExplorer();
+  setAnimalAdminNote("saved");
 }
 
 function serializeWords() {
@@ -2396,7 +3271,9 @@ function parseArticleWords(value) {
 function openAdmin() {
   elements.wordList.value = serializeRebusWords();
   elements.articleWordList.value = serializeArticleWords();
+  renderAnimalAdmin();
   setAdminNote("ready");
+  setAnimalAdminNote("ready");
   elements.wordList.focus();
 }
 
@@ -3297,6 +4174,46 @@ elements.openMultiplication.addEventListener("click", () => showMathApp("multipl
 elements.mathMenuButtons.forEach((button) => {
   button.addEventListener("click", showMathMenu);
 });
+elements.openOptional.addEventListener("click", () => showScreen("optional"));
+elements.openBat.addEventListener("click", () => showAnimalApp("bat"));
+elements.optionalMenu.addEventListener("click", showOptionalMenu);
+elements.animalHotspots.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-animal-part]");
+  if (button) {
+    selectAnimalPart(button.dataset.animalPart);
+  }
+});
+elements.animalSpeak.addEventListener("click", () => {
+  const part = getCurrentAnimalPart();
+  if (!part) {
+    return;
+  }
+  speak(`${localizedAnimalText(part.title)}. ${localizedAnimalText(part.text)}`, {
+    lang: currentLanguage === "de" ? "de-DE" : "en-US"
+  });
+});
+elements.animalExploreMode.addEventListener("click", () => setAnimalActivityMode("explore"));
+elements.animalTestsMode.addEventListener("click", () => setAnimalActivityMode("tests"));
+elements.animalTestHub.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-animal-test]");
+  if (button) {
+    startAnimalTest(button.dataset.animalTest);
+  }
+});
+elements.animalTestOptions.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-animal-test-option]");
+  if (button) {
+    answerAnimalTest(Number(button.dataset.animalTestOption));
+  }
+});
+elements.animalTestNext.addEventListener("click", advanceAnimalTest);
+elements.animalTestBack.addEventListener("click", showAnimalTestMenu);
+elements.animalTestsMenu.addEventListener("click", showAnimalTestMenu);
+elements.animalTestRetry.addEventListener("click", () => {
+  if (currentAnimalTestId) {
+    startAnimalTest(currentAnimalTestId);
+  }
+});
 elements.openAdmin.addEventListener("click", () => showScreen("admin"));
 elements.languageToggle.addEventListener("click", () => {
   currentLanguage = currentLanguage === "en" ? "de" : "en";
@@ -3316,6 +4233,7 @@ elements.mathHome.addEventListener("click", () => {
   stopContestTimer();
   showScreen("home");
 });
+elements.optionalHome.addEventListener("click", () => showScreen("home"));
 elements.adminHome.addEventListener("click", () => showScreen("home"));
 
 elements.check.addEventListener("click", checkAnswer);
@@ -3454,6 +4372,18 @@ elements.resetWords.addEventListener("click", async () => {
     pickHandwritingWord();
   }
   setAdminNote("reset");
+});
+
+elements.animalAdminSelect.addEventListener("change", renderAnimalAdmin);
+elements.saveAnimalText.addEventListener("click", saveAnimalAdminText);
+elements.resetAnimalText.addEventListener("click", () => {
+  localStorage.removeItem(animalContentStorageKey);
+  animals = cloneDefaultAnimals();
+  currentAnimalId = animals[0]?.id || "bat";
+  currentAnimalPartId = null;
+  renderAnimalAdmin();
+  renderAnimalExplorer();
+  setAnimalAdminNote("reset");
 });
 
 elements.timeOptions.addEventListener("click", (event) => {
