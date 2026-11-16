@@ -31,7 +31,7 @@ After changing either file on GitHub, open Administration in the app and choose 
 
 - The German section includes a Verb Forms game covering Präsens, Präteritum, and Perfekt for the verbs from the supplied worksheets.
 - Each round asks for all three forms and clearly highlights whether Perfekt uses `haben` or `sein`.
-- The three answer rows are stacked for long forms, and each supports either typing or German speech input.
+- The three answer rows are stacked for long forms, and each supports either typing or German speech input. Speech recognition starts directly from the button tap for Chrome on Android; the live HTTPS app and an internet connection are required.
 - All verbs can be practised together or selected through a searchable Focus mode with a persistent selected-verbs panel.
 - Administration accepts additional verbs and subjects using `infinitive | subject | present | preterite | auxiliary | perfect`.
 

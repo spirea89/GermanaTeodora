@@ -774,7 +774,8 @@ const translations = {
     verbSpeakFor: (form) => `Speak the ${form} form`,
     verbListening: "🎙️ Listening…",
     verbSpeechUnsupported: "Speech input is not available in this browser. You can still type the answer.",
-    verbSpeechNeedsMic: "Please allow microphone access, then tap Speak again.",
+    verbSpeechNeedsMic: "Allow microphone access for this site in Chrome, then tap Speak again.",
+    verbSpeechNoService: "Chrome could not reach its speech service. Check the internet connection and make sure Google speech services are available on this device.",
     verbSpeechError: "I could not hear that clearly. Please try speaking again or type the answer.",
     verbSpeechHeard: (answer) => `I heard: ${answer}`,
     verbCheckAll: "Check all forms",
@@ -1044,7 +1045,8 @@ const translations = {
     verbSpeakFor: (form) => `${form} sprechen`,
     verbListening: "🎙️ Ich höre…",
     verbSpeechUnsupported: "Spracheingabe ist in diesem Browser nicht verfügbar. Du kannst die Antwort weiterhin schreiben.",
-    verbSpeechNeedsMic: "Bitte erlaube den Mikrofonzugriff und tippe dann noch einmal auf Sprechen.",
+    verbSpeechNeedsMic: "Erlaube dieser Website den Mikrofonzugriff in Chrome und tippe dann noch einmal auf Sprechen.",
+    verbSpeechNoService: "Chrome konnte den Sprachdienst nicht erreichen. Prüfe die Internetverbindung und ob Google-Sprachdienste auf diesem Gerät verfügbar sind.",
     verbSpeechError: "Ich konnte das nicht deutlich verstehen. Sprich noch einmal oder schreibe die Antwort.",
     verbSpeechHeard: (answer) => `Ich habe gehört: ${answer}`,
     verbCheckAll: "Alle Formen prüfen",
@@ -2771,8 +2773,10 @@ function updateVerbSpeechButtons() {
 
 function stopVerbRecognition() {
   if (verbRecognition) {
+    verbRecognition.onstart = null;
     verbRecognition.onresult = null;
     verbRecognition.onerror = null;
+    verbRecognition.onnomatch = null;
     verbRecognition.onend = null;
     try {
       verbRecognition.abort();
@@ -2808,7 +2812,7 @@ function speechRecognitionTranscript(event) {
   return transcripts.join(" ").trim().replace(/[.!?]+$/u, "");
 }
 
-async function startVerbSpeechInput(field) {
+function startVerbSpeechInput(field) {
   const input = verbSpeechInput(field);
   if (!input || input.disabled) {
     return;
@@ -2824,12 +2828,6 @@ async function startVerbSpeechInput(field) {
     elements.verbFeedback.textContent = t("verbSpeechUnsupported");
     return;
   }
-  if (!(await requestArticleMicrophone())) {
-    elements.verbFeedback.className = "verb-feedback try";
-    elements.verbFeedback.textContent = t("verbSpeechNeedsMic");
-    return;
-  }
-
   const recognition = new Recognition();
   verbRecognition = recognition;
   verbListeningField = field;
@@ -2841,6 +2839,14 @@ async function startVerbSpeechInput(field) {
   updateVerbSpeechButtons();
   elements.verbFeedback.className = "verb-feedback";
   elements.verbFeedback.textContent = t("verbListening");
+
+  recognition.onstart = () => {
+    if (verbRecognition !== recognition) {
+      return;
+    }
+    elements.verbFeedback.className = "verb-feedback";
+    elements.verbFeedback.textContent = t("verbListening");
+  };
 
   recognition.onresult = (event) => {
     const transcript = speechRecognitionTranscript(event);
@@ -2860,10 +2866,18 @@ async function startVerbSpeechInput(field) {
   recognition.onerror = (event) => {
     if (event.error !== "aborted") {
       elements.verbFeedback.className = "verb-feedback try";
-      elements.verbFeedback.textContent = ["not-allowed", "service-not-allowed", "audio-capture"].includes(event.error)
-        ? t("verbSpeechNeedsMic")
-        : t("verbSpeechError");
+      if (["not-allowed", "service-not-allowed", "audio-capture"].includes(event.error)) {
+        elements.verbFeedback.textContent = t("verbSpeechNeedsMic");
+      } else if (["network", "language-not-supported"].includes(event.error)) {
+        elements.verbFeedback.textContent = t("verbSpeechNoService");
+      } else {
+        elements.verbFeedback.textContent = t("verbSpeechError");
+      }
     }
+  };
+  recognition.onnomatch = () => {
+    elements.verbFeedback.className = "verb-feedback try";
+    elements.verbFeedback.textContent = t("verbSpeechError");
   };
   recognition.onend = () => {
     const hadResult = verbRecognitionHadResult;
