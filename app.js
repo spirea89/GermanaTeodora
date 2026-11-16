@@ -200,7 +200,7 @@ const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
 const animalContentStorageKey = "deutschUndMatheAnimalExplorer";
-const appVersion = "2026.11.16.2";
+const appVersion = "2026.11.16.3";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -1535,6 +1535,7 @@ let verbRoundCount = 1;
 let verbAnswered = false;
 let verbRecognition = null;
 let verbListeningField = "";
+let verbRecognitionHadResult = false;
 let mathSelectedMinutes = 10;
 let mathProblems = [];
 let mathTimer = null;
@@ -2781,7 +2782,30 @@ function stopVerbRecognition() {
   }
   verbRecognition = null;
   verbListeningField = "";
+  verbRecognitionHadResult = false;
   updateVerbSpeechButtons();
+}
+
+function speechRecognitionTranscript(event) {
+  const results = event?.results;
+  const length = Number(results?.length) || 0;
+  if (!length) {
+    return "";
+  }
+  const requestedStart = Number(event?.resultIndex);
+  const start = Number.isFinite(requestedStart) && requestedStart >= 0
+    ? Math.min(requestedStart, length - 1)
+    : 0;
+  const transcripts = [];
+  for (let index = start; index < length; index += 1) {
+    const result = results[index] || (typeof results.item === "function" ? results.item(index) : null);
+    const alternative = result?.[0] || (typeof result?.item === "function" ? result.item(0) : null);
+    const transcript = String(alternative?.transcript || "").trim();
+    if (transcript) {
+      transcripts.push(transcript);
+    }
+  }
+  return transcripts.join(" ").trim().replace(/[.!?]+$/u, "");
 }
 
 async function startVerbSpeechInput(field) {
@@ -2809,6 +2833,7 @@ async function startVerbSpeechInput(field) {
   const recognition = new Recognition();
   verbRecognition = recognition;
   verbListeningField = field;
+  verbRecognitionHadResult = false;
   recognition.lang = "de-DE";
   recognition.continuous = false;
   recognition.interimResults = false;
@@ -2818,30 +2843,38 @@ async function startVerbSpeechInput(field) {
   elements.verbFeedback.textContent = t("verbListening");
 
   recognition.onresult = (event) => {
-    const transcript = [...event.results]
-      .map((result) => result[0]?.transcript || "")
-      .join(" ")
-      .trim()
-      .replace(/[.!?]+$/u, "");
+    const transcript = speechRecognitionTranscript(event);
     if (transcript) {
+      verbRecognitionHadResult = true;
       input.value = transcript;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
       elements.verbFeedback.className = "verb-feedback";
       elements.verbFeedback.textContent = t("verbSpeechHeard", transcript);
       input.focus();
+    } else {
+      elements.verbFeedback.className = "verb-feedback try";
+      elements.verbFeedback.textContent = t("verbSpeechError");
     }
   };
   recognition.onerror = (event) => {
     if (event.error !== "aborted") {
       elements.verbFeedback.className = "verb-feedback try";
-      elements.verbFeedback.textContent = event.error === "not-allowed"
+      elements.verbFeedback.textContent = ["not-allowed", "service-not-allowed", "audio-capture"].includes(event.error)
         ? t("verbSpeechNeedsMic")
         : t("verbSpeechError");
     }
   };
   recognition.onend = () => {
+    const hadResult = verbRecognitionHadResult;
     verbRecognition = null;
     verbListeningField = "";
+    verbRecognitionHadResult = false;
     updateVerbSpeechButtons();
+    if (!hadResult && elements.verbFeedback.textContent === t("verbListening")) {
+      elements.verbFeedback.className = "verb-feedback try";
+      elements.verbFeedback.textContent = t("verbSpeechError");
+    }
   };
   try {
     recognition.start();
