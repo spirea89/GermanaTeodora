@@ -194,11 +194,13 @@ const defaultWords = [...defaultRebusWords, ...defaultArticleWords];
 const wordsStorageKey = "wordGardenGermanWords";
 const articleWordsStorageKey = "articleGameGermanWords";
 const articleFocusStorageKey = "articleGameFocusWords";
+const verbFormsStorageKey = "germanVerbForms";
+const verbFocusStorageKey = "germanVerbFocusForms";
 const germanAppsStorageKey = "deutschUndMatheGermanWords";
 const rebusWordsFile = "data/rebus-words.txt";
 const articleWordsFile = "data/article-words.txt";
 const animalContentStorageKey = "deutschUndMatheAnimalExplorer";
-const appVersion = "2026.10.02.3";
+const appVersion = "2026.11.16.2";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -748,6 +750,39 @@ const translations = {
     articleSub: "Choose the article",
     handwriting: "Handwriting",
     handwritingSub: "Write with the pen",
+    verbForms: "Verb Forms",
+    verbFormsSub: "Present, simple past and perfect",
+    verbPracticeMode: "Verb practice mode",
+    allVerbs: "All verbs",
+    verbFocusTitle: "Choose focus verbs",
+    verbFocusSelected: (count) => `${count} ${count === 1 ? "verb" : "verbs"} selected`,
+    verbLibrary: "Verb library",
+    verbSearchPlaceholder: "Type a German verb",
+    verbNoResults: "No matching verbs.",
+    verbSelectedTitle: "Selected verbs",
+    verbSelectedEmpty: "No verbs selected yet.",
+    verbFocusRemove: (verb) => `Remove ${verb}`,
+    verbFocusNoVerbs: "Choose at least one focus verb above.",
+    verbFocusStart: "Start focus game",
+    verbFocusEdit: "Edit focus verbs",
+    verbInfinitive: "Infinitive",
+    verbPresent: "Präsens · present",
+    verbPreterite: "Präteritum · simple past",
+    verbPerfect: "Perfekt · past",
+    verbPerfectWith: (auxiliary) => `Perfect with ${auxiliary}`,
+    verbSpeak: "🎙️ Speak",
+    verbSpeakFor: (form) => `Speak the ${form} form`,
+    verbListening: "🎙️ Listening…",
+    verbSpeechUnsupported: "Speech input is not available in this browser. You can still type the answer.",
+    verbSpeechNeedsMic: "Please allow microphone access, then tap Speak again.",
+    verbSpeechError: "I could not hear that clearly. Please try speaking again or type the answer.",
+    verbSpeechHeard: (answer) => `I heard: ${answer}`,
+    verbCheckAll: "Check all forms",
+    verbNew: "↪ New verb",
+    verbCorrectAll: "Excellent! All three forms are correct.",
+    verbCorrectSome: (count) => `${count} of 3 forms correct. Review the correction below.`,
+    verbExpected: (answer) => `Correct: ${answer}`,
+    verbNoForms: "Add verb forms in Administration.",
     handwritingInfo: "Designed for XP-PEN style handwriting devices.",
     handwritingProgress: "Handwriting progress",
     pages: "Pages",
@@ -806,6 +841,15 @@ const translations = {
     adminArticleCopy: "DER/DIE/DAS words. One item per line. Use: word, article, emoji",
     adminExample: "die Sonne, ☀️, Listen and fill the missing letters.",
     adminArticleExample: "Sonne, die, ☀️",
+    verbAdminTitle: "Verb forms",
+    verbAdminCopy: "One entry per line: infinitive | subject | present | preterite | auxiliary | perfect",
+    verbAdminExample: "gehen | ich | ich gehe | ich ging | sein | ich bin gegangen",
+    saveVerbs: "Save verbs",
+    resetVerbs: "Reset verb list",
+    verbAdminReady: "Add more verbs or subjects such as du, er, sie, and es.",
+    verbAdminSaved: (count) => `Saved ${count} verb forms. The game now uses this list.`,
+    verbAdminReset: "The verb list from the attached worksheets has been restored.",
+    verbAdminInvalid: "No valid rows found. Use six fields separated by | and choose haben or sein.",
     saveWords: "Save words",
     reset: "Reset",
     adminReady: "Saved words are used in the German game on this device.",
@@ -829,6 +873,36 @@ const translations = {
     numberSprintSub: "Plus and minus to 100",
     multiplication: "Multiplication",
     multiplicationSub: "Practice multiplication tests",
+    fourOperations: "Four Operations",
+    fourOperationsSub: "Add, subtract, multiply and divide",
+    fourOperationsEyebrow: "All four operations",
+    fourOperationsSetup: "Choose your number sizes",
+    fourOperationsSetupCopy: "Select one or more number sizes for each side.",
+    firstNumber: "First number",
+    secondNumber: "Second number",
+    oneDigit: "1 digit",
+    twoDigits: "2 digits",
+    threeDigits: "3 digits",
+    startGame: "Start game",
+    visualModeLabel: "Visual mode",
+    abstractMode: "Abstract",
+    visualMode: "Visual",
+    concreteMode: "Concrete",
+    solved: "Solved",
+    addition: "Addition",
+    subtraction: "Subtraction",
+    multiplicationOperation: "Multiplication",
+    division: "Division",
+    concreteModel: "Concrete unifix cube model",
+    yourAnswer: "Your answer",
+    checkAnswer: "Check answer",
+    changeSetup: "Change setup",
+    fourCorrect: "Correct! Here comes the next exercise…",
+    fourTryAgain: "Not quite — try again.",
+    divisionUnavailable: "Subtraction and division are skipped for this size combination so every answer stays non-negative and division stays in whole numbers.",
+    hundreds: (count) => `${count} ${count === 1 ? "hundred" : "hundreds"}`,
+    tens: (count) => `${count} ${count === 1 ? "ten" : "tens"}`,
+    ones: (count) => `${count} ${count === 1 ? "one" : "ones"}`,
     multiplicationSetup: "Multiplication setup",
     numberSize: "Number size",
     chooseMultiplicationSize: "Choose multiplication number size",
@@ -946,6 +1020,39 @@ const translations = {
     articleSub: "Artikel wählen",
     handwriting: "Schreiben",
     handwritingSub: "Mit dem Stift schreiben",
+    verbForms: "Verbformen",
+    verbFormsSub: "Präsens, Präteritum und Perfekt",
+    verbPracticeMode: "Übungsmodus für Verben",
+    allVerbs: "Alle Verben",
+    verbFocusTitle: "Fokusverben auswählen",
+    verbFocusSelected: (count) => `${count} ${count === 1 ? "Verb" : "Verben"} ausgewählt`,
+    verbLibrary: "Verbbibliothek",
+    verbSearchPlaceholder: "Deutsches Verb eingeben",
+    verbNoResults: "Keine passenden Verben gefunden.",
+    verbSelectedTitle: "Ausgewählte Verben",
+    verbSelectedEmpty: "Noch keine Verben ausgewählt.",
+    verbFocusRemove: (verb) => `${verb} entfernen`,
+    verbFocusNoVerbs: "Wähle oben mindestens ein Fokusverb aus.",
+    verbFocusStart: "Fokusspiel starten",
+    verbFocusEdit: "Fokusverben bearbeiten",
+    verbInfinitive: "Nennform",
+    verbPresent: "Präsens · Gegenwart",
+    verbPreterite: "Präteritum · Mitvergangenheit",
+    verbPerfect: "Perfekt · Vergangenheit",
+    verbPerfectWith: (auxiliary) => `Perfekt mit ${auxiliary}`,
+    verbSpeak: "🎙️ Sprechen",
+    verbSpeakFor: (form) => `${form} sprechen`,
+    verbListening: "🎙️ Ich höre…",
+    verbSpeechUnsupported: "Spracheingabe ist in diesem Browser nicht verfügbar. Du kannst die Antwort weiterhin schreiben.",
+    verbSpeechNeedsMic: "Bitte erlaube den Mikrofonzugriff und tippe dann noch einmal auf Sprechen.",
+    verbSpeechError: "Ich konnte das nicht deutlich verstehen. Sprich noch einmal oder schreibe die Antwort.",
+    verbSpeechHeard: (answer) => `Ich habe gehört: ${answer}`,
+    verbCheckAll: "Alle Formen prüfen",
+    verbNew: "↪ Neues Verb",
+    verbCorrectAll: "Ausgezeichnet! Alle drei Formen sind richtig.",
+    verbCorrectSome: (count) => `${count} von 3 Formen richtig. Schau dir die Korrektur unten an.`,
+    verbExpected: (answer) => `Richtig: ${answer}`,
+    verbNoForms: "Füge Verbformen in der Verwaltung hinzu.",
     handwritingInfo: "Diese App ist für XP-PEN-ähnliche Schreibgeräte gedacht.",
     handwritingProgress: "Schreibfortschritt",
     pages: "Seiten",
@@ -1004,6 +1111,15 @@ const translations = {
     adminArticleCopy: "DER/DIE/DAS-Wörter. Ein Eintrag pro Zeile: Wort, Artikel, Emoji",
     adminExample: "die Sonne, ☀️, Höre zu und ergänze die fehlenden Buchstaben.",
     adminArticleExample: "Sonne, die, ☀️",
+    verbAdminTitle: "Verbformen",
+    verbAdminCopy: "Ein Eintrag pro Zeile: Nennform | Person | Präsens | Präteritum | Hilfsverb | Perfekt",
+    verbAdminExample: "gehen | ich | ich gehe | ich ging | sein | ich bin gegangen",
+    saveVerbs: "Verben speichern",
+    resetVerbs: "Verbliste zurücksetzen",
+    verbAdminReady: "Füge weitere Verben oder Personen wie du, er, sie und es hinzu.",
+    verbAdminSaved: (count) => `${count} Verbformen gespeichert. Das Spiel verwendet jetzt diese Liste.`,
+    verbAdminReset: "Die Verbliste aus den Arbeitsblättern wurde wiederhergestellt.",
+    verbAdminInvalid: "Keine gültigen Zeilen gefunden. Verwende sechs mit | getrennte Felder und haben oder sein.",
     saveWords: "Wörter speichern",
     reset: "Zurücksetzen",
     adminReady: "Gespeicherte Wörter werden auf diesem Gerät im Deutsch-Spiel benutzt.",
@@ -1027,6 +1143,36 @@ const translations = {
     numberSprintSub: "Plus und Minus bis 100",
     multiplication: "Multiplikation",
     multiplicationSub: "Multiplikationsaufgaben üben",
+    fourOperations: "Vier Grundrechenarten",
+    fourOperationsSub: "Plus, Minus, Mal und Geteilt",
+    fourOperationsEyebrow: "Alle vier Grundrechenarten",
+    fourOperationsSetup: "Wähle die Zahlengrößen",
+    fourOperationsSetupCopy: "Wähle für jede Seite eine oder mehrere Zahlengrößen.",
+    firstNumber: "Erste Zahl",
+    secondNumber: "Zweite Zahl",
+    oneDigit: "1-stellig",
+    twoDigits: "2-stellig",
+    threeDigits: "3-stellig",
+    startGame: "Spiel starten",
+    visualModeLabel: "Darstellung",
+    abstractMode: "Abstrakt",
+    visualMode: "Bildlich",
+    concreteMode: "Konkret",
+    solved: "Gelöst",
+    addition: "Addition",
+    subtraction: "Subtraktion",
+    multiplicationOperation: "Multiplikation",
+    division: "Division",
+    concreteModel: "Konkretes Modell mit Steckwürfeln",
+    yourAnswer: "Deine Antwort",
+    checkAnswer: "Antwort prüfen",
+    changeSetup: "Einstellungen ändern",
+    fourCorrect: "Richtig! Gleich kommt die nächste Aufgabe…",
+    fourTryAgain: "Noch nicht ganz – versuche es noch einmal.",
+    divisionUnavailable: "Subtraktion und Division werden bei dieser Größenkombination ausgelassen, damit keine negativen Ergebnisse entstehen und Divisionen in ganzen Zahlen aufgehen.",
+    hundreds: (count) => `${count} ${count === 1 ? "Hunderter" : "Hunderter"}`,
+    tens: (count) => `${count} ${count === 1 ? "Zehner" : "Zehner"}`,
+    ones: (count) => `${count} ${count === 1 ? "Einer" : "Einer"}`,
     multiplicationSetup: "Multiplikations-Einstellungen",
     numberSize: "Zahlengröße",
     chooseMultiplicationSize: "Zahlengröße für die Multiplikation auswählen",
@@ -1101,15 +1247,19 @@ const elements = {
   rebusApp: document.querySelector("#rebus-app"),
   articleApp: document.querySelector("#article-app"),
   handwritingApp: document.querySelector("#handwriting-app"),
+  verbApp: document.querySelector("#verb-app"),
   openRebus: document.querySelector("#open-rebus"),
   openArticles: document.querySelector("#open-articles"),
   openHandwriting: document.querySelector("#open-handwriting"),
+  openVerbs: document.querySelector("#open-verbs"),
   germanMenuButtons: document.querySelectorAll(".german-menu-button"),
   mathHub: document.querySelector("#math-hub"),
   numberSprintApp: document.querySelector("#number-sprint-app"),
   multiplicationApp: document.querySelector("#multiplication-app"),
+  fourOperationsApp: document.querySelector("#four-operations-app"),
   openNumberSprint: document.querySelector("#open-number-sprint"),
   openMultiplication: document.querySelector("#open-multiplication"),
+  openFourOperations: document.querySelector("#open-four-operations"),
   mathMenuButtons: document.querySelectorAll(".math-menu-button"),
   germanHome: document.querySelector("#german-home"),
   mathHome: document.querySelector("#math-home"),
@@ -1224,6 +1374,42 @@ const elements = {
   clearHandwriting: document.querySelector("#clear-handwriting"),
   skipHandwriting: document.querySelector("#skip-handwriting"),
   finishHandwriting: document.querySelector("#finish-handwriting"),
+  verbCorrect: document.querySelector("#verb-correct"),
+  verbStreak: document.querySelector("#verb-streak"),
+  verbRound: document.querySelector("#verb-round"),
+  verbAllMode: document.querySelector("#verb-all-mode"),
+  verbFocusMode: document.querySelector("#verb-focus-mode"),
+  verbFocusPanel: document.querySelector("#verb-focus-panel"),
+  verbFocusTitle: document.querySelector("#verb-focus-title"),
+  verbFocusSummary: document.querySelector("#verb-focus-summary"),
+  verbFocusLibrary: document.querySelector("#verb-focus-library"),
+  verbFocusSearchLabel: document.querySelector("#verb-focus-search-label"),
+  verbFocusSearch: document.querySelector("#verb-focus-search"),
+  verbFocusNoResults: document.querySelector("#verb-focus-no-results"),
+  verbFocusList: document.querySelector("#verb-focus-list"),
+  verbFocusSelectedPanel: document.querySelector("#verb-focus-selected-panel"),
+  verbFocusSelectedTitle: document.querySelector("#verb-focus-selected-title"),
+  verbFocusSelectedEmpty: document.querySelector("#verb-focus-selected-empty"),
+  verbFocusSelectedList: document.querySelector("#verb-focus-selected-list"),
+  verbFocusAll: document.querySelector("#verb-focus-all"),
+  verbFocusClear: document.querySelector("#verb-focus-clear"),
+  verbFocusStartNote: document.querySelector("#verb-focus-start-note"),
+  verbFocusStart: document.querySelector("#verb-focus-start"),
+  verbCard: document.querySelector("#verb-card"),
+  verbInfinitive: document.querySelector("#verb-infinitive"),
+  verbSubject: document.querySelector("#verb-subject"),
+  verbAuxiliary: document.querySelector("#verb-auxiliary"),
+  verbPresentAnswer: document.querySelector("#verb-present-answer"),
+  verbPreteriteAnswer: document.querySelector("#verb-preterite-answer"),
+  verbPerfectAnswer: document.querySelector("#verb-perfect-answer"),
+  verbSpeechButtons: document.querySelectorAll(".verb-speech-button"),
+  verbPresentCorrection: document.querySelector("#verb-present-correction"),
+  verbPreteriteCorrection: document.querySelector("#verb-preterite-correction"),
+  verbPerfectCorrection: document.querySelector("#verb-perfect-correction"),
+  checkVerb: document.querySelector("#check-verb"),
+  verbFeedback: document.querySelector("#verb-feedback"),
+  verbFocusEdit: document.querySelector("#verb-focus-edit"),
+  verbNext: document.querySelector("#verb-next"),
   rewardLayer: document.querySelector("#reward-layer"),
   rewardEmoji: document.querySelector("#reward-emoji"),
   rewardText: document.querySelector("#reward-text"),
@@ -1233,6 +1419,13 @@ const elements = {
   saveWords: document.querySelector("#save-words"),
   resetWords: document.querySelector("#reset-words"),
   adminNote: document.querySelector("#admin-note"),
+  verbAdminTitle: document.querySelector("#verb-admin-title"),
+  verbAdminCopy: document.querySelector("#verb-admin-copy"),
+  verbAdminExample: document.querySelector("#verb-admin-example"),
+  verbList: document.querySelector("#verb-list"),
+  saveVerbs: document.querySelector("#save-verbs"),
+  resetVerbs: document.querySelector("#reset-verbs"),
+  verbAdminNote: document.querySelector("#verb-admin-note"),
   animalAdminTitle: document.querySelector("#animal-admin-title"),
   animalAdminCopy: document.querySelector("#animal-admin-copy"),
   animalAdminSelect: document.querySelector("#animal-admin-select"),
@@ -1259,6 +1452,26 @@ const elements = {
   multiplicationLeft: document.querySelector("#multiplication-left"),
   newMultiplication: document.querySelector("#new-multiplication"),
   finishMultiplication: document.querySelector("#finish-multiplication"),
+  fourOperationsSetup: document.querySelector("#four-operations-setup"),
+  fourOperationsSetupTitle: document.querySelector("#four-operations-setup-title"),
+  fourOperationsSetupCopy: document.querySelector("#four-operations-setup-copy"),
+  fourOperationsLeftDigits: document.querySelector("#four-operations-left-digits"),
+  fourOperationsRightDigits: document.querySelector("#four-operations-right-digits"),
+  fourOperationsDivisionNote: document.querySelector("#four-operations-division-note"),
+  startFourOperations: document.querySelector("#start-four-operations"),
+  fourOperationsGame: document.querySelector("#four-operations-game"),
+  fourOperationsModes: document.querySelector("#four-operations-modes"),
+  fourOperationsSolved: document.querySelector("#four-operations-solved"),
+  fourOperationsKind: document.querySelector("#four-operations-kind"),
+  fourOperationsEquation: document.querySelector("#four-operations-equation"),
+  fourOperationsConcrete: document.querySelector("#four-operations-concrete"),
+  fourOperationsLeftModel: document.querySelector("#four-operations-left-model"),
+  fourOperationsConcreteOperator: document.querySelector("#four-operations-concrete-operator"),
+  fourOperationsRightModel: document.querySelector("#four-operations-right-model"),
+  fourOperationsAnswer: document.querySelector("#four-operations-answer"),
+  checkFourOperations: document.querySelector("#check-four-operations"),
+  fourOperationsFeedback: document.querySelector("#four-operations-feedback"),
+  changeFourOperationsSetup: document.querySelector("#change-four-operations-setup"),
   contestPanel: document.querySelector("#contest-panel"),
   contestSetup: document.querySelector("#contest-setup"),
   contestArena: document.querySelector("#contest-arena"),
@@ -1309,6 +1522,19 @@ let handwritingRound = 1;
 let handwritingTargetLetters = [];
 let handwritingSolvedLetters = [];
 let handwritingNextLetterIndex = 0;
+let verbForms = loadVerbForms();
+let verbMode = "all";
+let verbFocusKeys = loadVerbFocusKeys();
+let verbFocusQuery = "";
+let verbFocusPlaying = false;
+let verbCurrentIndex = -1;
+let verbCurrent = null;
+let verbCorrectCount = Number(localStorage.getItem("verbGameCorrect") || 0);
+let verbStreakCount = 0;
+let verbRoundCount = 1;
+let verbAnswered = false;
+let verbRecognition = null;
+let verbListeningField = "";
 let mathSelectedMinutes = 10;
 let mathProblems = [];
 let mathTimer = null;
@@ -1320,6 +1546,14 @@ let multiplicationMode = "1x1";
 let multiplicationProblems = [];
 let multiplicationStarted = false;
 let multiplicationEnded = false;
+let fourOperationsLeftDigitCounts = new Set([2]);
+let fourOperationsRightDigitCounts = new Set([2]);
+let fourOperationsMode = "abstract";
+let fourOperationsProblem = null;
+let fourOperationsSolvedCount = 0;
+let fourOperationsOperatorQueue = [];
+let fourOperationsLocked = false;
+let fourOperationsAdvanceTimer = 0;
 let contestPlayerCount = 2;
 let contestSeconds = 30;
 let contestProblems = [];
@@ -1382,6 +1616,8 @@ function applyLanguage() {
   setText("#open-articles small", "articleSub");
   setText("#open-handwriting strong", "handwriting");
   setText("#open-handwriting small", "handwritingSub");
+  setText("#open-verbs strong", "verbForms");
+  setText("#open-verbs small", "verbFormsSub");
   const handwritingInfo = document.querySelector("#handwriting-info");
   if (handwritingInfo) {
     handwritingInfo.setAttribute("title", t("handwritingInfo"));
@@ -1440,12 +1676,46 @@ function applyLanguage() {
   if (!elements.articleHint.dataset.state || elements.articleHint.dataset.state === "default") {
     setArticleHint("default");
   }
+  document.querySelector(".verb-score-row").setAttribute("aria-label", t("verbForms"));
+  elements.verbAllMode.textContent = t("allVerbs");
+  elements.verbFocusMode.textContent = t("focusMode");
+  document.querySelector(".verb-mode-switch").setAttribute("aria-label", t("verbPracticeMode"));
+  elements.verbFocusPanel.setAttribute("aria-label", t("verbFocusTitle"));
+  elements.verbFocusTitle.textContent = t("verbFocusTitle");
+  elements.verbFocusAll.textContent = t("focusSelectAll");
+  elements.verbFocusClear.textContent = t("focusClear");
+  elements.verbFocusLibrary.setAttribute("aria-label", t("verbLibrary"));
+  elements.verbFocusSearchLabel.textContent = t("focusSearchLabel");
+  elements.verbFocusSearch.placeholder = t("verbSearchPlaceholder");
+  elements.verbFocusNoResults.textContent = t("verbNoResults");
+  elements.verbFocusSelectedPanel.setAttribute("aria-label", t("verbSelectedTitle"));
+  elements.verbFocusSelectedTitle.textContent = t("verbSelectedTitle");
+  elements.verbFocusSelectedEmpty.textContent = t("verbSelectedEmpty");
+  elements.verbFocusStartNote.textContent = t("verbFocusNoVerbs");
+  elements.verbFocusStart.textContent = t("verbFocusStart");
+  elements.verbFocusEdit.textContent = t("verbFocusEdit");
+  document.querySelector("#verb-correct-label").textContent = t("correct");
+  document.querySelector("#verb-streak-label").textContent = t("streak");
+  document.querySelector("#verb-round-label").textContent = t("round");
+  document.querySelector("#verb-infinitive-label").textContent = t("verbInfinitive");
+  document.querySelector("#verb-present-label").textContent = t("verbPresent");
+  document.querySelector("#verb-preterite-label").textContent = t("verbPreterite");
+  document.querySelector("#verb-perfect-label").textContent = t("verbPerfect");
+  updateVerbSpeechButtons();
+  elements.checkVerb.textContent = t("verbCheckAll");
+  elements.verbNext.textContent = t("verbNew");
+  if (verbCurrent) {
+    elements.verbAuxiliary.textContent = t("verbPerfectWith", verbCurrent.auxiliary);
+  }
+  renderVerbFocusForms();
   if (!elements.rebusApp.classList.contains("hidden")) {
     document.querySelector("#app-title").textContent = t("rebus");
   } else if (!elements.articleApp.classList.contains("hidden")) {
     document.querySelector("#app-title").textContent = t("articleGame");
   } else if (!elements.handwritingApp.classList.contains("hidden")) {
     document.querySelector("#app-title").textContent = t("handwriting");
+  } else if (!elements.verbApp.classList.contains("hidden")) {
+    document.querySelector("#app-title").textContent = t("verbForms");
   }
 
   setText("#optional-screen .eyebrow", "optional");
@@ -1503,12 +1773,18 @@ function applyLanguage() {
   }
   elements.saveWords.textContent = t("saveWords");
   elements.resetWords.textContent = t("reset");
+  elements.verbAdminTitle.textContent = t("verbAdminTitle");
+  elements.verbAdminCopy.textContent = t("verbAdminCopy");
+  elements.verbAdminExample.textContent = t("verbAdminExample");
+  elements.saveVerbs.textContent = t("saveVerbs");
+  elements.resetVerbs.textContent = t("resetVerbs");
   elements.animalAdminTitle.textContent = t("animalAdminTitle");
   elements.animalAdminCopy.textContent = t("animalAdminCopy");
   elements.animalAdminSelect.setAttribute("aria-label", t("chooseAnimal"));
   elements.saveAnimalText.textContent = t("saveAnimalText");
   elements.resetAnimalText.textContent = t("resetAnimalText");
   setAdminNote(elements.adminNote.dataset.state || "ready");
+  setVerbAdminNote(elements.verbAdminNote.dataset.state || "ready", Number(elements.verbAdminNote.dataset.count) || verbForms.length);
   setAnimalAdminNote(elements.animalAdminNote.dataset.state || "ready");
   renderAnimalAdmin();
 
@@ -1518,6 +1794,8 @@ function applyLanguage() {
   setText("#open-number-sprint small", "numberSprintSub");
   setText("#open-multiplication strong", "multiplication");
   setText("#open-multiplication small", "multiplicationSub");
+  setText("#open-four-operations strong", "fourOperations");
+  setText("#open-four-operations small", "fourOperationsSub");
   elements.mathHub.setAttribute("aria-label", t("mathApps"));
   document.querySelector(".math-setup").setAttribute("aria-label", t("mathSetupLabel"));
   setText(".math-setup > div:nth-child(1) .score-label", "exercise");
@@ -1553,6 +1831,31 @@ function applyLanguage() {
   elements.multiplicationWorksheet.setAttribute("aria-label", t("multiplicationTest"));
   elements.newMultiplication.textContent = t("newTest");
   elements.finishMultiplication.textContent = t("finish");
+  setText(".four-operations-setup-heading .eyebrow", "fourOperationsEyebrow");
+  elements.fourOperationsSetupTitle.textContent = t("fourOperationsSetup");
+  elements.fourOperationsSetupCopy.textContent = t("fourOperationsSetupCopy");
+  document.querySelector("#four-operations-left-label").textContent = t("firstNumber");
+  document.querySelector("#four-operations-right-label").textContent = t("secondNumber");
+  elements.fourOperationsLeftDigits.querySelector('[data-four-digits="1"]').textContent = t("oneDigit");
+  elements.fourOperationsLeftDigits.querySelector('[data-four-digits="2"]').textContent = t("twoDigits");
+  elements.fourOperationsLeftDigits.querySelector('[data-four-digits="3"]').textContent = t("threeDigits");
+  elements.fourOperationsRightDigits.querySelector('[data-four-digits="1"]').textContent = t("oneDigit");
+  elements.fourOperationsRightDigits.querySelector('[data-four-digits="2"]').textContent = t("twoDigits");
+  elements.fourOperationsRightDigits.querySelector('[data-four-digits="3"]').textContent = t("threeDigits");
+  elements.startFourOperations.textContent = t("startGame");
+  document.querySelector("#four-operations-mode-label").textContent = t("visualModeLabel");
+  elements.fourOperationsModes.querySelector('[data-four-mode="abstract"]').textContent = t("abstractMode");
+  elements.fourOperationsModes.querySelector('[data-four-mode="visual"]').textContent = t("visualMode");
+  elements.fourOperationsModes.querySelector('[data-four-mode="concrete"]').textContent = t("concreteMode");
+  setText(".four-operations-score .score-label", "solved");
+  elements.fourOperationsConcrete.setAttribute("aria-label", t("concreteModel"));
+  document.querySelector("#four-operations-answer-label").textContent = t("yourAnswer");
+  elements.checkFourOperations.textContent = t("checkAnswer");
+  elements.changeFourOperationsSetup.textContent = t("changeSetup");
+  updateFourOperationsDivisionNote();
+  if (fourOperationsProblem) {
+    renderFourOperationsProblem();
+  }
   elements.contestPanel.setAttribute("aria-label", t("contestLabel"));
   setText("#contest-setup > div:nth-child(1) .score-label", "players");
   setText("#contest-setup > div:nth-child(2) .score-label", "seconds");
@@ -1574,6 +1877,8 @@ function applyLanguage() {
     document.querySelector("#math-title").textContent = t("numberSprint");
   } else if (!elements.multiplicationApp.classList.contains("hidden")) {
     document.querySelector("#math-title").textContent = t("multiplication");
+  } else if (!elements.fourOperationsApp.classList.contains("hidden")) {
+    document.querySelector("#math-title").textContent = t("fourOperations");
   }
 
   if (elements.phrase.textContent === translations.en.wordClueDefault || elements.phrase.textContent === translations.de.wordClueDefault) {
@@ -1660,10 +1965,12 @@ function showScreen(screenName) {
 
 function showGermanMenu() {
   stopArticleCarSession();
+  stopVerbRecognition();
   elements.germanHub.classList.remove("hidden");
   elements.rebusApp.classList.add("hidden");
   elements.articleApp.classList.add("hidden");
   elements.handwritingApp.classList.add("hidden");
+  elements.verbApp.classList.add("hidden");
   elements.input.blur();
   document.querySelector("#app-title").textContent = t("germanApps");
 }
@@ -1676,11 +1983,14 @@ function showGermanApp(appName) {
   elements.rebusApp.classList.toggle("hidden", appName !== "rebus");
   elements.articleApp.classList.toggle("hidden", appName !== "articles");
   elements.handwritingApp.classList.toggle("hidden", appName !== "handwriting");
+  elements.verbApp.classList.toggle("hidden", appName !== "verbs");
   document.querySelector("#app-title").textContent = appName === "rebus"
     ? t("rebus")
     : appName === "articles"
       ? t("articleGame")
-      : t("handwriting");
+      : appName === "handwriting"
+        ? t("handwriting")
+        : t("verbForms");
   if (appName === "rebus") {
     pickWord();
     elements.input.focus();
@@ -1691,15 +2001,20 @@ function showGermanApp(appName) {
   if (appName === "handwriting") {
     pickHandwritingWord();
   }
+  if (appName === "verbs") {
+    setVerbMode("all");
+  }
 }
 
 function showMathMenu() {
   resetMathWorksheet();
   resetMultiplicationTest();
+  stopFourOperationsAdvance();
   stopContestTimer();
   elements.mathHub.classList.remove("hidden");
   elements.numberSprintApp.classList.add("hidden");
   elements.multiplicationApp.classList.add("hidden");
+  elements.fourOperationsApp.classList.add("hidden");
   elements.timerDisplay.classList.add("hidden");
   document.querySelector("#math-title").textContent = t("mathApps");
 }
@@ -1708,15 +2023,20 @@ function showMathApp(appName) {
   elements.mathHub.classList.add("hidden");
   elements.numberSprintApp.classList.toggle("hidden", appName !== "number-sprint");
   elements.multiplicationApp.classList.toggle("hidden", appName !== "multiplication");
+  elements.fourOperationsApp.classList.toggle("hidden", appName !== "four-operations");
   elements.timerDisplay.classList.toggle("hidden", appName !== "number-sprint");
   document.querySelector("#math-title").textContent = appName === "number-sprint"
     ? t("numberSprint")
-    : t("multiplication");
+    : appName === "multiplication"
+      ? t("multiplication")
+      : t("fourOperations");
 
   if (appName === "number-sprint") {
     ensureMathWorksheet();
   } else if (appName === "multiplication") {
     ensureMultiplicationTest();
+  } else if (appName === "four-operations") {
+    showFourOperationsSetup();
   }
 }
 
@@ -2256,6 +2576,417 @@ function checkAnswer() {
   setHint("try");
   renderScore();
   elements.input.select();
+}
+
+function normalizeVerbForm(item) {
+  const infinitive = String(item?.infinitive || "").trim();
+  const subject = String(item?.subject || "").trim();
+  const present = String(item?.present || "").trim();
+  const preterite = String(item?.preterite || "").trim();
+  const auxiliary = normalize(String(item?.auxiliary || "")).replace(/\s/g, "");
+  const perfect = String(item?.perfect || "").trim();
+  if (!infinitive || !subject || !present || !preterite || !perfect || !["haben", "sein"].includes(auxiliary)) {
+    return null;
+  }
+  return { infinitive, subject, present, preterite, auxiliary, perfect };
+}
+
+function bundledVerbForms() {
+  return Array.isArray(window.defaultVerbForms)
+    ? window.defaultVerbForms.map(normalizeVerbForm).filter(Boolean)
+    : [];
+}
+
+function loadVerbForms() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(verbFormsStorageKey) || "[]");
+    const normalized = Array.isArray(saved) ? saved.map(normalizeVerbForm).filter(Boolean) : [];
+    return normalized.length ? normalized : bundledVerbForms();
+  } catch {
+    return bundledVerbForms();
+  }
+}
+
+function verbFocusKey(item) {
+  return `${normalize(item.infinitive)}|${normalize(item.subject)}`;
+}
+
+function uniqueVerbForms(items) {
+  return [...new Map(items.map((item) => [verbFocusKey(item), item])).values()];
+}
+
+function loadVerbFocusKeys() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(verbFocusStorageKey) || "[]");
+    return new Set(Array.isArray(saved) ? saved.filter((item) => typeof item === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveVerbFocusKeys() {
+  localStorage.setItem(verbFocusStorageKey, JSON.stringify([...verbFocusKeys]));
+}
+
+function serializeVerbForms(items = verbForms) {
+  return items.map((item) => (
+    `${item.infinitive} | ${item.subject} | ${item.present} | ${item.preterite} | ${item.auxiliary} | ${item.perfect}`
+  )).join("\n");
+}
+
+function parseVerbForms(value) {
+  return uniqueVerbForms(value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split("|").map((part) => part.trim());
+      return normalizeVerbForm({
+        infinitive: parts[0],
+        subject: parts[1],
+        present: parts[2],
+        preterite: parts[3],
+        auxiliary: parts[4],
+        perfect: parts.slice(5).join(" | ")
+      });
+    })
+    .filter(Boolean));
+}
+
+function renderVerbFocusForms() {
+  const available = uniqueVerbForms(verbForms).sort((left, right) => (
+    left.infinitive.localeCompare(right.infinitive, "de") || left.subject.localeCompare(right.subject, "de")
+  ));
+  const availableKeys = new Set(available.map(verbFocusKey));
+  verbFocusKeys = new Set([...verbFocusKeys].filter((key) => availableKeys.has(key)));
+  saveVerbFocusKeys();
+  elements.verbFocusList.replaceChildren();
+  elements.verbFocusSelectedList.replaceChildren();
+
+  const query = normalize(verbFocusQuery);
+  const matches = available.filter((item) => (
+    !query || normalize(`${item.infinitive} ${item.subject} ${item.present} ${item.preterite} ${item.perfect}`).includes(query)
+  ));
+
+  matches.forEach((item) => {
+    const key = verbFocusKey(item);
+    const label = document.createElement("label");
+    label.className = "article-focus-word";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = verbFocusKeys.has(key);
+    checkbox.dataset.verbFocusKey = key;
+    const icon = document.createElement("span");
+    icon.className = "article-focus-emoji";
+    icon.textContent = item.auxiliary === "sein" ? "🔵" : "🟡";
+    const copy = document.createElement("span");
+    copy.className = "verb-focus-entry-copy";
+    const title = document.createElement("strong");
+    title.textContent = item.infinitive;
+    const detail = document.createElement("small");
+    detail.textContent = `${item.subject} · ${item.auxiliary}`;
+    copy.append(title, detail);
+    label.append(checkbox, icon, copy);
+    elements.verbFocusList.append(label);
+  });
+
+  available.filter((item) => verbFocusKeys.has(verbFocusKey(item))).forEach((item) => {
+    const key = verbFocusKey(item);
+    const row = document.createElement("div");
+    row.className = "article-focus-selected-word";
+    const icon = document.createElement("span");
+    icon.className = "article-focus-emoji";
+    icon.textContent = item.auxiliary === "sein" ? "🔵" : "🟡";
+    const copy = document.createElement("span");
+    copy.className = "verb-focus-selected-copy";
+    const title = document.createElement("strong");
+    title.textContent = item.infinitive;
+    const detail = document.createElement("small");
+    detail.textContent = item.subject;
+    copy.append(title, detail);
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.dataset.removeVerbFocusKey = key;
+    remove.setAttribute("aria-label", t("verbFocusRemove", `${item.infinitive} (${item.subject})`));
+    remove.textContent = "×";
+    row.append(icon, copy, remove);
+    elements.verbFocusSelectedList.append(row);
+  });
+
+  elements.verbFocusSummary.textContent = t("verbFocusSelected", verbFocusKeys.size);
+  elements.verbFocusNoResults.classList.toggle("hidden", matches.length > 0);
+  elements.verbFocusSelectedEmpty.classList.toggle("hidden", verbFocusKeys.size > 0);
+}
+
+function setAllVerbFocusForms(selected) {
+  verbFocusKeys = selected
+    ? new Set(uniqueVerbForms(verbForms).map(verbFocusKey))
+    : new Set();
+  saveVerbFocusKeys();
+  renderVerbFocusForms();
+}
+
+function verbCandidates() {
+  const available = uniqueVerbForms(verbForms);
+  return verbMode === "focus"
+    ? available.filter((item) => verbFocusKeys.has(verbFocusKey(item)))
+    : available;
+}
+
+function renderVerbScore() {
+  elements.verbCorrect.textContent = String(verbCorrectCount);
+  elements.verbStreak.textContent = String(verbStreakCount);
+  elements.verbRound.textContent = String(verbRoundCount);
+}
+
+function verbSpeechInput(field) {
+  return field === "present"
+    ? elements.verbPresentAnswer
+    : field === "preterite"
+      ? elements.verbPreteriteAnswer
+      : field === "perfect"
+        ? elements.verbPerfectAnswer
+        : null;
+}
+
+function verbSpeechFormLabel(field) {
+  return field === "present"
+    ? t("verbPresent")
+    : field === "preterite"
+      ? t("verbPreterite")
+      : t("verbPerfect");
+}
+
+function updateVerbSpeechButtons() {
+  elements.verbSpeechButtons.forEach((button) => {
+    const listening = verbListeningField === button.dataset.verbSpeech;
+    button.classList.toggle("listening", listening);
+    button.textContent = listening ? t("verbListening") : t("verbSpeak");
+    button.setAttribute("aria-label", t("verbSpeakFor", verbSpeechFormLabel(button.dataset.verbSpeech)));
+    button.setAttribute("aria-pressed", String(listening));
+    button.disabled = Boolean(verbSpeechInput(button.dataset.verbSpeech)?.disabled);
+  });
+}
+
+function stopVerbRecognition() {
+  if (verbRecognition) {
+    verbRecognition.onresult = null;
+    verbRecognition.onerror = null;
+    verbRecognition.onend = null;
+    try {
+      verbRecognition.abort();
+    } catch {
+      // Recognition may already be stopped.
+    }
+  }
+  verbRecognition = null;
+  verbListeningField = "";
+  updateVerbSpeechButtons();
+}
+
+async function startVerbSpeechInput(field) {
+  const input = verbSpeechInput(field);
+  if (!input || input.disabled) {
+    return;
+  }
+  if (verbListeningField === field) {
+    stopVerbRecognition();
+    return;
+  }
+  stopVerbRecognition();
+  const Recognition = getSpeechRecognitionConstructor();
+  if (!Recognition) {
+    elements.verbFeedback.className = "verb-feedback try";
+    elements.verbFeedback.textContent = t("verbSpeechUnsupported");
+    return;
+  }
+  if (!(await requestArticleMicrophone())) {
+    elements.verbFeedback.className = "verb-feedback try";
+    elements.verbFeedback.textContent = t("verbSpeechNeedsMic");
+    return;
+  }
+
+  const recognition = new Recognition();
+  verbRecognition = recognition;
+  verbListeningField = field;
+  recognition.lang = "de-DE";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  updateVerbSpeechButtons();
+  elements.verbFeedback.className = "verb-feedback";
+  elements.verbFeedback.textContent = t("verbListening");
+
+  recognition.onresult = (event) => {
+    const transcript = [...event.results]
+      .map((result) => result[0]?.transcript || "")
+      .join(" ")
+      .trim()
+      .replace(/[.!?]+$/u, "");
+    if (transcript) {
+      input.value = transcript;
+      elements.verbFeedback.className = "verb-feedback";
+      elements.verbFeedback.textContent = t("verbSpeechHeard", transcript);
+      input.focus();
+    }
+  };
+  recognition.onerror = (event) => {
+    if (event.error !== "aborted") {
+      elements.verbFeedback.className = "verb-feedback try";
+      elements.verbFeedback.textContent = event.error === "not-allowed"
+        ? t("verbSpeechNeedsMic")
+        : t("verbSpeechError");
+    }
+  };
+  recognition.onend = () => {
+    verbRecognition = null;
+    verbListeningField = "";
+    updateVerbSpeechButtons();
+  };
+  try {
+    recognition.start();
+  } catch {
+    stopVerbRecognition();
+    elements.verbFeedback.className = "verb-feedback try";
+    elements.verbFeedback.textContent = t("verbSpeechError");
+  }
+}
+
+function resetVerbAnswerFields() {
+  stopVerbRecognition();
+  [
+    [elements.verbPresentAnswer, elements.verbPresentCorrection],
+    [elements.verbPreteriteAnswer, elements.verbPreteriteCorrection],
+    [elements.verbPerfectAnswer, elements.verbPerfectCorrection]
+  ].forEach(([input, correction]) => {
+    input.value = "";
+    input.disabled = false;
+    input.closest(".verb-answer-field").classList.remove("correct", "wrong");
+    correction.textContent = "";
+  });
+  elements.checkVerb.disabled = false;
+  elements.verbFeedback.className = "verb-feedback";
+  elements.verbFeedback.textContent = "";
+  verbAnswered = false;
+  updateVerbSpeechButtons();
+}
+
+function pickVerb() {
+  const candidates = verbCandidates();
+  if (!candidates.length) {
+    verbCurrent = null;
+    elements.verbInfinitive.textContent = "—";
+    elements.verbFeedback.className = "verb-feedback try";
+    elements.verbFeedback.textContent = t("verbNoForms");
+    elements.checkVerb.disabled = true;
+    return;
+  }
+  let nextIndex = Math.floor(Math.random() * candidates.length);
+  if (candidates.length > 1 && verbCurrent) {
+    while (verbFocusKey(candidates[nextIndex]) === verbFocusKey(verbCurrent)) {
+      nextIndex = Math.floor(Math.random() * candidates.length);
+    }
+  }
+  verbCurrentIndex = nextIndex;
+  verbCurrent = candidates[nextIndex];
+  elements.verbInfinitive.textContent = verbCurrent.infinitive;
+  elements.verbSubject.textContent = verbCurrent.subject;
+  elements.verbAuxiliary.textContent = t("verbPerfectWith", verbCurrent.auxiliary);
+  elements.verbAuxiliary.className = `verb-auxiliary-badge auxiliary-${verbCurrent.auxiliary}`;
+  [elements.verbPresentAnswer, elements.verbPreteriteAnswer, elements.verbPerfectAnswer].forEach((input) => {
+    input.placeholder = `${verbCurrent.subject} …`;
+  });
+  resetVerbAnswerFields();
+  renderVerbScore();
+  elements.verbInfinitive.focus({ preventScroll: true });
+  window.requestAnimationFrame(() => elements.verbPresentAnswer.focus());
+}
+
+function showVerbFocusSetup() {
+  stopVerbRecognition();
+  verbFocusPlaying = false;
+  elements.verbFocusPanel.classList.remove("hidden");
+  elements.verbCard.classList.add("hidden");
+  elements.verbFocusEdit.classList.add("hidden");
+  elements.verbNext.classList.add("hidden");
+  elements.verbFocusStartNote.classList.add("hidden");
+  renderVerbFocusForms();
+  window.requestAnimationFrame(() => elements.verbFocusSearch.focus());
+}
+
+function setVerbMode(mode) {
+  verbMode = mode === "focus" ? "focus" : "all";
+  elements.verbAllMode.classList.toggle("selected", verbMode === "all");
+  elements.verbFocusMode.classList.toggle("selected", verbMode === "focus");
+  if (verbMode === "focus") {
+    showVerbFocusSetup();
+    return;
+  }
+  verbFocusPlaying = false;
+  elements.verbFocusPanel.classList.add("hidden");
+  elements.verbCard.classList.remove("hidden");
+  elements.verbFocusEdit.classList.add("hidden");
+  elements.verbNext.classList.remove("hidden");
+  pickVerb();
+}
+
+function startVerbFocusGame() {
+  if (!verbCandidates().length) {
+    elements.verbFocusStartNote.classList.remove("hidden");
+    elements.verbFocusSearch.focus();
+    return;
+  }
+  verbFocusPlaying = true;
+  elements.verbFocusStartNote.classList.add("hidden");
+  elements.verbFocusPanel.classList.add("hidden");
+  elements.verbCard.classList.remove("hidden");
+  elements.verbFocusEdit.classList.remove("hidden");
+  elements.verbNext.classList.remove("hidden");
+  pickVerb();
+}
+
+function checkVerbAnswers() {
+  if (!verbCurrent || verbAnswered) {
+    return;
+  }
+  stopVerbRecognition();
+  const answers = [
+    [elements.verbPresentAnswer, elements.verbPresentCorrection, verbCurrent.present],
+    [elements.verbPreteriteAnswer, elements.verbPreteriteCorrection, verbCurrent.preterite],
+    [elements.verbPerfectAnswer, elements.verbPerfectCorrection, verbCurrent.perfect]
+  ];
+  let correctForms = 0;
+  answers.forEach(([input, correction, expected]) => {
+    const correct = normalize(input.value) === normalize(expected);
+    input.disabled = true;
+    input.closest(".verb-answer-field").classList.add(correct ? "correct" : "wrong");
+    correction.textContent = correct ? "✓" : t("verbExpected", expected);
+    correctForms += correct ? 1 : 0;
+  });
+  verbAnswered = true;
+  elements.checkVerb.disabled = true;
+  updateVerbSpeechButtons();
+  if (correctForms === 3) {
+    verbCorrectCount += 1;
+    verbStreakCount += 1;
+    localStorage.setItem("verbGameCorrect", String(verbCorrectCount));
+    elements.verbFeedback.className = "verb-feedback success";
+    elements.verbFeedback.textContent = t("verbCorrectAll");
+  } else {
+    verbStreakCount = 0;
+    elements.verbFeedback.className = "verb-feedback try";
+    elements.verbFeedback.textContent = t("verbCorrectSome", correctForms);
+  }
+  renderVerbScore();
+}
+
+function nextVerbRound() {
+  if (!verbAnswered) {
+    verbStreakCount = 0;
+  }
+  verbRoundCount += 1;
+  renderVerbScore();
+  pickVerb();
 }
 
 function articleFocusKey(item) {
@@ -3467,11 +4198,53 @@ function parseArticleWords(value) {
     .filter((item) => item.word.length >= 2 && item.article);
 }
 
+function setVerbAdminNote(state, count = verbForms.length) {
+  elements.verbAdminNote.dataset.state = state;
+  elements.verbAdminNote.dataset.count = String(count);
+  const key = state === "saved"
+    ? "verbAdminSaved"
+    : state === "reset"
+      ? "verbAdminReset"
+      : state === "invalid"
+        ? "verbAdminInvalid"
+        : "verbAdminReady";
+  elements.verbAdminNote.textContent = t(key, count);
+}
+
+function saveVerbAdminForms() {
+  const parsed = parseVerbForms(elements.verbList.value);
+  if (!parsed.length) {
+    setVerbAdminNote("invalid", 0);
+    elements.verbList.focus();
+    return;
+  }
+  verbForms = parsed;
+  localStorage.setItem(verbFormsStorageKey, JSON.stringify(verbForms));
+  elements.verbList.value = serializeVerbForms();
+  renderVerbFocusForms();
+  setVerbAdminNote("saved", verbForms.length);
+  if (!elements.verbApp.classList.contains("hidden") && verbMode === "all") {
+    pickVerb();
+  }
+}
+
+function resetVerbAdminForms() {
+  localStorage.removeItem(verbFormsStorageKey);
+  verbForms = bundledVerbForms();
+  verbFocusKeys = new Set([...verbFocusKeys].filter((key) => verbForms.some((item) => verbFocusKey(item) === key)));
+  saveVerbFocusKeys();
+  elements.verbList.value = serializeVerbForms();
+  renderVerbFocusForms();
+  setVerbAdminNote("reset", verbForms.length);
+}
+
 function openAdmin() {
   elements.wordList.value = serializeRebusWords();
   elements.articleWordList.value = serializeArticleWords();
+  elements.verbList.value = serializeVerbForms();
   renderAnimalAdmin();
   setAdminNote("ready");
+  setVerbAdminNote("ready", verbForms.length);
   setAnimalAdminNote("ready");
   elements.wordList.focus();
 }
@@ -4360,16 +5133,465 @@ function finishMultiplicationTest() {
   );
 }
 
+function fourOperationsRange(digits) {
+  return digits === 1 ? [1, 9] : digits === 2 ? [10, 99] : [100, 999];
+}
+
+function fourOperationsSymbol(operator) {
+  return operator === "*" ? "×" : operator === "/" ? ":" : operator;
+}
+
+function fourOperationsName(operator) {
+  return operator === "+"
+    ? t("addition")
+    : operator === "-"
+      ? t("subtraction")
+      : operator === "*"
+        ? t("multiplicationOperation")
+        : t("division");
+}
+
+function fourOperationsDigitPairs(operator) {
+  const pairs = [];
+  fourOperationsLeftDigitCounts.forEach((leftDigits) => {
+    fourOperationsRightDigitCounts.forEach((rightDigits) => {
+      const [, leftMax] = fourOperationsRange(leftDigits);
+      const [rightMin] = fourOperationsRange(rightDigits);
+      if ((operator === "-" || operator === "/") && leftMax < rightMin) {
+        return;
+      }
+      pairs.push([leftDigits, rightDigits]);
+    });
+  });
+  return pairs;
+}
+
+function orderedOperationsAreAvailable() {
+  return fourOperationsDigitPairs("-").length > 0;
+}
+
+function availableFourOperations() {
+  return orderedOperationsAreAvailable() ? ["+", "-", "*", "/"] : ["+", "*"];
+}
+
+function nextFourOperationsOperator() {
+  const available = availableFourOperations();
+  if (!fourOperationsOperatorQueue.length || fourOperationsOperatorQueue.some((operator) => !available.includes(operator))) {
+    fourOperationsOperatorQueue = shuffle(available);
+  }
+  return fourOperationsOperatorQueue.shift();
+}
+
+function makeFourOperationsDivisionProblem(leftDigits, rightDigits) {
+  const [leftMin, leftMax] = fourOperationsRange(leftDigits);
+  const [rightMin, rightMax] = fourOperationsRange(rightDigits);
+
+  for (let attempt = 0; attempt < 400; attempt += 1) {
+    const right = randomInt(rightMin, rightMax);
+    const quotientMin = Math.max(1, Math.ceil(leftMin / right));
+    const quotientMax = Math.floor(leftMax / right);
+    if (quotientMin > quotientMax) {
+      continue;
+    }
+    const preferredMin = quotientMax >= 2 ? Math.max(2, quotientMin) : quotientMin;
+    const answer = randomInt(preferredMin, quotientMax);
+    return { left: right * answer, right, operator: "/", answer };
+  }
+  return null;
+}
+
+function makeFourOperationsProblem() {
+  let operator = nextFourOperationsOperator();
+  let digitPairs = fourOperationsDigitPairs(operator);
+  let [leftDigits, rightDigits] = digitPairs[randomInt(0, digitPairs.length - 1)];
+
+  if (operator === "/") {
+    const divisionProblem = makeFourOperationsDivisionProblem(leftDigits, rightDigits);
+    if (divisionProblem) {
+      return divisionProblem;
+    }
+    operator = "+";
+    digitPairs = fourOperationsDigitPairs(operator);
+    [leftDigits, rightDigits] = digitPairs[randomInt(0, digitPairs.length - 1)];
+  }
+
+  const [leftMin, leftMax] = fourOperationsRange(leftDigits);
+  const [rightMin, rightMax] = fourOperationsRange(rightDigits);
+  let left = randomInt(leftMin, leftMax);
+  let right = randomInt(rightMin, rightMax);
+  if (operator === "-" && right > left) {
+    [left, right] = [right, left];
+  }
+
+  return {
+    left,
+    right,
+    operator,
+    answer: operator === "+" ? left + right : operator === "-" ? left - right : left * right
+  };
+}
+
+function placeValueTerms(number) {
+  const terms = [];
+  const hundreds = Math.floor(number / 100) * 100;
+  const tens = Math.floor((number % 100) / 10) * 10;
+  const ones = number % 10;
+  if (hundreds) {
+    terms.push(hundreds);
+  }
+  if (tens) {
+    terms.push(tens);
+  }
+  if (ones || !terms.length) {
+    terms.push(ones);
+  }
+  return terms;
+}
+
+function easyVisualSplit(number) {
+  const terms = placeValueTerms(number);
+  if (terms.length > 1) {
+    return terms;
+  }
+  if (number >= 10 && number <= 99) {
+    const first = number === 10 ? 5 : number - 10;
+    return [first, number - first];
+  }
+  return null;
+}
+
+function makeVisualEquationOperand(number, terms = null) {
+  const operand = document.createElement("span");
+  operand.className = "visual-equation-operand";
+  const source = document.createElement("span");
+  source.className = "visual-equation-number";
+  source.textContent = String(number);
+  operand.append(source);
+  if (!terms?.length) {
+    return operand;
+  }
+  const branches = document.createElement("span");
+  branches.className = "inline-decomposition";
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 100 34");
+  svg.setAttribute("preserveAspectRatio", "none");
+  svg.setAttribute("aria-hidden", "true");
+  terms.forEach((term, index) => {
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", "50");
+    line.setAttribute("y1", "1");
+    line.setAttribute("x2", String(((index + 0.5) / terms.length) * 100));
+    line.setAttribute("y2", "33");
+    svg.append(line);
+  });
+  const termRow = document.createElement("span");
+  termRow.className = "inline-decomposition-terms";
+  termRow.style.setProperty("--term-count", String(terms.length));
+  terms.forEach((term) => {
+    const value = document.createElement("span");
+    value.textContent = String(term);
+    termRow.append(value);
+  });
+  branches.append(svg, termRow);
+  operand.append(branches);
+  return operand;
+}
+
+function subtractionLeftSplit(problem) {
+  if (problem.right >= 10) {
+    return easyVisualSplit(problem.left);
+  }
+  const ones = problem.left % 10;
+  if (problem.left >= 10) {
+    return ones ? [problem.left - ones, ones] : [problem.left - 10, 10];
+  }
+  return null;
+}
+
+function divisionChunks(problem) {
+  let quotientTerms = placeValueTerms(problem.answer);
+  if (quotientTerms.length === 1 && problem.answer > 1) {
+    quotientTerms = [problem.answer - 1, 1];
+  }
+  const chunks = quotientTerms.map((term) => term * problem.right);
+  return { quotientTerms, chunks };
+}
+
+function fourOperationsVisualSplits() {
+  const problem = fourOperationsProblem;
+  if (!problem) {
+    return { left: null, right: null };
+  }
+  const splits = { left: null, right: null };
+  if (problem.operator === "/") {
+    const { chunks } = divisionChunks(problem);
+    if (chunks.length > 1) {
+      splits.left = chunks;
+    }
+  } else if (problem.operator === "-") {
+    splits.left = subtractionLeftSplit(problem);
+  } else {
+    splits.left = easyVisualSplit(problem.left);
+  }
+  splits.right = easyVisualSplit(problem.right);
+  return splits;
+}
+
+function renderFourOperationsEquation() {
+  const problem = fourOperationsProblem;
+  const equationText = `${problem.left} ${fourOperationsSymbol(problem.operator)} ${problem.right} = ?`;
+  elements.fourOperationsEquation.setAttribute("aria-label", equationText);
+  elements.fourOperationsEquation.classList.toggle("visual-equation", fourOperationsMode === "visual");
+  if (fourOperationsMode !== "visual") {
+    elements.fourOperationsEquation.textContent = equationText;
+    return;
+  }
+  const splits = fourOperationsVisualSplits();
+  const operator = document.createElement("span");
+  operator.className = "visual-equation-symbol";
+  operator.textContent = fourOperationsSymbol(problem.operator);
+  const equals = document.createElement("span");
+  equals.className = "visual-equation-symbol";
+  equals.textContent = "=";
+  const question = document.createElement("span");
+  question.className = "visual-equation-symbol";
+  question.textContent = "?";
+  elements.fourOperationsEquation.replaceChildren(
+    makeVisualEquationOperand(problem.left, splits.left),
+    operator,
+    makeVisualEquationOperand(problem.right, splits.right),
+    equals,
+    question
+  );
+}
+
+function concretePlaceSummary(number) {
+  const hundreds = Math.floor(number / 100);
+  const tens = Math.floor((number % 100) / 10);
+  const ones = number % 10;
+  const parts = [];
+  if (hundreds) {
+    parts.push(t("hundreds", hundreds));
+  }
+  if (tens) {
+    parts.push(t("tens", tens));
+  }
+  if (ones || !parts.length) {
+    parts.push(t("ones", ones));
+  }
+  return parts.join(" · ");
+}
+
+function appendConcretePieces(container, className, count) {
+  for (let index = 0; index < count; index += 1) {
+    const piece = document.createElement("span");
+    piece.className = className;
+    piece.setAttribute("aria-hidden", "true");
+    container.append(piece);
+  }
+}
+
+function makeUnifixColumn(cubeCount, className) {
+  const column = document.createElement("span");
+  column.className = className;
+  column.setAttribute("aria-hidden", "true");
+  for (let index = 0; index < cubeCount; index += 1) {
+    const cube = document.createElement("span");
+    cube.className = "unifix-cube";
+    column.append(cube);
+  }
+  return column;
+}
+
+function renderConcreteNumberModel(target, number, label) {
+  target.replaceChildren();
+  const heading = document.createElement("h3");
+  heading.textContent = `${label}: ${number}`;
+  const summary = document.createElement("p");
+  summary.textContent = concretePlaceSummary(number);
+  const pieces = document.createElement("div");
+  pieces.className = "concrete-pieces";
+  pieces.setAttribute("role", "img");
+  pieces.setAttribute("aria-label", `${number}: ${concretePlaceSummary(number)}`);
+  const hundreds = Math.floor(number / 100);
+  const tens = Math.floor((number % 100) / 10);
+  const ones = number % 10;
+  if (hundreds) {
+    const group = document.createElement("span");
+    group.className = "concrete-place-group concrete-hundreds-group";
+    appendConcretePieces(group, "unifix-hundred", hundreds);
+    pieces.append(group);
+  }
+  if (tens) {
+    const group = document.createElement("span");
+    group.className = "concrete-place-group concrete-tens-group";
+    for (let index = 0; index < tens; index += 1) {
+      group.append(makeUnifixColumn(10, "unifix-ten"));
+    }
+    pieces.append(group);
+  }
+  if (ones) {
+    const group = document.createElement("span");
+    group.className = "concrete-place-group concrete-ones-group";
+    const column = makeUnifixColumn(ones, "unifix-ones-column");
+    [...column.children].forEach((cube) => cube.classList.add("unifix-one"));
+    group.append(column);
+    pieces.append(group);
+  }
+  target.append(heading, summary, pieces);
+}
+
+function renderFourOperationsConcrete() {
+  if (!fourOperationsProblem) {
+    return;
+  }
+  renderConcreteNumberModel(elements.fourOperationsLeftModel, fourOperationsProblem.left, t("firstNumber"));
+  renderConcreteNumberModel(elements.fourOperationsRightModel, fourOperationsProblem.right, t("secondNumber"));
+  elements.fourOperationsConcreteOperator.textContent = fourOperationsSymbol(fourOperationsProblem.operator);
+}
+
+function renderFourOperationsProblem() {
+  if (!fourOperationsProblem) {
+    return;
+  }
+  elements.fourOperationsKind.textContent = fourOperationsName(fourOperationsProblem.operator);
+  renderFourOperationsEquation();
+  elements.fourOperationsSolved.textContent = String(fourOperationsSolvedCount);
+  renderFourOperationsConcrete();
+  elements.fourOperationsConcrete.classList.toggle("hidden", fourOperationsMode !== "concrete");
+  [...elements.fourOperationsModes.querySelectorAll("button[data-four-mode]")].forEach((button) => {
+    const selected = button.dataset.fourMode === fourOperationsMode;
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function stopFourOperationsAdvance() {
+  if (fourOperationsAdvanceTimer) {
+    window.clearTimeout(fourOperationsAdvanceTimer);
+    fourOperationsAdvanceTimer = 0;
+  }
+}
+
+function newFourOperationsProblem() {
+  stopFourOperationsAdvance();
+  fourOperationsProblem = makeFourOperationsProblem();
+  fourOperationsLocked = false;
+  elements.fourOperationsAnswer.disabled = false;
+  elements.fourOperationsAnswer.value = "";
+  elements.fourOperationsFeedback.className = "four-operations-feedback";
+  elements.fourOperationsFeedback.textContent = "";
+  document.querySelector(".four-operations-card").classList.remove("correct", "wrong");
+  renderFourOperationsProblem();
+  elements.fourOperationsAnswer.focus();
+}
+
+function setFourOperationsMode(mode) {
+  if (!["abstract", "visual", "concrete"].includes(mode)) {
+    return;
+  }
+  fourOperationsMode = mode;
+  renderFourOperationsProblem();
+}
+
+function updateFourOperationsDivisionNote() {
+  const unavailable = !orderedOperationsAreAvailable();
+  elements.fourOperationsDivisionNote.classList.toggle("hidden", !unavailable);
+  elements.fourOperationsDivisionNote.textContent = unavailable ? t("divisionUnavailable") : "";
+}
+
+function refreshFourOperationsDigitButtons(side) {
+  const selectedDigits = side === "left" ? fourOperationsLeftDigitCounts : fourOperationsRightDigitCounts;
+  document.querySelectorAll(`[data-four-side="${side}"]`).forEach((button) => {
+    const selected = selectedDigits.has(Number(button.dataset.fourDigits));
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function toggleFourOperationsDigits(side, digits) {
+  if (![1, 2, 3].includes(digits)) {
+    return;
+  }
+  const selectedDigits = side === "left"
+    ? fourOperationsLeftDigitCounts
+    : side === "right"
+      ? fourOperationsRightDigitCounts
+      : null;
+  if (!selectedDigits) {
+    return;
+  }
+  if (selectedDigits.has(digits)) {
+    if (selectedDigits.size === 1) {
+      return;
+    }
+    selectedDigits.delete(digits);
+  } else {
+    selectedDigits.add(digits);
+  }
+  refreshFourOperationsDigitButtons(side);
+  fourOperationsOperatorQueue = [];
+  updateFourOperationsDivisionNote();
+}
+
+function startFourOperationsGame() {
+  fourOperationsSolvedCount = 0;
+  fourOperationsOperatorQueue = [];
+  fourOperationsMode = "abstract";
+  elements.fourOperationsSetup.classList.add("hidden");
+  elements.fourOperationsGame.classList.remove("hidden");
+  newFourOperationsProblem();
+}
+
+function showFourOperationsSetup() {
+  stopFourOperationsAdvance();
+  fourOperationsProblem = null;
+  fourOperationsLocked = false;
+  elements.fourOperationsGame.classList.add("hidden");
+  elements.fourOperationsSetup.classList.remove("hidden");
+  refreshFourOperationsDigitButtons("left");
+  refreshFourOperationsDigitButtons("right");
+  updateFourOperationsDivisionNote();
+}
+
+function checkFourOperationsAnswer() {
+  if (fourOperationsLocked || !fourOperationsProblem) {
+    return;
+  }
+  const value = elements.fourOperationsAnswer.value.trim();
+  const card = document.querySelector(".four-operations-card");
+  card.classList.remove("correct", "wrong");
+  if (!/^-?\d+$/.test(value) || Number(value) !== fourOperationsProblem.answer) {
+    card.classList.add("wrong");
+    elements.fourOperationsFeedback.className = "four-operations-feedback try";
+    elements.fourOperationsFeedback.textContent = t("fourTryAgain");
+    elements.fourOperationsAnswer.focus();
+    elements.fourOperationsAnswer.select();
+    return;
+  }
+
+  fourOperationsLocked = true;
+  fourOperationsSolvedCount += 1;
+  elements.fourOperationsSolved.textContent = String(fourOperationsSolvedCount);
+  elements.fourOperationsAnswer.disabled = true;
+  card.classList.add("correct");
+  elements.fourOperationsFeedback.className = "four-operations-feedback success";
+  elements.fourOperationsFeedback.textContent = t("fourCorrect");
+  fourOperationsAdvanceTimer = window.setTimeout(newFourOperationsProblem, 1100);
+}
+
 elements.openGerman.addEventListener("click", () => showScreen("german"));
 elements.openRebus.addEventListener("click", () => showGermanApp("rebus"));
 elements.openArticles.addEventListener("click", () => showGermanApp("articles"));
 elements.openHandwriting.addEventListener("click", () => showGermanApp("handwriting"));
+elements.openVerbs.addEventListener("click", () => showGermanApp("verbs"));
 elements.germanMenuButtons.forEach((button) => {
   button.addEventListener("click", showGermanMenu);
 });
 elements.openMath.addEventListener("click", () => showScreen("math"));
 elements.openNumberSprint.addEventListener("click", () => showMathApp("number-sprint"));
 elements.openMultiplication.addEventListener("click", () => showMathApp("multiplication"));
+elements.openFourOperations.addEventListener("click", () => showMathApp("four-operations"));
 elements.mathMenuButtons.forEach((button) => {
   button.addEventListener("click", showMathMenu);
 });
@@ -4453,6 +5675,7 @@ elements.germanHome.addEventListener("click", () => showScreen("home"));
 elements.mathHome.addEventListener("click", () => {
   resetMathWorksheet();
   stopContestTimer();
+  stopFourOperationsAdvance();
   showScreen("home");
 });
 elements.optionalHome.addEventListener("click", () => showScreen("home"));
@@ -4528,6 +5751,60 @@ elements.articleOptions.addEventListener("click", (event) => {
 });
 elements.articleListen.addEventListener("click", toggleCarArticleSession);
 elements.articleSkip.addEventListener("click", nextArticleRound);
+elements.verbAllMode.addEventListener("click", () => setVerbMode("all"));
+elements.verbFocusMode.addEventListener("click", () => setVerbMode("focus"));
+elements.verbFocusSearch.addEventListener("input", () => {
+  verbFocusQuery = elements.verbFocusSearch.value;
+  renderVerbFocusForms();
+});
+elements.verbFocusList.addEventListener("change", (event) => {
+  const checkbox = event.target.closest('input[type="checkbox"][data-verb-focus-key]');
+  if (!checkbox) {
+    return;
+  }
+  if (checkbox.checked) {
+    verbFocusKeys.add(checkbox.dataset.verbFocusKey);
+    verbFocusQuery = "";
+    elements.verbFocusSearch.value = "";
+  } else {
+    verbFocusKeys.delete(checkbox.dataset.verbFocusKey);
+  }
+  saveVerbFocusKeys();
+  renderVerbFocusForms();
+  elements.verbFocusSearch.focus();
+});
+elements.verbFocusSelectedList.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-remove-verb-focus-key]");
+  if (!button) {
+    return;
+  }
+  verbFocusKeys.delete(button.dataset.removeVerbFocusKey);
+  saveVerbFocusKeys();
+  renderVerbFocusForms();
+  elements.verbFocusSearch.focus();
+});
+elements.verbFocusAll.addEventListener("click", () => setAllVerbFocusForms(true));
+elements.verbFocusClear.addEventListener("click", () => setAllVerbFocusForms(false));
+elements.verbFocusStart.addEventListener("click", startVerbFocusGame);
+elements.verbFocusEdit.addEventListener("click", showVerbFocusSetup);
+elements.verbSpeechButtons.forEach((button) => {
+  button.addEventListener("click", () => startVerbSpeechInput(button.dataset.verbSpeech));
+});
+elements.checkVerb.addEventListener("click", checkVerbAnswers);
+elements.verbNext.addEventListener("click", nextVerbRound);
+[elements.verbPresentAnswer, elements.verbPreteriteAnswer, elements.verbPerfectAnswer].forEach((input, index, inputs) => {
+  input.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+    event.preventDefault();
+    if (index < inputs.length - 1) {
+      inputs[index + 1].focus();
+    } else {
+      checkVerbAnswers();
+    }
+  });
+});
 elements.handwritingSpeak.addEventListener("click", () => {
   if (handwritingCurrentWord) {
     speak(handwritingCurrentWord.word);
@@ -4596,6 +5873,9 @@ elements.resetWords.addEventListener("click", async () => {
   setAdminNote("reset");
 });
 
+elements.saveVerbs.addEventListener("click", saveVerbAdminForms);
+elements.resetVerbs.addEventListener("click", resetVerbAdminForms);
+
 elements.animalAdminSelect.addEventListener("change", renderAnimalAdmin);
 elements.saveAnimalText.addEventListener("click", saveAnimalAdminText);
 elements.resetAnimalText.addEventListener("click", () => {
@@ -4660,6 +5940,38 @@ elements.multiplicationOptions.addEventListener("click", (event) => {
 elements.startMultiplication.addEventListener("click", startMultiplicationTest);
 elements.newMultiplication.addEventListener("click", resetMultiplicationTest);
 elements.finishMultiplication.addEventListener("click", finishMultiplicationTest);
+elements.fourOperationsLeftDigits.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-four-digits]");
+  if (button) {
+    toggleFourOperationsDigits("left", Number(button.dataset.fourDigits));
+  }
+});
+elements.fourOperationsRightDigits.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-four-digits]");
+  if (button) {
+    toggleFourOperationsDigits("right", Number(button.dataset.fourDigits));
+  }
+});
+elements.startFourOperations.addEventListener("click", startFourOperationsGame);
+elements.fourOperationsModes.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-four-mode]");
+  if (button) {
+    setFourOperationsMode(button.dataset.fourMode);
+  }
+});
+elements.checkFourOperations.addEventListener("click", checkFourOperationsAnswer);
+elements.changeFourOperationsSetup.addEventListener("click", showFourOperationsSetup);
+elements.fourOperationsAnswer.addEventListener("input", () => {
+  const raw = elements.fourOperationsAnswer.value;
+  const negative = raw.trimStart().startsWith("-");
+  const digits = raw.replace(/\D/g, "").slice(0, 6);
+  elements.fourOperationsAnswer.value = `${negative ? "-" : ""}${digits}`;
+});
+elements.fourOperationsAnswer.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    checkFourOperationsAnswer();
+  }
+});
 elements.contestAnswer.addEventListener("input", () => {
   elements.contestAnswer.value = elements.contestAnswer.value.replace(/\D/g, "").slice(0, 3);
 });

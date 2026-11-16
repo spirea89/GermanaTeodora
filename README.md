@@ -17,6 +17,24 @@ After changing either file on GitHub, open Administration in the app and choose 
 - The Fledermaus explorer includes three five-question knowledge tests with immediate feedback and scoring.
 - The bat artwork is stored at `assets/fledermaus-3d.png`.
 
+## Four Operations
+
+- The Math section includes a one-question-at-a-time game combining addition, subtraction, multiplication, and exact whole-number division.
+- Each side can independently use any selected combination of one-, two-, and three-digit numbers.
+- Learners can switch at any time between Abstract, Visual place-value decomposition, and Concrete unifix/base-ten cube models.
+- Subtraction exercises never produce negative answers, and the Visual mode shows only the helpful number split (for example, `17` becomes `10 + 7` in `17 − 9`).
+- When both operands have multiple digits, Visual mode decomposes both; division uses easy divisible chunks such as `72 : 4 → 40 + 32`.
+- In Concrete mode, tens and remaining ones appear as separate vertical cube columns.
+- A new exercise appears automatically after the current answer is correct.
+
+## Verb Forms
+
+- The German section includes a Verb Forms game covering Präsens, Präteritum, and Perfekt for the verbs from the supplied worksheets.
+- Each round asks for all three forms and clearly highlights whether Perfekt uses `haben` or `sein`.
+- The three answer rows are stacked for long forms, and each supports either typing or German speech input.
+- All verbs can be practised together or selected through a searchable Focus mode with a persistent selected-verbs panel.
+- Administration accepts additional verbs and subjects using `infinitive | subject | present | preterite | auxiliary | perfect`.
+
 ## Release flow
 
 - Live app: https://spirea89.github.io/GermanaTeodora/

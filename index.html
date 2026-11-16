@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20261002-bat-facts">
+    <link rel="stylesheet" href="styles.css?v=20261116-verb-speech">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.10.02.3</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.16.2</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -87,6 +87,13 @@
                   <span class="info-badge" id="handwriting-info" aria-label="Designed for XP-PEN style handwriting devices." title="Designed for XP-PEN style handwriting devices.">i</span>
                 </span>
                 <small>Write with the pen</small>
+              </span>
+            </button>
+            <button class="choice-card verb-choice" id="open-verbs" type="button">
+              <span class="choice-emoji" aria-hidden="true">🔄</span>
+              <span>
+                <strong>Verbformen</strong>
+                <small>Präsens, Präteritum und Perfekt</small>
               </span>
             </button>
           </section>
@@ -234,6 +241,105 @@
               <button class="ghost-button" id="clear-handwriting" type="button">Clear</button>
               <button class="ghost-button" id="skip-handwriting" type="button">↪ New word</button>
               <button id="finish-handwriting" type="button">Done</button>
+            </section>
+          </section>
+
+          <section class="german-app verb-app hidden" id="verb-app">
+            <section class="score-row verb-score-row" aria-label="Verb game score">
+              <div>
+                <span class="score-label" id="verb-correct-label">Correct</span>
+                <strong id="verb-correct">0</strong>
+              </div>
+              <div>
+                <span class="score-label" id="verb-streak-label">Streak</span>
+                <strong id="verb-streak">0</strong>
+              </div>
+              <div>
+                <span class="score-label" id="verb-round-label">Round</span>
+                <strong id="verb-round">1</strong>
+              </div>
+            </section>
+
+            <section class="article-mode-switch verb-mode-switch" aria-label="Verb practice mode">
+              <button class="selected" id="verb-all-mode" type="button">All verbs</button>
+              <button id="verb-focus-mode" type="button">Focus mode</button>
+            </section>
+
+            <section class="article-focus-panel verb-focus-panel hidden" id="verb-focus-panel" aria-label="Choose focus verbs">
+              <div class="article-focus-header">
+                <div>
+                  <strong id="verb-focus-title">Choose focus verbs</strong>
+                  <p id="verb-focus-summary" aria-live="polite">0 verbs selected</p>
+                </div>
+                <div class="article-focus-actions">
+                  <button id="verb-focus-all" type="button">Select all</button>
+                  <button id="verb-focus-clear" type="button">Clear</button>
+                </div>
+              </div>
+              <div class="article-focus-workspace">
+                <section class="article-focus-library" id="verb-focus-library" aria-label="Verb library">
+                  <label class="article-focus-search-label" id="verb-focus-search-label" for="verb-focus-search">Search the library</label>
+                  <input class="focus-search-input" id="verb-focus-search" type="search" autocomplete="off" placeholder="Type a German verb">
+                  <p class="article-focus-empty hidden" id="verb-focus-no-results">No matching verbs.</p>
+                  <div class="article-focus-list" id="verb-focus-list"></div>
+                </section>
+                <aside class="article-focus-selected-panel" id="verb-focus-selected-panel" aria-label="Selected verbs">
+                  <strong id="verb-focus-selected-title">Selected verbs</strong>
+                  <p class="article-focus-empty" id="verb-focus-selected-empty">No verbs selected yet.</p>
+                  <div class="article-focus-selected-list" id="verb-focus-selected-list"></div>
+                </aside>
+              </div>
+              <p class="article-focus-start-note hidden" id="verb-focus-start-note" aria-live="polite">Choose at least one focus verb above.</p>
+              <button class="article-focus-start" id="verb-focus-start" type="button">Start focus game</button>
+            </section>
+
+            <section class="card verb-card" id="verb-card">
+              <div class="verb-card-heading">
+                <div>
+                  <span class="score-label" id="verb-infinitive-label">Infinitive</span>
+                  <h2 id="verb-infinitive" tabindex="-1">gehen</h2>
+                </div>
+                <div class="verb-badges">
+                  <span class="verb-subject-badge" id="verb-subject">ich</span>
+                  <span class="verb-auxiliary-badge auxiliary-sein" id="verb-auxiliary">Perfekt mit sein</span>
+                </div>
+              </div>
+
+              <div class="verb-answer-grid">
+                <div class="verb-answer-field">
+                  <label id="verb-present-label" for="verb-present-answer">Präsens · Gegenwart</label>
+                  <span class="verb-input-row">
+                    <input id="verb-present-answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ich gehe">
+                    <button class="verb-speech-button" type="button" data-verb-speech="present" aria-label="Speak present form">🎙️ Speak</button>
+                  </span>
+                  <small id="verb-present-correction"></small>
+                </div>
+                <div class="verb-answer-field">
+                  <label id="verb-preterite-label" for="verb-preterite-answer">Präteritum · Mitvergangenheit</label>
+                  <span class="verb-input-row">
+                    <input id="verb-preterite-answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ich ging">
+                    <button class="verb-speech-button" type="button" data-verb-speech="preterite" aria-label="Speak preterite form">🎙️ Speak</button>
+                  </span>
+                  <small id="verb-preterite-correction"></small>
+                </div>
+                <div class="verb-answer-field">
+                  <label id="verb-perfect-label" for="verb-perfect-answer">Perfekt · Vergangenheit</label>
+                  <span class="verb-input-row">
+                    <input id="verb-perfect-answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ich bin gegangen">
+                    <button class="verb-speech-button" type="button" data-verb-speech="perfect" aria-label="Speak perfect form">🎙️ Speak</button>
+                  </span>
+                  <small id="verb-perfect-correction"></small>
+                </div>
+              </div>
+
+              <button id="check-verb" type="button">Check all forms</button>
+              <p class="verb-feedback" id="verb-feedback" aria-live="assertive"></p>
+            </section>
+
+            <section class="controls verb-controls">
+              <button class="ghost-button german-menu-button" type="button">German apps</button>
+              <button class="ghost-button hidden" id="verb-focus-edit" type="button">Edit focus verbs</button>
+              <button class="ghost-button" id="verb-next" type="button">↪ New verb</button>
             </section>
           </section>
         </section>
@@ -407,6 +513,19 @@
           </div>
           <p class="admin-note" id="admin-note" aria-live="polite">Saved words are used in the German game on this device.</p>
 
+          <section class="verb-admin-section" aria-labelledby="verb-admin-title">
+            <p class="eyebrow">German</p>
+            <h2 id="verb-admin-title">Verb forms</h2>
+            <p class="studio-copy" id="verb-admin-copy">One entry per line: infinitive | subject | present | preterite | auxiliary | perfect</p>
+            <pre id="verb-admin-example">gehen | ich | ich gehe | ich ging | sein | ich bin gegangen</pre>
+            <textarea id="verb-list" rows="14" spellcheck="false"></textarea>
+            <div class="studio-actions">
+              <button id="save-verbs" type="button">Save verbs</button>
+              <button class="ghost-button" id="reset-verbs" type="button">Reset verb list</button>
+            </div>
+            <p class="admin-note" id="verb-admin-note" aria-live="polite">Add more verbs or subjects such as du, er, sie, and es.</p>
+          </section>
+
           <section class="animal-admin-section" aria-labelledby="animal-admin-title">
             <div class="animal-admin-header">
               <div>
@@ -452,6 +571,13 @@
               <span>
                 <strong>Multiplication</strong>
                 <small>Practice multiplication tests</small>
+              </span>
+            </button>
+            <button class="choice-card four-operations-choice" id="open-four-operations" type="button">
+              <span class="choice-emoji" aria-hidden="true">➕➖</span>
+              <span>
+                <strong>Four Operations</strong>
+                <small>Add, subtract, multiply and divide</small>
               </span>
             </button>
           </section>
@@ -596,6 +722,81 @@
               <button class="ghost-button" id="finish-multiplication" type="button">✓ Finish</button>
             </section>
           </section>
+
+          <section class="math-app four-operations-app hidden" id="four-operations-app">
+            <section class="four-operations-setup" id="four-operations-setup" aria-labelledby="four-operations-setup-title">
+              <div class="four-operations-setup-heading">
+                <p class="eyebrow">All four operations</p>
+                <h2 id="four-operations-setup-title">Choose your number sizes</h2>
+                <p id="four-operations-setup-copy">Select one or more number sizes for each side.</p>
+              </div>
+
+              <div class="four-operations-digit-choices">
+                <fieldset>
+                  <legend id="four-operations-left-label">First number</legend>
+                  <div class="four-operations-digit-options" id="four-operations-left-digits" aria-labelledby="four-operations-left-label">
+                    <button type="button" data-four-side="left" data-four-digits="1">1 digit</button>
+                    <button type="button" data-four-side="left" data-four-digits="2" class="selected">2 digits</button>
+                    <button type="button" data-four-side="left" data-four-digits="3">3 digits</button>
+                  </div>
+                </fieldset>
+                <fieldset>
+                  <legend id="four-operations-right-label">Second number</legend>
+                  <div class="four-operations-digit-options" id="four-operations-right-digits" aria-labelledby="four-operations-right-label">
+                    <button type="button" data-four-side="right" data-four-digits="1">1 digit</button>
+                    <button type="button" data-four-side="right" data-four-digits="2" class="selected">2 digits</button>
+                    <button type="button" data-four-side="right" data-four-digits="3">3 digits</button>
+                  </div>
+                </fieldset>
+              </div>
+
+              <div class="four-operations-preview" aria-live="polite">
+                <span aria-hidden="true">＋</span><span aria-hidden="true">−</span><span aria-hidden="true">×</span><span aria-hidden="true">:</span>
+                <p id="four-operations-division-note"></p>
+              </div>
+              <button id="start-four-operations" type="button">Start game</button>
+            </section>
+
+            <section class="four-operations-game hidden" id="four-operations-game" aria-labelledby="four-operations-equation">
+              <div class="four-operations-toolbar">
+                <div>
+                  <span class="score-label" id="four-operations-mode-label">Visual mode</span>
+                  <div class="four-operations-modes" id="four-operations-modes" aria-labelledby="four-operations-mode-label">
+                    <button type="button" data-four-mode="abstract" class="selected">Abstract</button>
+                    <button type="button" data-four-mode="visual">Visual</button>
+                    <button type="button" data-four-mode="concrete">Concrete</button>
+                  </div>
+                </div>
+                <div class="four-operations-score">
+                  <span class="score-label">Solved</span>
+                  <strong id="four-operations-solved">0</strong>
+                </div>
+              </div>
+
+              <article class="four-operations-card">
+                <p class="four-operations-kind" id="four-operations-kind">Addition</p>
+                <h2 class="four-operations-equation" id="four-operations-equation" tabindex="-1">12 + 18 = ?</h2>
+
+                <section class="four-operations-concrete hidden" id="four-operations-concrete" aria-label="Concrete unifix cube model">
+                  <div class="concrete-number-model" id="four-operations-left-model"></div>
+                  <span class="concrete-operator" id="four-operations-concrete-operator" aria-hidden="true">+</span>
+                  <div class="concrete-number-model" id="four-operations-right-model"></div>
+                </section>
+
+                <label class="four-operations-answer">
+                  <span id="four-operations-answer-label">Your answer</span>
+                  <input id="four-operations-answer" type="text" inputmode="numeric" autocomplete="off" aria-labelledby="four-operations-answer-label">
+                </label>
+                <button id="check-four-operations" type="button">Check answer</button>
+                <p class="four-operations-feedback" id="four-operations-feedback" aria-live="assertive"></p>
+              </article>
+
+              <section class="controls four-operations-controls">
+                <button class="ghost-button math-menu-button" type="button">Math apps</button>
+                <button class="ghost-button" id="change-four-operations-setup" type="button">Change setup</button>
+              </section>
+            </section>
+          </section>
         </section>
       </section>
     </main>
@@ -607,6 +808,7 @@
       </div>
     </div>
 
-    <script src="app.js?v=20261002-bat-facts"></script>
+    <script src="data/verb-forms.js?v=20261116-verb-speech"></script>
+    <script src="app.js?v=20261116-verb-speech"></script>
   </body>
 </html>
