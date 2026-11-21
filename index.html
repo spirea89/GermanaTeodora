@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20261116-android-speech">
+    <link rel="stylesheet" href="styles.css?v=20261121-vienna-map">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
@@ -366,6 +366,13 @@
                 <small>Discover the parts of a bat</small>
               </span>
             </button>
+            <button class="choice-card vienna-choice" id="open-vienna-map" type="button">
+              <span class="choice-emoji" aria-hidden="true">🗺️</span>
+              <span>
+                <strong>Wiener Bezirke</strong>
+                <small>Learn Vienna's 23 districts</small>
+              </span>
+            </button>
           </section>
 
           <section class="animal-app hidden" id="animal-app">
@@ -486,6 +493,72 @@
               <button class="ghost-button" id="optional-menu" type="button">Optional games</button>
             </div>
           </section>
+
+          <section class="vienna-map-app hidden" id="vienna-map-app" aria-labelledby="vienna-map-title">
+            <div class="vienna-map-heading">
+              <div>
+                <p class="eyebrow" id="vienna-map-eyebrow">Discover Vienna</p>
+                <h2 id="vienna-map-title">Wiener Bezirke</h2>
+              </div>
+              <p id="vienna-map-intro">Tap a district to learn its number and name.</p>
+            </div>
+
+            <div class="vienna-learning-layout">
+              <section class="vienna-map-stage" aria-label="Interactive map of Vienna's 23 districts">
+                <svg id="vienna-map-svg" viewBox="0 0 1000 760" role="img" aria-labelledby="vienna-map-svg-title vienna-map-svg-description">
+                  <title id="vienna-map-svg-title">Map of Vienna's districts</title>
+                  <desc id="vienna-map-svg-description">Select any colored district to hear and read its German name.</desc>
+                  <defs>
+                    <filter id="vienna-map-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#11284a" flood-opacity="0.22"></feDropShadow>
+                    </filter>
+                    <radialGradient id="vienna-map-glow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"></stop>
+                      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"></stop>
+                    </radialGradient>
+                  </defs>
+                  <g class="vienna-map-backdrop" aria-hidden="true">
+                    <circle cx="155" cy="165" r="90"></circle>
+                    <circle cx="830" cy="590" r="125"></circle>
+                  </g>
+                  <g id="vienna-district-layer"></g>
+                  <g id="vienna-attraction-layer"></g>
+                </svg>
+                <div class="vienna-map-legend">
+                  <span><i class="district-key" aria-hidden="true"></i><b id="vienna-legend-district">District</b></span>
+                  <span><i class="attraction-key" aria-hidden="true">★</i><b id="vienna-legend-attraction">Attraction</b></span>
+                </div>
+              </section>
+
+              <aside class="vienna-district-info" id="vienna-district-info" aria-live="polite">
+                <div class="vienna-district-badge" id="vienna-district-number" aria-hidden="true">1</div>
+                <p class="eyebrow" id="vienna-selected-label">Selected district</p>
+                <h3 id="vienna-district-name" tabindex="-1">Choose a district</h3>
+                <p id="vienna-district-message">The name and your recorded pronunciation will appear here.</p>
+                <button id="vienna-play-district" type="button" disabled>🔊 Play district name</button>
+                <div class="vienna-attractions-heading">
+                  <h4 id="vienna-attractions-title">Main attractions</h4>
+                  <span id="vienna-attraction-count">0</span>
+                </div>
+                <div class="vienna-attraction-list" id="vienna-attraction-list">
+                  <p class="vienna-empty" id="vienna-attraction-empty">Add attractions in Map Administration.</p>
+                </div>
+              </aside>
+            </div>
+
+            <section class="vienna-district-roster" aria-labelledby="vienna-roster-title">
+              <div>
+                <p class="eyebrow" id="vienna-roster-eyebrow">All districts</p>
+                <h3 id="vienna-roster-title">The 23 districts of Vienna</h3>
+              </div>
+              <div class="vienna-district-buttons" id="vienna-district-buttons"></div>
+            </section>
+
+            <p class="vienna-data-credit">Datenquelle: Stadt Wien – data.wien.gv.at, CC BY 4.0</p>
+            <div class="controls vienna-map-controls">
+              <button class="ghost-button" id="vienna-map-menu" type="button">Optional games</button>
+            </div>
+          </section>
         </section>
       </section>
 
@@ -500,6 +573,14 @@
               <span aria-hidden="true">⌂</span>
             </button>
           </div>
+
+          <button class="choice-card map-admin-entry" id="open-map-admin" type="button">
+            <span class="choice-emoji" aria-hidden="true">📍</span>
+            <span>
+              <strong>Vienna Map Administration</strong>
+              <small>District recordings and attractions</small>
+            </span>
+          </button>
 
           <p class="studio-copy">Rebus words. One item per line. Use: word, emoji, clue</p>
           <pre>die Sonne, ☀️, Listen and fill the missing letters.</pre>
@@ -543,6 +624,77 @@
             <p class="admin-note" id="animal-admin-note" aria-live="polite">Changes are saved on this device.</p>
           </section>
         </aside>
+      </section>
+
+      <section class="screen map-admin-screen hidden" id="map-admin-screen" aria-labelledby="map-admin-title">
+        <section class="map-admin-panel">
+          <header class="top-bar map-admin-topbar">
+            <button class="icon-button" id="map-admin-back" type="button" aria-label="Back to Administration" title="Administration">
+              <span aria-hidden="true">‹</span>
+            </button>
+            <div>
+              <p class="eyebrow" id="map-admin-eyebrow">Administration</p>
+              <h1 id="map-admin-title">Vienna Map Administration</h1>
+            </div>
+            <button class="icon-button" id="map-admin-home" type="button" aria-label="Back to practice chooser" title="Home">
+              <span aria-hidden="true">⌂</span>
+            </button>
+          </header>
+
+          <div class="map-admin-intro">
+            <div>
+              <h2 id="map-admin-intro-title">Build your personal Vienna guide</h2>
+              <p id="map-admin-intro-copy">Choose a district, record its name, and add attractions with an address and spoken details.</p>
+            </div>
+            <span class="map-admin-storage-note" id="map-admin-storage-note">Saved on this device</span>
+          </div>
+
+          <div class="map-admin-workspace">
+            <nav class="map-admin-district-nav" aria-labelledby="map-admin-district-nav-title">
+              <label id="map-admin-district-nav-title" for="map-admin-district-select">District objects</label>
+              <select id="map-admin-district-select"></select>
+              <div class="map-admin-district-grid" id="map-admin-district-grid"></div>
+            </nav>
+
+            <section class="map-admin-editor" aria-labelledby="map-admin-editor-title">
+              <div class="map-admin-editor-heading">
+                <div class="vienna-district-badge" id="map-admin-district-number">1</div>
+                <div>
+                  <p class="eyebrow" id="map-admin-editor-eyebrow">District object</p>
+                  <h2 id="map-admin-editor-title">1. Innere Stadt</h2>
+                </div>
+              </div>
+
+              <div class="map-admin-name-card">
+                <label for="map-admin-district-name" id="map-admin-name-label">District name shown in the game</label>
+                <div class="map-admin-name-row">
+                  <input id="map-admin-district-name" type="text" autocomplete="off">
+                  <button id="map-admin-save-district" type="button">Save name</button>
+                </div>
+                <div class="map-recording-row">
+                  <button class="map-record-button" id="map-admin-record-district" type="button">🎙️ Record name</button>
+                  <button class="ghost-button" id="map-admin-play-district" type="button" disabled>▶ Play</button>
+                  <button class="ghost-button" id="map-admin-delete-district-audio" type="button" disabled>Delete recording</button>
+                </div>
+                <p class="map-recording-status" id="map-admin-district-audio-status" aria-live="polite">No recording yet.</p>
+              </div>
+
+              <div class="map-admin-attractions-header">
+                <div>
+                  <p class="eyebrow" id="map-admin-attractions-eyebrow">Places to discover</p>
+                  <h2 id="map-admin-attractions-title">Main attractions</h2>
+                </div>
+                <button id="map-admin-add-attraction" type="button">Add attraction</button>
+              </div>
+              <p class="map-admin-attraction-help" id="map-admin-attraction-help">Enter a Vienna address and choose Locate address. The official Vienna address service places the marker on the map.</p>
+              <div class="map-admin-attraction-list" id="map-admin-attraction-list"></div>
+              <p class="map-admin-empty" id="map-admin-attraction-empty">No attractions added for this district yet.</p>
+              <p class="admin-note map-admin-note" id="map-admin-note" aria-live="polite">Recordings and attractions are stored only on this device.</p>
+            </section>
+          </div>
+
+          <p class="vienna-data-credit">District boundaries and address lookup: Stadt Wien – data.wien.gv.at, CC BY 4.0</p>
+        </section>
       </section>
 
       <section class="screen math-screen hidden" id="math-screen" aria-labelledby="math-title">
@@ -808,7 +960,8 @@
       </div>
     </div>
 
-    <script src="data/verb-forms.js?v=20261116-android-speech"></script>
-    <script src="app.js?v=20261116-android-speech"></script>
+    <script src="data/vienna-districts.js?v=20261121-vienna-map"></script>
+    <script src="data/verb-forms.js?v=20261121-vienna-map"></script>
+    <script src="app.js?v=20261121-vienna-map"></script>
   </body>
 </html>

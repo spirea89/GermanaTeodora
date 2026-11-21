@@ -17,6 +17,14 @@ After changing either file on GitHub, open Administration in the app and choose 
 - The Fledermaus explorer includes three five-question knowledge tests with immediate feedback and scoring.
 - The bat artwork is stored at `assets/fledermaus-3d.png`.
 
+## Vienna districts
+
+- The Optional section includes an animated map of all 23 Vienna districts using a simplified snapshot of official Stadt Wien district boundaries.
+- Clicking a district shows and speaks its number and name. A personal recording made in Map Administration is preferred over text-to-speech.
+- Map Administration stores district names, attraction details, and resolved Vienna addresses locally on the device. Audio recordings are stored as blobs in IndexedDB.
+- Attraction addresses are located with the official Stadt Wien OGD address service and displayed as markers in their returned district.
+- District geometry and address lookup are credited to Stadt Wien – data.wien.gv.at under CC BY 4.0.
+
 ## Four Operations
 
 - The Math section includes a one-question-at-a-time game combining addition, subtraction, multiplication, and exact whole-number division.
