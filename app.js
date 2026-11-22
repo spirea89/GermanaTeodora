@@ -726,11 +726,12 @@ const translations = {
     allViennaDistricts: "The 23 districts of Vienna",
     districtLegend: "District",
     attractionLegend: "Attraction",
-    attractionReadPrompt: "Tap to read the full story",
+    attractionReadPrompt: "Tap to watch and read the full story",
     attractionReadingTitle: "Read and discover",
     attractionDetailsMissing: "The detailed reading text will appear here soon.",
-    playAttractionDetails: "🔊 Listen to the audio sample",
-    noAttractionAudio: "Audio sample not added yet",
+    watchAttractionVideo: "Watch and discover",
+    attractionVideoComingSoon: "Video coming soon",
+    attractionVideoTitle: (name) => `${name} video`,
     animalInstruction: "Tap a glowing point on the bat to learn what that body part does.",
     selectedBodyPart: "Selected body part",
     chooseBodyPart: "Choose a body part",
@@ -900,7 +901,7 @@ const translations = {
     mapAdminBack: "Back to Administration",
     mapAdminTitle: "Vienna Map Administration",
     mapAdminIntroTitle: "Build your personal Vienna guide",
-    mapAdminIntroCopy: "Choose a district, record its name, and add attractions with an address, a detailed reading text, and a short audio sample.",
+    mapAdminIntroCopy: "Choose a district, record its name, and add attractions with an address, a detailed reading text, and a FilmCraft video from YouTube.",
     savedOnDevice: "Saved on this device",
     districtObjects: "District objects",
     districtObject: "District object",
@@ -918,15 +919,19 @@ const translations = {
     microphoneError: "Microphone recording is not available. Check the browser permission and try again.",
     placesToDiscover: "Places to discover",
     addAttraction: "Add attraction",
-    attractionHelp: "Add the full text your child can read, then record a short audio sample that encourages them to open the attraction. Locate address places it on the map.",
+    attractionHelp: "Add the full reading text and paste the public or unlisted YouTube link from FilmCraft. Locate address places the attraction on the map.",
     noAdminAttractions: "No attractions added for this district yet.",
-    mapStoredOnDevice: "Recordings and attractions are stored only on this device.",
+    mapStoredOnDevice: "District recordings, attraction details, and YouTube links are stored only on this device.",
     attractionName: "Attraction name",
     attractionAddress: "Vienna address",
     attractionDetails: "Detailed reading text",
+    attractionYoutube: "YouTube video link",
+    attractionYoutubePlaceholder: "https://youtu.be/… or https://www.youtube.com/watch?v=…",
+    youtubeVideoReady: "YouTube video ready",
+    youtubeVideoMissing: "No YouTube video yet",
+    youtubeVideoInvalid: "Enter a valid YouTube, YouTube Shorts, or youtu.be link.",
     locateAddress: "Locate address",
     saveAttraction: "Save attraction",
-    recordDetails: "🎙️ Record audio sample",
     removeAttraction: "Remove",
     notLocated: "Address not located yet.",
     locatedAt: (latitude, longitude) => `Map position: ${latitude}, ${longitude}`,
@@ -938,7 +943,7 @@ const translations = {
     attractionSaved: "Attraction saved.",
     attractionRemoved: "Attraction removed.",
     attractionDraft: (number) => `Attraction ${number}`,
-    deleteAttractionConfirm: "Remove this attraction and its recording?",
+    deleteAttractionConfirm: "Remove this attraction and its saved YouTube link? The YouTube video itself will not be deleted.",
     mathPractice: "Math practice",
     mathApps: "Math apps",
     numberSprint: "Number Sprint",
@@ -1064,11 +1069,12 @@ const translations = {
     allViennaDistricts: "Die 23 Bezirke Wiens",
     districtLegend: "Bezirk",
     attractionLegend: "Sehenswürdigkeit",
-    attractionReadPrompt: "Tippe, um den ganzen Text zu lesen",
+    attractionReadPrompt: "Tippe, um das Video anzusehen und den ganzen Text zu lesen",
     attractionReadingTitle: "Lesen und entdecken",
     attractionDetailsMissing: "Der ausführliche Lesetext erscheint bald hier.",
-    playAttractionDetails: "🔊 Hörprobe anhören",
-    noAttractionAudio: "Noch keine Hörprobe vorhanden",
+    watchAttractionVideo: "Ansehen und entdecken",
+    attractionVideoComingSoon: "Video folgt bald",
+    attractionVideoTitle: (name) => `Video zu ${name}`,
     animalInstruction: "Tippe auf einen leuchtenden Punkt der Fledermaus und erfahre mehr über dieses Körperteil.",
     selectedBodyPart: "Ausgewähltes Körperteil",
     chooseBodyPart: "Wähle ein Körperteil",
@@ -1238,7 +1244,7 @@ const translations = {
     mapAdminBack: "Zurück zur Verwaltung",
     mapAdminTitle: "Wien-Kartenverwaltung",
     mapAdminIntroTitle: "Erstelle deinen persönlichen Wien-Führer",
-    mapAdminIntroCopy: "Wähle einen Bezirk, nimm seinen Namen auf und füge Sehenswürdigkeiten mit Adresse, ausführlichem Lesetext und kurzer Hörprobe hinzu.",
+    mapAdminIntroCopy: "Wähle einen Bezirk, nimm seinen Namen auf und füge Sehenswürdigkeiten mit Adresse, ausführlichem Lesetext und einem FilmCraft-Video von YouTube hinzu.",
     savedOnDevice: "Auf diesem Gerät gespeichert",
     districtObjects: "Bezirksobjekte",
     districtObject: "Bezirksobjekt",
@@ -1256,15 +1262,19 @@ const translations = {
     microphoneError: "Die Mikrofonaufnahme ist nicht verfügbar. Prüfe die Browserberechtigung und versuche es erneut.",
     placesToDiscover: "Orte zum Entdecken",
     addAttraction: "Sehenswürdigkeit hinzufügen",
-    attractionHelp: "Füge den vollständigen Lesetext hinzu und nimm danach eine kurze Hörprobe auf, die neugierig auf die Sehenswürdigkeit macht. Adresse finden setzt sie auf die Karte.",
+    attractionHelp: "Füge den vollständigen Lesetext hinzu und füge den öffentlichen oder nicht gelisteten YouTube-Link aus FilmCraft ein. Adresse finden setzt die Sehenswürdigkeit auf die Karte.",
     noAdminAttractions: "Für diesen Bezirk wurden noch keine Sehenswürdigkeiten hinzugefügt.",
-    mapStoredOnDevice: "Aufnahmen und Sehenswürdigkeiten werden nur auf diesem Gerät gespeichert.",
+    mapStoredOnDevice: "Bezirksaufnahmen, Sehenswürdigkeiten und YouTube-Links werden nur auf diesem Gerät gespeichert.",
     attractionName: "Name der Sehenswürdigkeit",
     attractionAddress: "Wiener Adresse",
     attractionDetails: "Ausführlicher Lesetext",
+    attractionYoutube: "YouTube-Videolink",
+    attractionYoutubePlaceholder: "https://youtu.be/… oder https://www.youtube.com/watch?v=…",
+    youtubeVideoReady: "YouTube-Video bereit",
+    youtubeVideoMissing: "Noch kein YouTube-Video",
+    youtubeVideoInvalid: "Gib einen gültigen YouTube-, YouTube-Shorts- oder youtu.be-Link ein.",
     locateAddress: "Adresse finden",
     saveAttraction: "Sehenswürdigkeit speichern",
-    recordDetails: "🎙️ Hörprobe aufnehmen",
     removeAttraction: "Entfernen",
     notLocated: "Adresse noch nicht gefunden.",
     locatedAt: (latitude, longitude) => `Kartenposition: ${latitude}, ${longitude}`,
@@ -1276,7 +1286,7 @@ const translations = {
     attractionSaved: "Sehenswürdigkeit gespeichert.",
     attractionRemoved: "Sehenswürdigkeit entfernt.",
     attractionDraft: (number) => `Sehenswürdigkeit ${number}`,
-    deleteAttractionConfirm: "Diese Sehenswürdigkeit und ihre Aufnahme entfernen?",
+    deleteAttractionConfirm: "Diese Sehenswürdigkeit und ihren gespeicherten YouTube-Link entfernen? Das YouTube-Video selbst wird nicht gelöscht.",
     mathPractice: "Matheübung",
     mathApps: "Mathe-Apps",
     numberSprint: "Zahlensprint",
@@ -5872,6 +5882,7 @@ function loadViennaMapData() {
           address: String(item.address || ""),
           resolvedAddress: String(item.resolvedAddress || ""),
           details: String(item.details || ""),
+          youtubeUrl: String(item.youtubeUrl || ""),
           latitude: item.latitude !== null && item.latitude !== "" && Number.isFinite(Number(item.latitude)) ? Number(item.latitude) : null,
           longitude: item.longitude !== null && item.longitude !== "" && Number.isFinite(Number(item.longitude)) ? Number(item.longitude) : null
         }))
@@ -5909,6 +5920,38 @@ function viennaDistrictAudioKey(number) {
 
 function viennaAttractionAudioKey(id) {
   return `attraction:${String(id)}:details`;
+}
+
+function youtubeVideoIdFromUrl(value) {
+  const input = String(value || "").trim();
+  const idPattern = /^[A-Za-z0-9_-]{11}$/;
+  if (idPattern.test(input)) {
+    return input;
+  }
+  try {
+    const url = new URL(input);
+    const host = url.hostname.toLowerCase().replace(/^www\./, "");
+    let candidate = "";
+    if (host === "youtu.be") {
+      candidate = url.pathname.split("/").filter(Boolean)[0] || "";
+    } else if (["youtube.com", "m.youtube.com", "music.youtube.com", "youtube-nocookie.com"].includes(host)) {
+      candidate = url.searchParams.get("v") || "";
+      if (!candidate) {
+        const parts = url.pathname.split("/").filter(Boolean);
+        if (["embed", "shorts", "live"].includes(parts[0])) {
+          candidate = parts[1] || "";
+        }
+      }
+    }
+    return idPattern.test(candidate) ? candidate : "";
+  } catch {
+    return "";
+  }
+}
+
+function canonicalYoutubeUrl(value) {
+  const videoId = youtubeVideoIdFromUrl(value);
+  return videoId ? `https://www.youtube.com/watch?v=${videoId}` : "";
 }
 
 function openViennaAudioDatabase() {
@@ -6182,7 +6225,7 @@ function selectViennaDistrict(number, options = {}) {
   }
 }
 
-function selectViennaAttraction(id, options = {}) {
+function selectViennaAttraction(id) {
   const attraction = viennaMapData.attractions.find((item) => item.id === id);
   if (!attraction) {
     return;
@@ -6191,9 +6234,6 @@ function selectViennaAttraction(id, options = {}) {
   selectViennaDistrict(attraction.districtId, { play: false, focus: false, keepAttraction: true });
   updateViennaMapSelection();
   renderViennaDistrictDetails();
-  if (options.play) {
-    void playViennaAudio(viennaAttractionAudioKey(attraction.id));
-  }
 }
 
 function renderViennaDistrictDetails() {
@@ -6242,6 +6282,27 @@ function renderViennaDistrictDetails() {
     }
     card.append(select);
     if (attraction.id === viennaSelectedAttraction) {
+      const videoId = youtubeVideoIdFromUrl(attraction.youtubeUrl);
+      if (videoId) {
+        const video = document.createElement("section");
+        video.className = "vienna-attraction-video";
+        const videoTitle = document.createElement("h5");
+        videoTitle.textContent = t("watchAttractionVideo");
+        const frame = document.createElement("iframe");
+        frame.src = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&playsinline=1`;
+        frame.title = t("attractionVideoTitle", attraction.name);
+        frame.loading = "lazy";
+        frame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.allowFullscreen = true;
+        video.append(videoTitle, frame);
+        card.append(video);
+      } else {
+        const videoMissing = document.createElement("p");
+        videoMissing.className = "vienna-attraction-video-missing";
+        videoMissing.textContent = t("attractionVideoComingSoon");
+        card.append(videoMissing);
+      }
       const reading = document.createElement("section");
       reading.className = "vienna-attraction-reading";
       const readingTitle = document.createElement("h5");
@@ -6259,14 +6320,6 @@ function renderViennaDistrictDetails() {
         reading.append(missing);
       }
       card.append(reading);
-      const play = document.createElement("button");
-      play.type = "button";
-      play.className = "vienna-attraction-play";
-      play.dataset.playViennaAttraction = attraction.id;
-      const hasAudioSample = viennaAudioKeys.has(viennaAttractionAudioKey(attraction.id));
-      play.textContent = hasAudioSample ? t("playAttractionDetails") : t("noAttractionAudio");
-      play.disabled = !hasAudioSample;
-      card.append(play);
     }
     elements.viennaAttractionList.append(card);
   });
@@ -6381,8 +6434,7 @@ function renderViennaMapAdmin() {
   elements.mapAdminAttractionEmpty.textContent = t("noAdminAttractions");
   elements.mapAdminAttractionEmpty.classList.toggle("hidden", attractions.length > 0);
   attractions.forEach((attraction, index) => {
-    const audioKey = viennaAttractionAudioKey(attraction.id);
-    const hasAudio = viennaAudioKeys.has(audioKey);
+    const hasVideo = Boolean(youtubeVideoIdFromUrl(attraction.youtubeUrl));
     const card = document.createElement("article");
     card.className = "map-attraction-editor-card";
     card.dataset.attractionId = attraction.id;
@@ -6392,7 +6444,7 @@ function renderViennaMapAdmin() {
     card.innerHTML = `
       <div class="map-attraction-card-heading">
         <strong>${escapeViennaMarkup(attraction.name || t("attractionDraft", index + 1))}</strong>
-        <span>${hasAudio ? escapeViennaMarkup(t("recordingReady")) : escapeViennaMarkup(t("noRecording"))}</span>
+        <span>${hasVideo ? escapeViennaMarkup(t("youtubeVideoReady")) : escapeViennaMarkup(t("youtubeVideoMissing"))}</span>
       </div>
       <div class="map-attraction-fields">
         <div class="map-attraction-field">
@@ -6404,6 +6456,10 @@ function renderViennaMapAdmin() {
           <input type="text" data-attraction-field="address" value="${escapeViennaMarkup(attraction.address)}" autocomplete="street-address" aria-label="${escapeViennaMarkup(t("attractionAddress"))}">
         </div>
         <div class="map-attraction-field full">
+          <label>${escapeViennaMarkup(t("attractionYoutube"))}</label>
+          <input type="url" inputmode="url" data-attraction-field="youtubeUrl" value="${escapeViennaMarkup(attraction.youtubeUrl)}" placeholder="${escapeViennaMarkup(t("attractionYoutubePlaceholder"))}" autocomplete="url" aria-label="${escapeViennaMarkup(t("attractionYoutube"))}">
+        </div>
+        <div class="map-attraction-field full">
           <label>${escapeViennaMarkup(t("attractionDetails"))}</label>
           <textarea data-attraction-field="details" aria-label="${escapeViennaMarkup(t("attractionDetails"))}">${escapeViennaMarkup(attraction.details)}</textarea>
         </div>
@@ -6412,9 +6468,6 @@ function renderViennaMapAdmin() {
       <div class="map-attraction-actions">
         <button class="map-attraction-action primary" type="button" data-locate-attraction="${escapeViennaMarkup(attraction.id)}">${escapeViennaMarkup(t("locateAddress"))}</button>
         <button class="map-attraction-action" type="button" data-save-attraction="${escapeViennaMarkup(attraction.id)}">${escapeViennaMarkup(t("saveAttraction"))}</button>
-        <button class="map-attraction-action map-record-button" type="button" data-record-attraction="${escapeViennaMarkup(attraction.id)}" data-vienna-audio-key="${escapeViennaMarkup(audioKey)}">${escapeViennaMarkup(t("recordDetails"))}</button>
-        <button class="map-attraction-action" type="button" data-play-attraction-audio="${escapeViennaMarkup(attraction.id)}" ${hasAudio ? "" : "disabled"}>${escapeViennaMarkup(t("playRecording"))}</button>
-        <button class="map-attraction-action" type="button" data-delete-attraction-audio="${escapeViennaMarkup(attraction.id)}" ${hasAudio ? "" : "disabled"}>${escapeViennaMarkup(t("deleteRecording"))}</button>
         <button class="map-attraction-action danger" type="button" data-remove-attraction="${escapeViennaMarkup(attraction.id)}">${escapeViennaMarkup(t("removeAttraction"))}</button>
       </div>
     `;
@@ -6443,6 +6496,7 @@ function createViennaAttraction() {
     address: "",
     resolvedAddress: "",
     details: "",
+    youtubeUrl: "",
     latitude: null,
     longitude: null
   };
@@ -6460,9 +6514,17 @@ function updateAttractionFromEditor(id) {
     return null;
   }
   const previousAddress = attraction.address.trim();
+  const youtubeInput = card.querySelector('[data-attraction-field="youtubeUrl"]');
+  const youtubeUrl = youtubeInput?.value.trim() || "";
+  if (youtubeUrl && !youtubeVideoIdFromUrl(youtubeUrl)) {
+    setViennaMapAdminNote(t("youtubeVideoInvalid"), "try");
+    youtubeInput?.focus();
+    return null;
+  }
   attraction.name = card.querySelector('[data-attraction-field="name"]')?.value.trim() || "";
   attraction.address = card.querySelector('[data-attraction-field="address"]')?.value.trim() || "";
   attraction.details = card.querySelector('[data-attraction-field="details"]')?.value.trim() || "";
+  attraction.youtubeUrl = youtubeUrl ? canonicalYoutubeUrl(youtubeUrl) : "";
   if (previousAddress !== attraction.address) {
     attraction.resolvedAddress = "";
     attraction.latitude = null;
@@ -6632,8 +6694,6 @@ function updateViennaRecordingControls() {
     button.classList.toggle("is-recording", recording);
     if (button === elements.mapAdminRecordDistrict) {
       button.textContent = recording ? t("stopRecording") : t("recordName");
-    } else {
-      button.textContent = recording ? t("stopRecording") : t("recordDetails");
     }
   });
   if (activeKey === viennaDistrictAudioKey(viennaAdminDistrict)) {
@@ -6707,10 +6767,7 @@ elements.viennaDistrictButtons.addEventListener("click", (event) => {
 });
 elements.viennaAttractionList.addEventListener("click", (event) => {
   const select = event.target.closest("[data-select-vienna-attraction]");
-  const play = event.target.closest("[data-play-vienna-attraction]");
-  if (play) {
-    selectViennaAttraction(play.dataset.playViennaAttraction, { play: true });
-  } else if (select) {
+  if (select) {
     selectViennaAttraction(select.dataset.selectViennaAttraction);
   }
 });
@@ -6814,23 +6871,11 @@ elements.mapAdminAddAttraction.addEventListener("click", createViennaAttraction)
 elements.mapAdminAttractionList.addEventListener("click", (event) => {
   const locate = event.target.closest("[data-locate-attraction]");
   const save = event.target.closest("[data-save-attraction]");
-  const record = event.target.closest("[data-record-attraction]");
-  const play = event.target.closest("[data-play-attraction-audio]");
-  const deleteAudio = event.target.closest("[data-delete-attraction-audio]");
   const remove = event.target.closest("[data-remove-attraction]");
   if (locate) {
     void locateViennaAttraction(locate.dataset.locateAttraction);
   } else if (save) {
     saveViennaAttraction(save.dataset.saveAttraction);
-  } else if (record) {
-    const attraction = updateAttractionFromEditor(record.dataset.recordAttraction);
-    if (attraction) {
-      void startViennaRecording(viennaAttractionAudioKey(attraction.id));
-    }
-  } else if (play) {
-    void playViennaAudio(viennaAttractionAudioKey(play.dataset.playAttractionAudio));
-  } else if (deleteAudio) {
-    void deleteViennaRecording(viennaAttractionAudioKey(deleteAudio.dataset.deleteAttractionAudio));
   } else if (remove) {
     void removeViennaAttraction(remove.dataset.removeAttraction);
   }

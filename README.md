@@ -21,7 +21,8 @@ After changing either file on GitHub, open Administration in the app and choose 
 
 - The Optional section includes an animated map of all 23 Vienna districts using a simplified snapshot of official Stadt Wien district boundaries.
 - Clicking a district shows and speaks its number and name. A personal recording made in Map Administration is preferred over text-to-speech.
-- Map Administration stores district names, detailed attraction reading texts, and resolved Vienna addresses locally on the device. Short attraction audio samples are stored as blobs in IndexedDB and remain separate from the text children read.
+- Map Administration stores district names, detailed attraction reading texts, YouTube video links, and resolved Vienna addresses locally on the device. FilmCraft attraction videos can be embedded from public or unlisted YouTube links.
+- District-name recordings remain stored as blobs in IndexedDB on the device.
 - Attraction addresses are located with the official Stadt Wien OGD address service and displayed as markers in their returned district.
 - District geometry and address lookup are credited to Stadt Wien – data.wien.gv.at under CC BY 4.0.
 
