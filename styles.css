@@ -734,11 +734,9 @@
   color: #1d6a45;
 }
 
-.map-admin-publish {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
+.map-admin-github {
+  display: grid;
+  gap: 14px;
   margin-top: 24px;
   padding: 18px;
   border: 1px solid #b9d9d4;
@@ -746,26 +744,83 @@
   background: linear-gradient(135deg, #effbf8, #eef7ff);
 }
 
-.map-admin-publish h3 {
+.map-admin-github-heading,
+.map-admin-github-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.map-admin-github h3 {
   margin: 0 0 6px;
   color: #173e5b;
 }
 
-.map-admin-publish p {
+.map-admin-github p {
   max-width: 650px;
   margin: 0;
   color: var(--muted);
   line-height: 1.5;
 }
 
-#map-admin-export {
+.map-admin-github-heading a {
   flex: 0 0 auto;
+  padding: 10px 13px;
+  border: 1px solid #9fc7c1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #245b62;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.map-admin-github-security {
+  padding: 11px 13px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+}
+
+.map-admin-github label {
+  color: #344d55;
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.map-admin-github-connect-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+#map-admin-github-token {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid #aacbc6;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+#map-admin-github-connect {
   min-height: 48px;
   padding: 11px 16px;
   border-radius: 10px;
   background: #173e5b;
   color: #ffffff;
   font-weight: 900;
+}
+
+#map-admin-github-status.is-connected {
+  color: #1d6a45;
+  font-weight: 850;
+}
+
+#map-admin-github-forget {
+  flex: 0 0 auto;
 }
 
 .map-admin-note.try {
@@ -816,13 +871,21 @@
     grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
-  .map-admin-publish {
+  .map-admin-github-heading,
+  .map-admin-github-status-row {
     align-items: stretch;
     flex-direction: column;
   }
 
-  #map-admin-export {
+  .map-admin-github-connect-row {
+    grid-template-columns: 1fr;
+  }
+
+  #map-admin-github-connect,
+  #map-admin-github-forget,
+  .map-admin-github-heading a {
     width: 100%;
+    text-align: center;
   }
 
   .vienna-district-buttons {

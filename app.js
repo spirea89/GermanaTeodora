@@ -204,8 +204,11 @@ const viennaMapStorageKey = "deutschUndMatheViennaMapV1";
 const viennaMapAudioDatabase = "deutschUndMatheViennaMapAudio";
 const viennaAddressService = "https://data.wien.gv.at/daten/OGDAddressService.svc/GetAddressInfo";
 const viennaMapSharedFile = "data/vienna-map-content.json";
+const viennaGithubTokenKey = "deutschUndMatheViennaGithubToken";
+const viennaGithubContentsApi = "https://api.github.com/repos/spirea89/GermanaTeodora/contents/data/vienna-map-content.json";
+const viennaGithubBranch = "main";
 const viennaDistrictGeoJson = window.VIENNA_DISTRICTS_GEOJSON || { type: "FeatureCollection", features: [] };
-const appVersion = "2026.11.22.3";
+const appVersion = "2026.11.22.4";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -903,11 +906,11 @@ const translations = {
     mapAdminTitle: "Vienna Map Administration",
     mapAdminIntroTitle: "Build your personal Vienna guide",
     mapAdminIntroCopy: "Choose a district, record its name, and add attractions with an address, a detailed reading text, and a FilmCraft video from YouTube.",
-    savedOnDevice: "GitHub data + local draft",
+    savedOnDevice: "GitHub sync + local backup",
     districtObjects: "District objects",
     districtObject: "District object",
     districtNameLabel: "District name shown in the game",
-    saveName: "Save name",
+    saveName: "Save & publish name",
     recordName: "🎙️ Record name",
     stopRecording: "■ Stop recording",
     playRecording: "▶ Play",
@@ -922,11 +925,23 @@ const translations = {
     addAttraction: "Add attraction",
     attractionHelp: "Add the full reading text and paste the public or unlisted YouTube link from FilmCraft. Locate address places the attraction on the map.",
     noAdminAttractions: "No attractions added for this district yet.",
-    mapStoredOnDevice: "Edits are saved as a local draft. Download the GitHub data file to publish them for every device.",
-    exportMapData: "Download GitHub data file",
-    sharedMapData: "Publish for every device",
-    exportMapHelp: "After editing, download this file and send it to ChatGPT or replace data/vienna-map-content.json in GitHub.",
-    mapExported: "Shared map file downloaded. Publish it to GitHub so every device receives these attractions.",
+    mapStoredOnDevice: "Changes are backed up locally. Connect GitHub once, then Save & publish updates every device.",
+    sharedMapData: "Automatic GitHub publishing",
+    githubPublishHelp: "Connect this maintenance device once. Saving a district or attraction will then commit the shared map file directly to main.",
+    githubSecurity: "Create a fine-grained token for only GermanaTeodora with Contents read and write access. It stays in this browser and is sent only to api.github.com.",
+    githubTokenLabel: "Fine-grained GitHub token",
+    githubTokenPlaceholder: "github_pat_…",
+    githubCreateToken: "Create repository token",
+    githubConnect: "Connect & publish current data",
+    githubForget: "Forget connection",
+    githubNotConnected: "GitHub is not connected on this device.",
+    githubConnected: "Connected to GitHub on this device.",
+    githubPublishing: "Publishing the shared map data to GitHub…",
+    githubPublished: "Published to GitHub. Other devices will receive the update after the Pages deployment finishes.",
+    githubTokenRequired: "Connect GitHub below to publish this local draft.",
+    githubTokenInvalid: "GitHub rejected the token. Use a fine-grained token for GermanaTeodora with Contents read and write permission.",
+    githubPublishFailed: "GitHub publishing failed. Your changes remain saved locally; check the connection and try again.",
+    githubDisconnected: "The GitHub connection was removed from this device.",
     attractionName: "Attraction name",
     attractionAddress: "Vienna address",
     attractionDetails: "Detailed reading text",
@@ -936,7 +951,7 @@ const translations = {
     youtubeVideoMissing: "No YouTube video yet",
     youtubeVideoInvalid: "Enter a valid YouTube, YouTube Shorts, or youtu.be link.",
     locateAddress: "Locate address",
-    saveAttraction: "Save attraction",
+    saveAttraction: "Save & publish attraction",
     removeAttraction: "Remove",
     notLocated: "Address not located yet.",
     locatedAt: (latitude, longitude) => `Map position: ${latitude}, ${longitude}`,
@@ -1250,11 +1265,11 @@ const translations = {
     mapAdminTitle: "Wien-Kartenverwaltung",
     mapAdminIntroTitle: "Erstelle deinen persönlichen Wien-Führer",
     mapAdminIntroCopy: "Wähle einen Bezirk, nimm seinen Namen auf und füge Sehenswürdigkeiten mit Adresse, ausführlichem Lesetext und einem FilmCraft-Video von YouTube hinzu.",
-    savedOnDevice: "GitHub-Daten + lokaler Entwurf",
+    savedOnDevice: "GitHub-Synchronisierung + lokale Sicherung",
     districtObjects: "Bezirksobjekte",
     districtObject: "Bezirksobjekt",
     districtNameLabel: "Bezirksname im Lernspiel",
-    saveName: "Namen speichern",
+    saveName: "Namen speichern & veröffentlichen",
     recordName: "🎙️ Namen aufnehmen",
     stopRecording: "■ Aufnahme beenden",
     playRecording: "▶ Abspielen",
@@ -1269,11 +1284,23 @@ const translations = {
     addAttraction: "Sehenswürdigkeit hinzufügen",
     attractionHelp: "Füge den vollständigen Lesetext hinzu und füge den öffentlichen oder nicht gelisteten YouTube-Link aus FilmCraft ein. Adresse finden setzt die Sehenswürdigkeit auf die Karte.",
     noAdminAttractions: "Für diesen Bezirk wurden noch keine Sehenswürdigkeiten hinzugefügt.",
-    mapStoredOnDevice: "Änderungen werden als lokaler Entwurf gespeichert. Lade die GitHub-Datendatei herunter, um sie für alle Geräte zu veröffentlichen.",
-    exportMapData: "GitHub-Datendatei herunterladen",
-    sharedMapData: "Für alle Geräte veröffentlichen",
-    exportMapHelp: "Lade die Datei nach dem Bearbeiten herunter und sende sie an ChatGPT oder ersetze data/vienna-map-content.json auf GitHub.",
-    mapExported: "Die gemeinsame Kartendatei wurde heruntergeladen. Veröffentliche sie auf GitHub, damit alle Geräte diese Sehenswürdigkeiten erhalten.",
+    mapStoredOnDevice: "Änderungen werden lokal gesichert. Verbinde GitHub einmalig; danach aktualisiert Speichern & veröffentlichen alle Geräte.",
+    sharedMapData: "Automatisch auf GitHub veröffentlichen",
+    githubPublishHelp: "Verbinde dieses Wartungsgerät einmalig. Beim Speichern eines Bezirks oder einer Sehenswürdigkeit wird die gemeinsame Kartendatei direkt auf main veröffentlicht.",
+    githubSecurity: "Erstelle ein feingranulares Token nur für GermanaTeodora mit Lese- und Schreibzugriff auf Inhalte. Es bleibt in diesem Browser und wird nur an api.github.com gesendet.",
+    githubTokenLabel: "Feingranulares GitHub-Token",
+    githubTokenPlaceholder: "github_pat_…",
+    githubCreateToken: "Repository-Token erstellen",
+    githubConnect: "Verbinden & aktuelle Daten veröffentlichen",
+    githubForget: "Verbindung entfernen",
+    githubNotConnected: "GitHub ist auf diesem Gerät nicht verbunden.",
+    githubConnected: "GitHub ist auf diesem Gerät verbunden.",
+    githubPublishing: "Die gemeinsamen Kartendaten werden auf GitHub veröffentlicht …",
+    githubPublished: "Auf GitHub veröffentlicht. Andere Geräte erhalten die Änderung nach Abschluss der Pages-Bereitstellung.",
+    githubTokenRequired: "Verbinde unten GitHub, um diesen lokalen Entwurf zu veröffentlichen.",
+    githubTokenInvalid: "GitHub hat das Token abgelehnt. Verwende ein feingranulares Token für GermanaTeodora mit Lese- und Schreibrecht für Inhalte.",
+    githubPublishFailed: "Die Veröffentlichung auf GitHub ist fehlgeschlagen. Deine Änderungen bleiben lokal gespeichert; prüfe die Verbindung und versuche es erneut.",
+    githubDisconnected: "Die GitHub-Verbindung wurde von diesem Gerät entfernt.",
     attractionName: "Name der Sehenswürdigkeit",
     attractionAddress: "Wiener Adresse",
     attractionDetails: "Ausführlicher Lesetext",
@@ -1283,7 +1310,7 @@ const translations = {
     youtubeVideoMissing: "Noch kein YouTube-Video",
     youtubeVideoInvalid: "Gib einen gültigen YouTube-, YouTube-Shorts- oder youtu.be-Link ein.",
     locateAddress: "Adresse finden",
-    saveAttraction: "Sehenswürdigkeit speichern",
+    saveAttraction: "Sehenswürdigkeit speichern & veröffentlichen",
     removeAttraction: "Entfernen",
     notLocated: "Adresse noch nicht gefunden.",
     locatedAt: (latitude, longitude) => `Kartenposition: ${latitude}, ${longitude}`,
@@ -1621,7 +1648,10 @@ const elements = {
   mapAdminDeleteDistrictAudio: document.querySelector("#map-admin-delete-district-audio"),
   mapAdminDistrictAudioStatus: document.querySelector("#map-admin-district-audio-status"),
   mapAdminAddAttraction: document.querySelector("#map-admin-add-attraction"),
-  mapAdminExport: document.querySelector("#map-admin-export"),
+  mapAdminGithubToken: document.querySelector("#map-admin-github-token"),
+  mapAdminGithubConnect: document.querySelector("#map-admin-github-connect"),
+  mapAdminGithubForget: document.querySelector("#map-admin-github-forget"),
+  mapAdminGithubStatus: document.querySelector("#map-admin-github-status"),
   mapAdminAttractionList: document.querySelector("#map-admin-attraction-list"),
   mapAdminAttractionEmpty: document.querySelector("#map-admin-attraction-empty"),
   mapAdminNote: document.querySelector("#map-admin-note"),
@@ -1776,6 +1806,7 @@ let viennaProjection = null;
 let viennaAudioKeys = new Set();
 let viennaRecordingSession = null;
 let viennaCurrentAudio = null;
+let viennaGithubPublishing = false;
 
 function t(key, ...args) {
   const value = translations[currentLanguage][key] || translations.en[key] || key;
@@ -5943,25 +5974,133 @@ function saveViennaMapData() {
   localStorage.setItem(viennaMapStorageKey, JSON.stringify(viennaMapData));
 }
 
-function exportViennaMapData() {
-  const payload = {
+function buildViennaMapSharedPayload() {
+  return {
     version: 1,
     updatedAt: new Date().toISOString(),
     districts: Object.fromEntries(
       Object.entries(viennaMapData.districts).map(([number, district]) => [number, { name: String(district.name || "") }])
     ),
-    attractions: normalizedViennaAttractions(viennaMapData.attractions)
+    attractions: normalizedViennaAttractions(viennaMapData.attractions).filter((item) => item.name.trim())
   };
-  const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], { type: "application/json" });
-  const downloadUrl = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = downloadUrl;
-  link.download = "vienna-map-content.json";
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-  setViennaMapAdminNote(t("mapExported"), "success");
+}
+
+function encodeViennaGithubContent(value) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function viennaGithubHeaders(token) {
+  return {
+    Accept: "application/vnd.github+json",
+    Authorization: `Bearer ${token}`,
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+}
+
+function updateViennaGithubUi() {
+  const connected = Boolean(localStorage.getItem(viennaGithubTokenKey));
+  elements.mapAdminGithubToken.value = "";
+  elements.mapAdminGithubToken.placeholder = t("githubTokenPlaceholder");
+  elements.mapAdminGithubStatus.textContent = t(connected ? "githubConnected" : "githubNotConnected");
+  elements.mapAdminGithubStatus.classList.toggle("is-connected", connected);
+  elements.mapAdminGithubForget.classList.toggle("hidden", !connected);
+  elements.mapAdminGithubConnect.textContent = t("githubConnect");
+  elements.mapAdminGithubForget.textContent = t("githubForget");
+}
+
+async function publishViennaMapData(tokenOverride = "") {
+  if (viennaGithubPublishing) {
+    return false;
+  }
+  const token = String(tokenOverride || localStorage.getItem(viennaGithubTokenKey) || "").trim();
+  if (!token) {
+    setViennaMapAdminNote(t("githubTokenRequired"), "try");
+    elements.mapAdminGithubToken.focus();
+    return false;
+  }
+  viennaGithubPublishing = true;
+  elements.mapAdminGithubConnect.disabled = true;
+  elements.mapAdminGithubStatus.textContent = t("githubPublishing");
+  setViennaMapAdminNote(t("githubPublishing"));
+  try {
+    const headers = viennaGithubHeaders(token);
+    let lastResponse = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const metadataResponse = await fetch(`${viennaGithubContentsApi}?ref=${encodeURIComponent(viennaGithubBranch)}&updated=${Date.now()}`, {
+        headers,
+        cache: "no-store"
+      });
+      if (!metadataResponse.ok) {
+        const error = new Error("GitHub metadata request failed");
+        error.status = metadataResponse.status;
+        throw error;
+      }
+      const metadata = await metadataResponse.json();
+      const content = `${JSON.stringify(buildViennaMapSharedPayload(), null, 2)}\n`;
+      lastResponse = await fetch(viennaGithubContentsApi, {
+        method: "PUT",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: "Update Vienna map content from administration",
+          content: encodeViennaGithubContent(content),
+          sha: metadata.sha,
+          branch: viennaGithubBranch
+        })
+      });
+      if (lastResponse.ok) {
+        localStorage.setItem(viennaGithubTokenKey, token);
+        elements.mapAdminGithubStatus.textContent = t("githubConnected");
+        elements.mapAdminGithubStatus.classList.add("is-connected");
+        elements.mapAdminGithubForget.classList.remove("hidden");
+        setViennaMapAdminNote(t("githubPublished"), "success");
+        return true;
+      }
+      if (lastResponse.status !== 409) {
+        break;
+      }
+    }
+    const error = new Error("GitHub update request failed");
+    error.status = lastResponse?.status || 0;
+    throw error;
+  } catch (error) {
+    if ([401, 403, 404].includes(Number(error.status))) {
+      localStorage.removeItem(viennaGithubTokenKey);
+      updateViennaGithubUi();
+      setViennaMapAdminNote(t("githubTokenInvalid"), "try");
+    } else {
+      setViennaMapAdminNote(t("githubPublishFailed"), "try");
+      elements.mapAdminGithubStatus.textContent = t("githubPublishFailed");
+    }
+    return false;
+  } finally {
+    viennaGithubPublishing = false;
+    elements.mapAdminGithubConnect.disabled = false;
+  }
+}
+
+async function connectViennaGithub() {
+  const token = elements.mapAdminGithubToken.value.trim();
+  if (!token) {
+    setViennaMapAdminNote(t("githubTokenRequired"), "try");
+    elements.mapAdminGithubToken.focus();
+    return;
+  }
+  const published = await publishViennaMapData(token);
+  if (published) {
+    elements.mapAdminGithubToken.value = "";
+  }
+}
+
+function forgetViennaGithub() {
+  localStorage.removeItem(viennaGithubTokenKey);
+  updateViennaGithubUi();
+  setViennaMapAdminNote(t("githubDisconnected"));
 }
 
 function viennaDistricts() {
@@ -6440,10 +6579,13 @@ function updateViennaMapAdminLanguage() {
   setText("#map-admin-attractions-title", "mainAttractions");
   setText("#map-admin-attraction-help", "attractionHelp");
   setText("#map-admin-shared-title", "sharedMapData");
-  setText("#map-admin-export-help", "exportMapHelp");
+  setText("#map-admin-github-help", "githubPublishHelp");
+  setText("#map-admin-github-security", "githubSecurity");
+  setText("#map-admin-github-token-label", "githubTokenLabel");
+  setText("#map-admin-github-create", "githubCreateToken");
   elements.mapAdminSaveDistrict.textContent = t("saveName");
   elements.mapAdminAddAttraction.textContent = t("addAttraction");
-  elements.mapAdminExport.textContent = t("exportMapData");
+  updateViennaGithubUi();
   if (!elements.mapAdminNote.dataset.state || elements.mapAdminNote.dataset.state === "ready") {
     setViennaMapAdminNote(t("mapStoredOnDevice"));
   }
@@ -6456,6 +6598,7 @@ function updateViennaMapAdminLanguage() {
 async function openViennaMapAdmin() {
   await viennaMapSharedReady;
   await refreshViennaAudioKeys();
+  updateViennaGithubUi();
   renderViennaMapAdmin();
 }
 
@@ -6547,16 +6690,16 @@ function renderViennaMapAdmin() {
   updateViennaRecordingControls();
 }
 
-function saveViennaDistrictName() {
+async function saveViennaDistrictName() {
   const name = elements.mapAdminDistrictName.value.trim();
   if (!name) {
     return;
   }
   viennaMapData.districts[viennaAdminDistrict].name = name;
   saveViennaMapData();
-  setViennaMapAdminNote(t("districtSaved"), "success");
   renderViennaMapAdmin();
   renderViennaMap();
+  await publishViennaMapData();
 }
 
 function createViennaAttraction() {
@@ -6605,14 +6748,14 @@ function updateAttractionFromEditor(id) {
   return attraction;
 }
 
-function saveViennaAttraction(id) {
+async function saveViennaAttraction(id) {
   const attraction = updateAttractionFromEditor(id);
   if (!attraction) {
     return;
   }
-  setViennaMapAdminNote(t("attractionSaved"), "success");
   renderViennaMapAdmin();
   renderViennaMap();
+  await publishViennaMapData();
 }
 
 async function locateViennaAttraction(id) {
@@ -6678,10 +6821,10 @@ async function removeViennaAttraction(id) {
   if (viennaSelectedAttraction === id) {
     viennaSelectedAttraction = null;
   }
-  setViennaMapAdminNote(t("attractionRemoved"), "success");
   renderViennaMapAdmin();
   renderViennaMap();
   renderViennaDistrictDetails();
+  await publishViennaMapData();
 }
 
 function preferredViennaRecordingMimeType() {
@@ -6923,7 +7066,9 @@ elements.mapAdminDistrictGrid.addEventListener("click", (event) => {
     renderViennaMapAdmin();
   }
 });
-elements.mapAdminSaveDistrict.addEventListener("click", saveViennaDistrictName);
+elements.mapAdminSaveDistrict.addEventListener("click", () => {
+  void saveViennaDistrictName();
+});
 elements.mapAdminRecordDistrict.addEventListener("click", () => {
   const name = elements.mapAdminDistrictName.value.trim();
   if (name) {
@@ -6939,7 +7084,16 @@ elements.mapAdminDeleteDistrictAudio.addEventListener("click", () => {
   void deleteViennaRecording(viennaDistrictAudioKey(viennaAdminDistrict));
 });
 elements.mapAdminAddAttraction.addEventListener("click", createViennaAttraction);
-elements.mapAdminExport.addEventListener("click", exportViennaMapData);
+elements.mapAdminGithubConnect.addEventListener("click", () => {
+  void connectViennaGithub();
+});
+elements.mapAdminGithubForget.addEventListener("click", forgetViennaGithub);
+elements.mapAdminGithubToken.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    void connectViennaGithub();
+  }
+});
 elements.mapAdminAttractionList.addEventListener("click", (event) => {
   const locate = event.target.closest("[data-locate-attraction]");
   const save = event.target.closest("[data-save-attraction]");
@@ -6947,7 +7101,7 @@ elements.mapAdminAttractionList.addEventListener("click", (event) => {
   if (locate) {
     void locateViennaAttraction(locate.dataset.locateAttraction);
   } else if (save) {
-    saveViennaAttraction(save.dataset.saveAttraction);
+    void saveViennaAttraction(save.dataset.saveAttraction);
   } else if (remove) {
     void removeViennaAttraction(remove.dataset.removeAttraction);
   }

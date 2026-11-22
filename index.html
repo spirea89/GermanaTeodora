@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20261122-shared-vienna-data">
+    <link rel="stylesheet" href="styles.css?v=20261122-github-publish">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.22.3</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.22.4</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -646,7 +646,7 @@
               <h2 id="map-admin-intro-title">Build your personal Vienna guide</h2>
               <p id="map-admin-intro-copy">Choose a district, record its name, and add attractions with an address, a detailed reading text, and a FilmCraft video from YouTube.</p>
             </div>
-            <span class="map-admin-storage-note" id="map-admin-storage-note">GitHub data + local draft</span>
+            <span class="map-admin-storage-note" id="map-admin-storage-note">GitHub sync + local backup</span>
           </div>
 
           <div class="map-admin-workspace">
@@ -689,14 +689,26 @@
               <p class="map-admin-attraction-help" id="map-admin-attraction-help">Add the full reading text and paste the public or unlisted YouTube link from FilmCraft. Locate address places the attraction on the map.</p>
               <div class="map-admin-attraction-list" id="map-admin-attraction-list"></div>
               <p class="map-admin-empty" id="map-admin-attraction-empty">No attractions added for this district yet.</p>
-              <section class="map-admin-publish" aria-labelledby="map-admin-shared-title">
-                <div>
-                  <h3 id="map-admin-shared-title">Publish for every device</h3>
-                  <p id="map-admin-export-help">After editing, download this file and send it to ChatGPT or replace data/vienna-map-content.json in GitHub.</p>
+              <section class="map-admin-github" aria-labelledby="map-admin-shared-title">
+                <div class="map-admin-github-heading">
+                  <div>
+                    <h3 id="map-admin-shared-title">Automatic GitHub publishing</h3>
+                    <p id="map-admin-github-help">Connect this maintenance device once. Saving a district or attraction will then commit the shared map file directly to main.</p>
+                  </div>
+                  <a id="map-admin-github-create" href="https://github.com/settings/personal-access-tokens/new?name=GermanaTeodora%20Map%20Admin&amp;description=Publishes%20Vienna%20map%20content&amp;target_name=spirea89&amp;expires_in=366&amp;contents=write" target="_blank" rel="noopener noreferrer">Create repository token</a>
                 </div>
-                <button id="map-admin-export" type="button">Download GitHub data file</button>
+                <p class="map-admin-github-security" id="map-admin-github-security">Create a fine-grained token for only GermanaTeodora with Contents read and write access. It stays in this browser and is sent only to api.github.com.</p>
+                <label for="map-admin-github-token" id="map-admin-github-token-label">Fine-grained GitHub token</label>
+                <div class="map-admin-github-connect-row">
+                  <input id="map-admin-github-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+                  <button id="map-admin-github-connect" type="button">Connect &amp; publish current data</button>
+                </div>
+                <div class="map-admin-github-status-row">
+                  <p id="map-admin-github-status" aria-live="polite">GitHub is not connected on this device.</p>
+                  <button class="ghost-button hidden" id="map-admin-github-forget" type="button">Forget connection</button>
+                </div>
               </section>
-              <p class="admin-note map-admin-note" id="map-admin-note" aria-live="polite">Edits are saved as a local draft. Download the GitHub data file to publish them for every device.</p>
+              <p class="admin-note map-admin-note" id="map-admin-note" aria-live="polite">Changes are backed up locally. Connect GitHub once, then Save &amp; publish updates every device.</p>
             </section>
           </div>
 
@@ -967,8 +979,8 @@
       </div>
     </div>
 
-    <script src="data/vienna-districts.js?v=20261122-shared-vienna-data"></script>
-    <script src="data/verb-forms.js?v=20261122-shared-vienna-data"></script>
-    <script src="app.js?v=20261122-shared-vienna-data"></script>
+    <script src="data/vienna-districts.js?v=20261122-github-publish"></script>
+    <script src="data/verb-forms.js?v=20261122-github-publish"></script>
+    <script src="app.js?v=20261122-github-publish"></script>
   </body>
 </html>
