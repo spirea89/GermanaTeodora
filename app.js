@@ -208,7 +208,7 @@ const viennaGithubTokenKey = "deutschUndMatheViennaGithubToken";
 const viennaGithubContentsApi = "https://api.github.com/repos/spirea89/GermanaTeodora/contents/data/vienna-map-content.json";
 const viennaGithubBranch = "main";
 const viennaDistrictGeoJson = window.VIENNA_DISTRICTS_GEOJSON || { type: "FeatureCollection", features: [] };
-const appVersion = "2026.11.22.4";
+const appVersion = "2026.11.22.5";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -923,7 +923,7 @@ const translations = {
     microphoneError: "Microphone recording is not available. Check the browser permission and try again.",
     placesToDiscover: "Places to discover",
     addAttraction: "Add attraction",
-    attractionHelp: "Add the full reading text and paste the public or unlisted YouTube link from FilmCraft. Locate address places the attraction on the map.",
+    attractionHelp: "Add the full reading text and paste the public or unlisted YouTube link from FilmCraft. Web addresses in the reading text become tappable links automatically.",
     noAdminAttractions: "No attractions added for this district yet.",
     mapStoredOnDevice: "Changes are backed up locally. Connect GitHub once, then Save & publish updates every device.",
     sharedMapData: "Automatic GitHub publishing",
@@ -1282,7 +1282,7 @@ const translations = {
     microphoneError: "Die Mikrofonaufnahme ist nicht verfügbar. Prüfe die Browserberechtigung und versuche es erneut.",
     placesToDiscover: "Orte zum Entdecken",
     addAttraction: "Sehenswürdigkeit hinzufügen",
-    attractionHelp: "Füge den vollständigen Lesetext hinzu und füge den öffentlichen oder nicht gelisteten YouTube-Link aus FilmCraft ein. Adresse finden setzt die Sehenswürdigkeit auf die Karte.",
+    attractionHelp: "Füge den vollständigen Lesetext und den öffentlichen oder nicht gelisteten YouTube-Link aus FilmCraft ein. Webadressen im Lesetext werden automatisch zu anklickbaren Links.",
     noAdminAttractions: "Für diesen Bezirk wurden noch keine Sehenswürdigkeiten hinzugefügt.",
     mapStoredOnDevice: "Änderungen werden lokal gesichert. Verbinde GitHub einmalig; danach aktualisiert Speichern & veröffentlichen alle Geräte.",
     sharedMapData: "Automatisch auf GitHub veröffentlichen",
@@ -6160,6 +6160,38 @@ function canonicalYoutubeUrl(value) {
   return videoId ? `https://www.youtube.com/watch?v=${videoId}` : "";
 }
 
+function appendViennaLinkedText(container, value) {
+  const text = String(value || "");
+  const linkPattern = /https?:\/\/[^\s<>"']+/gi;
+  let cursor = 0;
+  let match = linkPattern.exec(text);
+  while (match) {
+    container.append(document.createTextNode(text.slice(cursor, match.index)));
+    let linkValue = match[0];
+    let trailingPunctuation = "";
+    while (/[.,;:!?\]\}]$/.test(linkValue)) {
+      trailingPunctuation = `${linkValue.slice(-1)}${trailingPunctuation}`;
+      linkValue = linkValue.slice(0, -1);
+    }
+    try {
+      const url = new URL(linkValue);
+      const link = document.createElement("a");
+      link.className = "vienna-inline-link";
+      link.href = url.href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = /(^|\.)wikipedia\.org$/i.test(url.hostname) ? "Wikipedia" : linkValue;
+      container.append(link);
+    } catch {
+      container.append(document.createTextNode(linkValue));
+    }
+    container.append(document.createTextNode(trailingPunctuation));
+    cursor = match.index + match[0].length;
+    match = linkPattern.exec(text);
+  }
+  container.append(document.createTextNode(text.slice(cursor)));
+}
+
 function openViennaAudioDatabase() {
   return new Promise((resolve, reject) => {
     if (!("indexedDB" in window)) {
@@ -6517,7 +6549,7 @@ function renderViennaDistrictDetails() {
       if (attraction.details) {
         const details = document.createElement("p");
         details.className = "vienna-attraction-detail";
-        details.textContent = attraction.details;
+        appendViennaLinkedText(details, attraction.details);
         reading.append(details);
       } else {
         const missing = document.createElement("p");

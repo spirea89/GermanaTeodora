@@ -24,6 +24,7 @@ After changing either file on GitHub, open Administration in the app and choose 
 - Map Administration stores district names, detailed attraction reading texts, YouTube video links, and resolved Vienna addresses locally on the device. FilmCraft attraction videos can be embedded from public or unlisted YouTube links.
 - District-name recordings remain stored as blobs in IndexedDB on the device.
 - Shared map content is loaded from `data/vienna-map-content.json`, so published attractions appear on every device. On the trusted maintenance device, Map Administration can store a repository-scoped fine-grained GitHub token locally and publish this file directly to `main` whenever a district or attraction is saved. The token is never committed to the repository.
+- Full `http://` and `https://` addresses in an attraction's detailed reading text are displayed as safe, tappable links; Wikipedia addresses use a compact `Wikipedia` label.
 - Attraction addresses are located with the official Stadt Wien OGD address service and displayed as markers in their returned district.
 - District geometry and address lookup are credited to Stadt Wien – data.wien.gv.at under CC BY 4.0.
 

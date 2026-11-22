@@ -410,6 +410,19 @@
   font-style: italic;
 }
 
+.vienna-inline-link {
+  color: #176c76;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.vienna-inline-link:hover,
+.vienna-inline-link:focus-visible {
+  color: #a12b47;
+}
+
 .vienna-attraction-play {
   width: 100%;
   margin-top: 10px;
