@@ -1,30 +1,88 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T00:00:00.000Z",
+  "updatedAt": "2026-11-22T18:29:31.779Z",
   "districts": {
-    "1": { "name": "Innere Stadt" },
-    "2": { "name": "Leopoldstadt" },
-    "3": { "name": "Landstraße" },
-    "4": { "name": "Wieden" },
-    "5": { "name": "Margareten" },
-    "6": { "name": "Mariahilf" },
-    "7": { "name": "Neubau" },
-    "8": { "name": "Josefstadt" },
-    "9": { "name": "Alsergrund" },
-    "10": { "name": "Favoriten" },
-    "11": { "name": "Simmering" },
-    "12": { "name": "Meidling" },
-    "13": { "name": "Hietzing" },
-    "14": { "name": "Penzing" },
-    "15": { "name": "Rudolfsheim-Fünfhaus" },
-    "16": { "name": "Ottakring" },
-    "17": { "name": "Hernals" },
-    "18": { "name": "Währing" },
-    "19": { "name": "Döbling" },
-    "20": { "name": "Brigittenau" },
-    "21": { "name": "Floridsdorf" },
-    "22": { "name": "Donaustadt" },
-    "23": { "name": "Liesing" }
+    "1": {
+      "name": "Innere Stadt"
+    },
+    "2": {
+      "name": "Leopoldstadt"
+    },
+    "3": {
+      "name": "Landstraße"
+    },
+    "4": {
+      "name": "Wieden"
+    },
+    "5": {
+      "name": "Margareten"
+    },
+    "6": {
+      "name": "Mariahilf"
+    },
+    "7": {
+      "name": "Neubau"
+    },
+    "8": {
+      "name": "Josefstadt"
+    },
+    "9": {
+      "name": "Alsergrund"
+    },
+    "10": {
+      "name": "Favoriten"
+    },
+    "11": {
+      "name": "Simmering"
+    },
+    "12": {
+      "name": "Meidling"
+    },
+    "13": {
+      "name": "Hietzing"
+    },
+    "14": {
+      "name": "Penzing"
+    },
+    "15": {
+      "name": "Rudolfsheim-Fünfhaus"
+    },
+    "16": {
+      "name": "Ottakring"
+    },
+    "17": {
+      "name": "Hernals"
+    },
+    "18": {
+      "name": "Währing"
+    },
+    "19": {
+      "name": "Döbling"
+    },
+    "20": {
+      "name": "Brigittenau"
+    },
+    "21": {
+      "name": "Floridsdorf"
+    },
+    "22": {
+      "name": "Donaustadt"
+    },
+    "23": {
+      "name": "Liesing"
+    }
   },
-  "attractions": []
+  "attractions": [
+    {
+      "id": "vienna-1795369276595-a9ajcn",
+      "districtId": 1,
+      "name": "1. Die Wiener Ringstraße – Eine Straße voller Geheimnisse",
+      "address": "",
+      "resolvedAddress": "",
+      "details": "Die Wiener Ringstraße wurde am 1. Mai 1865 von Kaiser Franz Joseph eröffnet. Sie ist ungefähr 5,3 Kilometer lang und führt rund um die historische Innenstadt Wiens.\n\nFrüher war die Innenstadt von einer Stadtmauer umgeben. Nachdem diese abgerissen worden war, entstanden breite Straßen, Parks und viele prächtige Gebäude.\n\nDie Ringstraße besteht aus mehreren Abschnitten. Dazu gehören zum Beispiel der Opernring, der Burgring, der Universitätsring und der Schottenring.\n\nViele berühmte Gebäude wurden im 19. Jahrhundert gebaut. Heute gehört die Ringstraße zu den bekanntesten Sehenswürdigkeiten Wiens.\n\nWusstest du schon? Mit den Straßenbahnlinien 1 und 2 kannst du verschiedene Abschnitte der Ringstraße entdecken.\n\nFrage: Was stand früher dort, wo heute die Ringstraße verläuft?\nhttps://de.wikipedia.org/wiki/Wiener_Ringstra%C3%9Fe?utm_source=chatgpt.com",
+      "youtubeUrl": "https://www.youtube.com/watch?v=NZoa8SsI6uQ",
+      "latitude": null,
+      "longitude": null
+    }
+  ]
 }
