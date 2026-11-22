@@ -734,6 +734,40 @@
   color: #1d6a45;
 }
 
+.map-admin-publish {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid #b9d9d4;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #effbf8, #eef7ff);
+}
+
+.map-admin-publish h3 {
+  margin: 0 0 6px;
+  color: #173e5b;
+}
+
+.map-admin-publish p {
+  max-width: 650px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+#map-admin-export {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: #173e5b;
+  color: #ffffff;
+  font-weight: 900;
+}
+
 .map-admin-note.try {
   color: #a12b47;
 }
@@ -780,6 +814,15 @@
 
   .map-admin-district-grid {
     grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .map-admin-publish {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #map-admin-export {
+    width: 100%;
   }
 
   .vienna-district-buttons {

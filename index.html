@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20261122-youtube-attractions">
+    <link rel="stylesheet" href="styles.css?v=20261122-shared-vienna-data">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.22.2</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.22.3</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -646,7 +646,7 @@
               <h2 id="map-admin-intro-title">Build your personal Vienna guide</h2>
               <p id="map-admin-intro-copy">Choose a district, record its name, and add attractions with an address, a detailed reading text, and a FilmCraft video from YouTube.</p>
             </div>
-            <span class="map-admin-storage-note" id="map-admin-storage-note">Saved on this device</span>
+            <span class="map-admin-storage-note" id="map-admin-storage-note">GitHub data + local draft</span>
           </div>
 
           <div class="map-admin-workspace">
@@ -689,7 +689,14 @@
               <p class="map-admin-attraction-help" id="map-admin-attraction-help">Add the full reading text and paste the public or unlisted YouTube link from FilmCraft. Locate address places the attraction on the map.</p>
               <div class="map-admin-attraction-list" id="map-admin-attraction-list"></div>
               <p class="map-admin-empty" id="map-admin-attraction-empty">No attractions added for this district yet.</p>
-              <p class="admin-note map-admin-note" id="map-admin-note" aria-live="polite">Recordings and attractions are stored only on this device.</p>
+              <section class="map-admin-publish" aria-labelledby="map-admin-shared-title">
+                <div>
+                  <h3 id="map-admin-shared-title">Publish for every device</h3>
+                  <p id="map-admin-export-help">After editing, download this file and send it to ChatGPT or replace data/vienna-map-content.json in GitHub.</p>
+                </div>
+                <button id="map-admin-export" type="button">Download GitHub data file</button>
+              </section>
+              <p class="admin-note map-admin-note" id="map-admin-note" aria-live="polite">Edits are saved as a local draft. Download the GitHub data file to publish them for every device.</p>
             </section>
           </div>
 
@@ -960,8 +967,8 @@
       </div>
     </div>
 
-    <script src="data/vienna-districts.js?v=20261122-youtube-attractions"></script>
-    <script src="data/verb-forms.js?v=20261122-youtube-attractions"></script>
-    <script src="app.js?v=20261122-youtube-attractions"></script>
+    <script src="data/vienna-districts.js?v=20261122-shared-vienna-data"></script>
+    <script src="data/verb-forms.js?v=20261122-shared-vienna-data"></script>
+    <script src="app.js?v=20261122-shared-vienna-data"></script>
   </body>
 </html>

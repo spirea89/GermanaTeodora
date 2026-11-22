@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-22T00:00:00.000Z",
+  "districts": {
+    "1": { "name": "Innere Stadt" },
+    "2": { "name": "Leopoldstadt" },
+    "3": { "name": "Landstraße" },
+    "4": { "name": "Wieden" },
+    "5": { "name": "Margareten" },
+    "6": { "name": "Mariahilf" },
+    "7": { "name": "Neubau" },
+    "8": { "name": "Josefstadt" },
+    "9": { "name": "Alsergrund" },
+    "10": { "name": "Favoriten" },
+    "11": { "name": "Simmering" },
+    "12": { "name": "Meidling" },
+    "13": { "name": "Hietzing" },
+    "14": { "name": "Penzing" },
+    "15": { "name": "Rudolfsheim-Fünfhaus" },
+    "16": { "name": "Ottakring" },
+    "17": { "name": "Hernals" },
+    "18": { "name": "Währing" },
+    "19": { "name": "Döbling" },
+    "20": { "name": "Brigittenau" },
+    "21": { "name": "Floridsdorf" },
+    "22": { "name": "Donaustadt" },
+    "23": { "name": "Liesing" }
+  },
+  "attractions": []
+}

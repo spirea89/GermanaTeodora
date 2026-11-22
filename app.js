@@ -203,8 +203,9 @@ const animalContentStorageKey = "deutschUndMatheAnimalExplorer";
 const viennaMapStorageKey = "deutschUndMatheViennaMapV1";
 const viennaMapAudioDatabase = "deutschUndMatheViennaMapAudio";
 const viennaAddressService = "https://data.wien.gv.at/daten/OGDAddressService.svc/GetAddressInfo";
+const viennaMapSharedFile = "data/vienna-map-content.json";
 const viennaDistrictGeoJson = window.VIENNA_DISTRICTS_GEOJSON || { type: "FeatureCollection", features: [] };
-const appVersion = "2026.11.21.1";
+const appVersion = "2026.11.22.3";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -902,7 +903,7 @@ const translations = {
     mapAdminTitle: "Vienna Map Administration",
     mapAdminIntroTitle: "Build your personal Vienna guide",
     mapAdminIntroCopy: "Choose a district, record its name, and add attractions with an address, a detailed reading text, and a FilmCraft video from YouTube.",
-    savedOnDevice: "Saved on this device",
+    savedOnDevice: "GitHub data + local draft",
     districtObjects: "District objects",
     districtObject: "District object",
     districtNameLabel: "District name shown in the game",
@@ -921,7 +922,11 @@ const translations = {
     addAttraction: "Add attraction",
     attractionHelp: "Add the full reading text and paste the public or unlisted YouTube link from FilmCraft. Locate address places the attraction on the map.",
     noAdminAttractions: "No attractions added for this district yet.",
-    mapStoredOnDevice: "District recordings, attraction details, and YouTube links are stored only on this device.",
+    mapStoredOnDevice: "Edits are saved as a local draft. Download the GitHub data file to publish them for every device.",
+    exportMapData: "Download GitHub data file",
+    sharedMapData: "Publish for every device",
+    exportMapHelp: "After editing, download this file and send it to ChatGPT or replace data/vienna-map-content.json in GitHub.",
+    mapExported: "Shared map file downloaded. Publish it to GitHub so every device receives these attractions.",
     attractionName: "Attraction name",
     attractionAddress: "Vienna address",
     attractionDetails: "Detailed reading text",
@@ -1245,7 +1250,7 @@ const translations = {
     mapAdminTitle: "Wien-Kartenverwaltung",
     mapAdminIntroTitle: "Erstelle deinen persönlichen Wien-Führer",
     mapAdminIntroCopy: "Wähle einen Bezirk, nimm seinen Namen auf und füge Sehenswürdigkeiten mit Adresse, ausführlichem Lesetext und einem FilmCraft-Video von YouTube hinzu.",
-    savedOnDevice: "Auf diesem Gerät gespeichert",
+    savedOnDevice: "GitHub-Daten + lokaler Entwurf",
     districtObjects: "Bezirksobjekte",
     districtObject: "Bezirksobjekt",
     districtNameLabel: "Bezirksname im Lernspiel",
@@ -1264,7 +1269,11 @@ const translations = {
     addAttraction: "Sehenswürdigkeit hinzufügen",
     attractionHelp: "Füge den vollständigen Lesetext hinzu und füge den öffentlichen oder nicht gelisteten YouTube-Link aus FilmCraft ein. Adresse finden setzt die Sehenswürdigkeit auf die Karte.",
     noAdminAttractions: "Für diesen Bezirk wurden noch keine Sehenswürdigkeiten hinzugefügt.",
-    mapStoredOnDevice: "Bezirksaufnahmen, Sehenswürdigkeiten und YouTube-Links werden nur auf diesem Gerät gespeichert.",
+    mapStoredOnDevice: "Änderungen werden als lokaler Entwurf gespeichert. Lade die GitHub-Datendatei herunter, um sie für alle Geräte zu veröffentlichen.",
+    exportMapData: "GitHub-Datendatei herunterladen",
+    sharedMapData: "Für alle Geräte veröffentlichen",
+    exportMapHelp: "Lade die Datei nach dem Bearbeiten herunter und sende sie an ChatGPT oder ersetze data/vienna-map-content.json auf GitHub.",
+    mapExported: "Die gemeinsame Kartendatei wurde heruntergeladen. Veröffentliche sie auf GitHub, damit alle Geräte diese Sehenswürdigkeiten erhalten.",
     attractionName: "Name der Sehenswürdigkeit",
     attractionAddress: "Wiener Adresse",
     attractionDetails: "Ausführlicher Lesetext",
@@ -1612,6 +1621,7 @@ const elements = {
   mapAdminDeleteDistrictAudio: document.querySelector("#map-admin-delete-district-audio"),
   mapAdminDistrictAudioStatus: document.querySelector("#map-admin-district-audio-status"),
   mapAdminAddAttraction: document.querySelector("#map-admin-add-attraction"),
+  mapAdminExport: document.querySelector("#map-admin-export"),
   mapAdminAttractionList: document.querySelector("#map-admin-attraction-list"),
   mapAdminAttractionEmpty: document.querySelector("#map-admin-attraction-empty"),
   mapAdminNote: document.querySelector("#map-admin-note"),
@@ -1758,6 +1768,7 @@ let animalTestScoreValue = 0;
 let animalTestAnswered = false;
 let animalTestSelectedOptionIndex = -1;
 let viennaMapData = loadViennaMapData();
+let viennaMapSharedReady = loadSharedViennaMapData();
 let viennaSelectedDistrict = null;
 let viennaSelectedAttraction = null;
 let viennaAdminDistrict = 1;
@@ -4079,7 +4090,8 @@ function showAnimalApp(animalId) {
   setAnimalActivityMode("explore");
 }
 
-function showViennaMapApp() {
+async function showViennaMapApp() {
+  await viennaMapSharedReady;
   elements.optionalHub.classList.add("hidden");
   elements.animalApp.classList.add("hidden");
   elements.viennaMapApp.classList.remove("hidden");
@@ -5859,42 +5871,97 @@ function defaultViennaMapData() {
   return { districts, attractions: [] };
 }
 
-function loadViennaMapData() {
-  const defaults = defaultViennaMapData();
+function readLocalViennaMapData() {
   try {
     const saved = JSON.parse(localStorage.getItem(viennaMapStorageKey) || "null");
-    if (!saved || typeof saved !== "object") {
-      return defaults;
-    }
-    Object.keys(defaults.districts).forEach((number) => {
-      const savedName = String(saved.districts?.[number]?.name || "").trim();
-      if (savedName) {
-        defaults.districts[number].name = savedName;
-      }
-    });
-    defaults.attractions = Array.isArray(saved.attractions)
-      ? saved.attractions
-        .filter((item) => item && item.id && Number(item.districtId) >= 1 && Number(item.districtId) <= 23)
-        .map((item) => ({
-          id: String(item.id),
-          districtId: Number(item.districtId),
-          name: String(item.name || ""),
-          address: String(item.address || ""),
-          resolvedAddress: String(item.resolvedAddress || ""),
-          details: String(item.details || ""),
-          youtubeUrl: String(item.youtubeUrl || ""),
-          latitude: item.latitude !== null && item.latitude !== "" && Number.isFinite(Number(item.latitude)) ? Number(item.latitude) : null,
-          longitude: item.longitude !== null && item.longitude !== "" && Number.isFinite(Number(item.longitude)) ? Number(item.longitude) : null
-        }))
-      : [];
-    return defaults;
+    return saved && typeof saved === "object" ? saved : null;
   } catch {
-    return defaults;
+    return null;
+  }
+}
+
+function normalizedViennaAttractions(items) {
+  return Array.isArray(items)
+    ? items
+      .filter((item) => item && item.id && Number(item.districtId) >= 1 && Number(item.districtId) <= 23)
+      .map((item) => ({
+        id: String(item.id),
+        districtId: Number(item.districtId),
+        name: String(item.name || ""),
+        address: String(item.address || ""),
+        resolvedAddress: String(item.resolvedAddress || ""),
+        details: String(item.details || ""),
+        youtubeUrl: String(item.youtubeUrl || ""),
+        latitude: item.latitude !== null && item.latitude !== "" && Number.isFinite(Number(item.latitude)) ? Number(item.latitude) : null,
+        longitude: item.longitude !== null && item.longitude !== "" && Number.isFinite(Number(item.longitude)) ? Number(item.longitude) : null
+      }))
+    : [];
+}
+
+function mergeViennaMapData(base, overlay) {
+  const merged = {
+    districts: Object.fromEntries(Object.entries(base.districts || {}).map(([number, district]) => [number, { name: String(district.name || "") }])),
+    attractions: normalizedViennaAttractions(base.attractions)
+  };
+  if (!overlay || typeof overlay !== "object") {
+    return merged;
+  }
+  Object.keys(merged.districts).forEach((number) => {
+    const overlayName = String(overlay.districts?.[number]?.name || "").trim();
+    if (overlayName) {
+      merged.districts[number].name = overlayName;
+    }
+  });
+  const attractionsById = new Map(merged.attractions.map((item) => [item.id, item]));
+  normalizedViennaAttractions(overlay.attractions).forEach((item) => attractionsById.set(item.id, item));
+  merged.attractions = [...attractionsById.values()];
+  return merged;
+}
+
+function loadViennaMapData() {
+  return mergeViennaMapData(defaultViennaMapData(), readLocalViennaMapData());
+}
+
+async function loadSharedViennaMapData() {
+  try {
+    const response = await fetch(`${viennaMapSharedFile}?updated=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) {
+      return false;
+    }
+    const shared = await response.json();
+    viennaMapData = mergeViennaMapData(
+      mergeViennaMapData(defaultViennaMapData(), shared),
+      readLocalViennaMapData()
+    );
+    return true;
+  } catch {
+    return false;
   }
 }
 
 function saveViennaMapData() {
   localStorage.setItem(viennaMapStorageKey, JSON.stringify(viennaMapData));
+}
+
+function exportViennaMapData() {
+  const payload = {
+    version: 1,
+    updatedAt: new Date().toISOString(),
+    districts: Object.fromEntries(
+      Object.entries(viennaMapData.districts).map(([number, district]) => [number, { name: String(district.name || "") }])
+    ),
+    attractions: normalizedViennaAttractions(viennaMapData.attractions)
+  };
+  const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], { type: "application/json" });
+  const downloadUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = "vienna-map-content.json";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+  setViennaMapAdminNote(t("mapExported"), "success");
 }
 
 function viennaDistricts() {
@@ -6372,8 +6439,11 @@ function updateViennaMapAdminLanguage() {
   setText("#map-admin-attractions-eyebrow", "placesToDiscover");
   setText("#map-admin-attractions-title", "mainAttractions");
   setText("#map-admin-attraction-help", "attractionHelp");
+  setText("#map-admin-shared-title", "sharedMapData");
+  setText("#map-admin-export-help", "exportMapHelp");
   elements.mapAdminSaveDistrict.textContent = t("saveName");
   elements.mapAdminAddAttraction.textContent = t("addAttraction");
+  elements.mapAdminExport.textContent = t("exportMapData");
   if (!elements.mapAdminNote.dataset.state || elements.mapAdminNote.dataset.state === "ready") {
     setViennaMapAdminNote(t("mapStoredOnDevice"));
   }
@@ -6384,6 +6454,7 @@ function updateViennaMapAdminLanguage() {
 }
 
 async function openViennaMapAdmin() {
+  await viennaMapSharedReady;
   await refreshViennaAudioKeys();
   renderViennaMapAdmin();
 }
@@ -6868,6 +6939,7 @@ elements.mapAdminDeleteDistrictAudio.addEventListener("click", () => {
   void deleteViennaRecording(viennaDistrictAudioKey(viennaAdminDistrict));
 });
 elements.mapAdminAddAttraction.addEventListener("click", createViennaAttraction);
+elements.mapAdminExport.addEventListener("click", exportViennaMapData);
 elements.mapAdminAttractionList.addEventListener("click", (event) => {
   const locate = event.target.closest("[data-locate-attraction]");
   const save = event.target.closest("[data-save-attraction]");
