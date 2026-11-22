@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T18:43:06.748Z",
+  "updatedAt": "2026-11-22T19:03:42.959Z",
   "districts": {
     "1": {
       "name": "Innere Stadt"
@@ -81,6 +81,17 @@
       "resolvedAddress": "",
       "details": "Die Wiener Ringstraße wurde am 1. Mai 1865 von Kaiser Franz Joseph eröffnet. Sie ist ungefähr 5,3 Kilometer lang und führt rund um die historische Innenstadt Wiens.\n\nFrüher war die Innenstadt von einer Stadtmauer umgeben. Nachdem diese abgerissen worden war, entstanden breite Straßen, Parks und viele prächtige Gebäude.\n\nDie Ringstraße besteht aus mehreren Abschnitten. Dazu gehören zum Beispiel der Opernring, der Burgring, der Universitätsring und der Schottenring.\n\nViele berühmte Gebäude wurden im 19. Jahrhundert gebaut. Heute gehört die Ringstraße zu den bekanntesten Sehenswürdigkeiten Wiens.\n\nWusstest du schon? Mit den Straßenbahnlinien 1 und 2 kannst du verschiedene Abschnitte der Ringstraße entdecken.\n\nFrage: Was stand früher dort, wo heute die Ringstraße verläuft?\nhttps://de.wikipedia.org/wiki/Wiener_Ringstra%C3%9Fe?utm_source=chatgpt.com",
       "youtubeUrl": "https://www.youtube.com/watch?v=NZoa8SsI6uQ",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "vienna-1795374025402-xa9a9r",
+      "districtId": 1,
+      "name": "2. Die Wiener Staatsoper – Wo die Musik zaubert",
+      "address": "Opernring 2, 1010 Wien",
+      "resolvedAddress": "",
+      "details": "Die Wiener Staatsoper befindet sich am Opernring im 1. Wiener Gemeindebezirk. Sie wurde am 25. Mai 1869 mit der Oper „Don Giovanni“ von Wolfgang Amadeus Mozart eröffnet.\n\nDie Architekten August Sicard von Sicardsburg und Eduard van der Nüll planten das Gebäude.\n\nIn der Staatsoper werden Opern und Ballette aufgeführt. Auf der Bühne stehen Künstlerinnen und Künstler aus vielen Ländern.\n\nWährend des Zweiten Weltkriegs wurde das Gebäude schwer beschädigt. Nach dem Wiederaufbau wurde es 1955 erneut eröffnet.\n\nWusstest du schon? Jedes Jahr findet in der Staatsoper der berühmte Wiener Opernball statt.\n\nFrage: Wie heißt der berühmte Ball, der in der Staatsoper stattfindet?\n\nhttps://de.wikipedia.org/wiki/Wiener_Staatsoper?utm_source=chatgpt.com",
+      "youtubeUrl": "https://www.youtube.com/watch?v=_wHXZ_u7-Jc",
       "latitude": null,
       "longitude": null
     }
