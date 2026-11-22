@@ -726,7 +726,11 @@ const translations = {
     allViennaDistricts: "The 23 districts of Vienna",
     districtLegend: "District",
     attractionLegend: "Attraction",
-    playAttractionDetails: "🔊 Play details",
+    attractionReadPrompt: "Tap to read the full story",
+    attractionReadingTitle: "Read and discover",
+    attractionDetailsMissing: "The detailed reading text will appear here soon.",
+    playAttractionDetails: "🔊 Listen to the audio sample",
+    noAttractionAudio: "Audio sample not added yet",
     animalInstruction: "Tap a glowing point on the bat to learn what that body part does.",
     selectedBodyPart: "Selected body part",
     chooseBodyPart: "Choose a body part",
@@ -896,7 +900,7 @@ const translations = {
     mapAdminBack: "Back to Administration",
     mapAdminTitle: "Vienna Map Administration",
     mapAdminIntroTitle: "Build your personal Vienna guide",
-    mapAdminIntroCopy: "Choose a district, record its name, and add attractions with an address and spoken details.",
+    mapAdminIntroCopy: "Choose a district, record its name, and add attractions with an address, a detailed reading text, and a short audio sample.",
     savedOnDevice: "Saved on this device",
     districtObjects: "District objects",
     districtObject: "District object",
@@ -914,15 +918,15 @@ const translations = {
     microphoneError: "Microphone recording is not available. Check the browser permission and try again.",
     placesToDiscover: "Places to discover",
     addAttraction: "Add attraction",
-    attractionHelp: "Enter a Vienna address and choose Locate address. The official Vienna address service places the marker on the map.",
+    attractionHelp: "Add the full text your child can read, then record a short audio sample that encourages them to open the attraction. Locate address places it on the map.",
     noAdminAttractions: "No attractions added for this district yet.",
     mapStoredOnDevice: "Recordings and attractions are stored only on this device.",
     attractionName: "Attraction name",
     attractionAddress: "Vienna address",
-    attractionDetails: "Details shown in the game",
+    attractionDetails: "Detailed reading text",
     locateAddress: "Locate address",
     saveAttraction: "Save attraction",
-    recordDetails: "🎙️ Record details",
+    recordDetails: "🎙️ Record audio sample",
     removeAttraction: "Remove",
     notLocated: "Address not located yet.",
     locatedAt: (latitude, longitude) => `Map position: ${latitude}, ${longitude}`,
@@ -1060,7 +1064,11 @@ const translations = {
     allViennaDistricts: "Die 23 Bezirke Wiens",
     districtLegend: "Bezirk",
     attractionLegend: "Sehenswürdigkeit",
-    playAttractionDetails: "🔊 Details abspielen",
+    attractionReadPrompt: "Tippe, um den ganzen Text zu lesen",
+    attractionReadingTitle: "Lesen und entdecken",
+    attractionDetailsMissing: "Der ausführliche Lesetext erscheint bald hier.",
+    playAttractionDetails: "🔊 Hörprobe anhören",
+    noAttractionAudio: "Noch keine Hörprobe vorhanden",
     animalInstruction: "Tippe auf einen leuchtenden Punkt der Fledermaus und erfahre mehr über dieses Körperteil.",
     selectedBodyPart: "Ausgewähltes Körperteil",
     chooseBodyPart: "Wähle ein Körperteil",
@@ -1230,7 +1238,7 @@ const translations = {
     mapAdminBack: "Zurück zur Verwaltung",
     mapAdminTitle: "Wien-Kartenverwaltung",
     mapAdminIntroTitle: "Erstelle deinen persönlichen Wien-Führer",
-    mapAdminIntroCopy: "Wähle einen Bezirk, nimm seinen Namen auf und füge Sehenswürdigkeiten mit Adresse und gesprochenen Details hinzu.",
+    mapAdminIntroCopy: "Wähle einen Bezirk, nimm seinen Namen auf und füge Sehenswürdigkeiten mit Adresse, ausführlichem Lesetext und kurzer Hörprobe hinzu.",
     savedOnDevice: "Auf diesem Gerät gespeichert",
     districtObjects: "Bezirksobjekte",
     districtObject: "Bezirksobjekt",
@@ -1248,15 +1256,15 @@ const translations = {
     microphoneError: "Die Mikrofonaufnahme ist nicht verfügbar. Prüfe die Browserberechtigung und versuche es erneut.",
     placesToDiscover: "Orte zum Entdecken",
     addAttraction: "Sehenswürdigkeit hinzufügen",
-    attractionHelp: "Gib eine Wiener Adresse ein und wähle Adresse finden. Der Adressdienst der Stadt Wien setzt die Markierung auf die Karte.",
+    attractionHelp: "Füge den vollständigen Lesetext hinzu und nimm danach eine kurze Hörprobe auf, die neugierig auf die Sehenswürdigkeit macht. Adresse finden setzt sie auf die Karte.",
     noAdminAttractions: "Für diesen Bezirk wurden noch keine Sehenswürdigkeiten hinzugefügt.",
     mapStoredOnDevice: "Aufnahmen und Sehenswürdigkeiten werden nur auf diesem Gerät gespeichert.",
     attractionName: "Name der Sehenswürdigkeit",
     attractionAddress: "Wiener Adresse",
-    attractionDetails: "Details im Lernspiel",
+    attractionDetails: "Ausführlicher Lesetext",
     locateAddress: "Adresse finden",
     saveAttraction: "Sehenswürdigkeit speichern",
-    recordDetails: "🎙️ Details aufnehmen",
+    recordDetails: "🎙️ Hörprobe aufnehmen",
     removeAttraction: "Entfernen",
     notLocated: "Adresse noch nicht gefunden.",
     locatedAt: (latitude, longitude) => `Kartenposition: ${latitude}, ${longitude}`,
@@ -5864,8 +5872,8 @@ function loadViennaMapData() {
           address: String(item.address || ""),
           resolvedAddress: String(item.resolvedAddress || ""),
           details: String(item.details || ""),
-          latitude: Number.isFinite(Number(item.latitude)) ? Number(item.latitude) : null,
-          longitude: Number.isFinite(Number(item.longitude)) ? Number(item.longitude) : null
+          latitude: item.latitude !== null && item.latitude !== "" && Number.isFinite(Number(item.latitude)) ? Number(item.latitude) : null,
+          longitude: item.longitude !== null && item.longitude !== "" && Number.isFinite(Number(item.longitude)) ? Number(item.longitude) : null
         }))
       : [];
     return defaults;
@@ -6184,7 +6192,7 @@ function selectViennaAttraction(id, options = {}) {
   updateViennaMapSelection();
   renderViennaDistrictDetails();
   if (options.play) {
-    void playViennaAudio(viennaAttractionAudioKey(attraction.id), `${attraction.name}. ${attraction.details}`.trim());
+    void playViennaAudio(viennaAttractionAudioKey(attraction.id));
   }
 }
 
@@ -6226,20 +6234,38 @@ function renderViennaDistrictDetails() {
     const address = document.createElement("small");
     address.textContent = attraction.resolvedAddress || attraction.address;
     select.append(name, address);
+    if (attraction.id !== viennaSelectedAttraction) {
+      const prompt = document.createElement("span");
+      prompt.className = "vienna-attraction-read-prompt";
+      prompt.textContent = t("attractionReadPrompt");
+      select.append(prompt);
+    }
     card.append(select);
     if (attraction.id === viennaSelectedAttraction) {
+      const reading = document.createElement("section");
+      reading.className = "vienna-attraction-reading";
+      const readingTitle = document.createElement("h5");
+      readingTitle.textContent = t("attractionReadingTitle");
+      reading.append(readingTitle);
       if (attraction.details) {
         const details = document.createElement("p");
         details.className = "vienna-attraction-detail";
         details.textContent = attraction.details;
-        card.append(details);
+        reading.append(details);
+      } else {
+        const missing = document.createElement("p");
+        missing.className = "vienna-attraction-detail is-missing";
+        missing.textContent = t("attractionDetailsMissing");
+        reading.append(missing);
       }
+      card.append(reading);
       const play = document.createElement("button");
       play.type = "button";
       play.className = "vienna-attraction-play";
       play.dataset.playViennaAttraction = attraction.id;
-      play.textContent = t("playAttractionDetails");
-      play.disabled = !attraction.details && !viennaAudioKeys.has(viennaAttractionAudioKey(attraction.id));
+      const hasAudioSample = viennaAudioKeys.has(viennaAttractionAudioKey(attraction.id));
+      play.textContent = hasAudioSample ? t("playAttractionDetails") : t("noAttractionAudio");
+      play.disabled = !hasAudioSample;
       card.append(play);
     }
     elements.viennaAttractionList.append(card);
@@ -6371,15 +6397,15 @@ function renderViennaMapAdmin() {
       <div class="map-attraction-fields">
         <div class="map-attraction-field">
           <label>${escapeViennaMarkup(t("attractionName"))}</label>
-          <input type="text" data-attraction-field="name" value="${escapeViennaMarkup(attraction.name)}" autocomplete="off">
+          <input type="text" data-attraction-field="name" value="${escapeViennaMarkup(attraction.name)}" autocomplete="off" aria-label="${escapeViennaMarkup(t("attractionName"))}">
         </div>
         <div class="map-attraction-field">
           <label>${escapeViennaMarkup(t("attractionAddress"))}</label>
-          <input type="text" data-attraction-field="address" value="${escapeViennaMarkup(attraction.address)}" autocomplete="street-address">
+          <input type="text" data-attraction-field="address" value="${escapeViennaMarkup(attraction.address)}" autocomplete="street-address" aria-label="${escapeViennaMarkup(t("attractionAddress"))}">
         </div>
         <div class="map-attraction-field full">
           <label>${escapeViennaMarkup(t("attractionDetails"))}</label>
-          <textarea data-attraction-field="details">${escapeViennaMarkup(attraction.details)}</textarea>
+          <textarea data-attraction-field="details" aria-label="${escapeViennaMarkup(t("attractionDetails"))}">${escapeViennaMarkup(attraction.details)}</textarea>
         </div>
       </div>
       <p class="map-attraction-location">${escapeViennaMarkup(locationText)}</p>

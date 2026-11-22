@@ -345,10 +345,39 @@
   line-height: 1.35;
 }
 
+.vienna-attraction-read-prompt {
+  display: inline-block;
+  margin-top: 9px;
+  color: #276d72;
+  font-size: 0.88rem;
+  font-weight: 850;
+}
+
+.vienna-attraction-reading {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e5efed;
+}
+
+.vienna-attraction-reading h5 {
+  margin: 0;
+  color: #173e5b;
+  font-size: 1rem;
+}
+
 .vienna-attraction-detail {
-  margin: 10px 0 0;
+  margin: 9px 0 0;
+  color: #3f4f53;
+  font-size: 1rem;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.vienna-attraction-detail.is-missing {
   color: var(--muted);
-  line-height: 1.5;
+  font-style: italic;
 }
 
 .vienna-attraction-play {
@@ -644,7 +673,8 @@
 }
 
 .map-attraction-field textarea {
-  min-height: 92px;
+  min-height: 180px;
+  line-height: 1.55;
   resize: vertical;
 }
 
