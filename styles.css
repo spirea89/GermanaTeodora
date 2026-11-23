@@ -194,6 +194,88 @@
   dominant-baseline: central;
 }
 
+.vienna-main-street {
+  pointer-events: none;
+  fill: none;
+  stroke: #fff3b5;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 1.5px rgba(87, 63, 26, 0.72));
+  opacity: 0;
+  animation: vienna-street-draw 920ms ease-out forwards;
+}
+
+.vienna-main-street.is-category-b {
+  stroke: #dff4ff;
+  stroke-width: 8;
+  filter: drop-shadow(0 0 1.7px rgba(24, 76, 105, 0.7));
+}
+
+.vienna-street-label {
+  pointer-events: none;
+  fill: #173b57;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.96);
+  stroke-width: 6px;
+  stroke-linejoin: round;
+  font-size: 15px;
+  font-weight: 900;
+  text-anchor: middle;
+  opacity: 0;
+  animation: vienna-street-label-arrive 420ms ease-out forwards;
+}
+
+.vienna-travel-route {
+  pointer-events: none;
+  fill: none;
+  stroke: #d9416f;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 13 10;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 3px 3px rgba(94, 31, 52, 0.28));
+  animation: vienna-route-move 700ms linear infinite;
+  transition: opacity 650ms ease;
+}
+
+.vienna-travel-route.is-arrived {
+  opacity: 0;
+}
+
+.vienna-traveler-pin {
+  pointer-events: none;
+  transform-box: fill-box;
+  filter: drop-shadow(0 8px 6px rgba(74, 38, 52, 0.35));
+}
+
+.vienna-traveler-pin > path {
+  fill: #d9416f;
+  stroke: #ffffff;
+  stroke-width: 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.vienna-traveler-pin circle {
+  fill: #ffffff;
+}
+
+.vienna-traveler-pin text {
+  fill: #d9416f;
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.vienna-traveler-pin.is-traveling {
+  animation: vienna-pin-bob 520ms ease-in-out infinite alternate;
+}
+
 .vienna-attraction-marker {
   cursor: pointer;
   transform-box: fill-box;
@@ -251,6 +333,7 @@
 }
 
 .district-key,
+.street-key,
 .attraction-key {
   display: inline-grid;
   width: 20px;
@@ -264,6 +347,41 @@
   background: #45c0bc;
   border: 2px solid #ffffff;
   box-shadow: 0 0 0 1px #288b8d;
+}
+
+.street-key {
+  position: relative;
+  background: #68b9ce;
+}
+
+.street-key::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 8px;
+  height: 4px;
+  border-radius: 999px;
+  background: #fff3b5;
+  box-shadow: 0 0 0 1px rgba(87, 63, 26, 0.5);
+}
+
+.vienna-travel-status {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  z-index: 2;
+  max-width: min(52%, 360px);
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #7e2342;
+  box-shadow: 0 8px 24px rgba(23, 71, 83, 0.12);
+  font-size: 0.92rem;
+  font-weight: 900;
+  text-align: center;
+  backdrop-filter: blur(8px);
 }
 
 .attraction-key {
@@ -928,6 +1046,25 @@
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+@keyframes vienna-street-draw {
+  from { opacity: 0; stroke-dashoffset: 1; }
+  to { opacity: 0.96; stroke-dashoffset: 0; }
+}
+
+@keyframes vienna-street-label-arrive {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vienna-route-move {
+  to { stroke-dashoffset: -23; }
+}
+
+@keyframes vienna-pin-bob {
+  from { filter: drop-shadow(0 7px 5px rgba(74, 38, 52, 0.32)); }
+  to { filter: drop-shadow(0 12px 8px rgba(74, 38, 52, 0.42)); }
+}
+
 @keyframes map-record-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.025); }
@@ -1006,7 +1143,14 @@
 
   .vienna-map-legend {
     position: static;
+    flex-wrap: wrap;
     justify-content: center;
+    margin: 8px;
+  }
+
+  .vienna-travel-status {
+    position: static;
+    max-width: none;
     margin: 8px;
   }
 
@@ -1049,6 +1193,10 @@
 @media (prefers-reduced-motion: reduce) {
   .vienna-district-shape,
   .vienna-map-backdrop circle,
+  .vienna-main-street,
+  .vienna-street-label,
+  .vienna-travel-route,
+  .vienna-traveler-pin,
   .vienna-attraction-marker,
   .map-record-button.is-recording {
     animation: none;

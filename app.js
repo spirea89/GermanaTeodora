@@ -208,7 +208,8 @@ const viennaGithubTokenKey = "deutschUndMatheViennaGithubToken";
 const viennaGithubContentsApi = "https://api.github.com/repos/spirea89/GermanaTeodora/contents/data/vienna-map-content.json";
 const viennaGithubBranch = "main";
 const viennaDistrictGeoJson = window.VIENNA_DISTRICTS_GEOJSON || { type: "FeatureCollection", features: [] };
-const appVersion = "2026.11.23.2";
+const viennaMainStreetData = window.VIENNA_MAIN_STREETS || { scale: 1, names: [], streets: [] };
+const appVersion = "2026.11.23.3";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -729,13 +730,17 @@ const translations = {
     allDistricts: "All districts",
     allViennaDistricts: "The 23 districts of Vienna",
     districtLegend: "District",
+    streetLegend: "Main street",
     attractionLegend: "Attraction",
     showAllVienna: "Show all Vienna",
     districtMapLabel: (number, name) => `${number}. ${name}`,
     attractionCenterNote: "No exact position · shown near the district center",
     approximateAttraction: (name) => `${name}, approximate position near the district center`,
     backToDistrictMap: "Back to district map",
-    attractionReadPrompt: "Tap to watch and read the full story",
+    attractionReadPrompt: "Send the pin here to watch and read the full story",
+    pinReady: "📍 Choose an attraction for the pin to visit.",
+    pinTraveling: (name) => `📍 Traveling to ${name}…`,
+    pinArrived: (name) => `📍 Arrived at ${name}!`,
     attractionReadingTitle: "Read and discover",
     attractionDetailsMissing: "The detailed reading text will appear here soon.",
     watchAttractionVideo: "Watch and discover",
@@ -1093,13 +1098,17 @@ const translations = {
     allDistricts: "Alle Bezirke",
     allViennaDistricts: "Die 23 Bezirke Wiens",
     districtLegend: "Bezirk",
+    streetLegend: "Hauptstraße",
     attractionLegend: "Sehenswürdigkeit",
     showAllVienna: "Ganz Wien anzeigen",
     districtMapLabel: (number, name) => `${number}. ${name}`,
     attractionCenterNote: "Keine genaue Position · nahe der Bezirksmitte angezeigt",
     approximateAttraction: (name) => `${name}, ungefähre Position nahe der Bezirksmitte`,
     backToDistrictMap: "Zurück zur Bezirkskarte",
-    attractionReadPrompt: "Tippe, um das Video anzusehen und den ganzen Text zu lesen",
+    attractionReadPrompt: "Schicke die Stecknadel hierher, um das Video und den Text zu öffnen",
+    pinReady: "📍 Wähle ein Ziel für die Stecknadel.",
+    pinTraveling: (name) => `📍 Unterwegs zu ${name}…`,
+    pinArrived: (name) => `📍 Angekommen bei ${name}!`,
     attractionReadingTitle: "Lesen und entdecken",
     attractionDetailsMissing: "Der ausführliche Lesetext erscheint bald hier.",
     watchAttractionVideo: "Ansehen und entdecken",
@@ -1472,7 +1481,14 @@ const elements = {
   viennaMapViewLabel: document.querySelector("#vienna-map-view-label"),
   viennaMapOverview: document.querySelector("#vienna-map-overview"),
   viennaDistrictLayer: document.querySelector("#vienna-district-layer"),
+  viennaStreetLayer: document.querySelector("#vienna-street-layer"),
+  viennaStreetLabelLayer: document.querySelector("#vienna-street-label-layer"),
+  viennaTravelRouteLayer: document.querySelector("#vienna-travel-route-layer"),
   viennaAttractionLayer: document.querySelector("#vienna-attraction-layer"),
+  viennaTravelerLayer: document.querySelector("#vienna-traveler-layer"),
+  viennaStreetClipPath: document.querySelector("#vienna-district-street-clip-path"),
+  viennaStreetLegend: document.querySelector("#vienna-street-legend"),
+  viennaTravelStatus: document.querySelector("#vienna-travel-status"),
   viennaDistrictNumber: document.querySelector("#vienna-district-number"),
   viennaDistrictName: document.querySelector("#vienna-district-name"),
   viennaDistrictMessage: document.querySelector("#vienna-district-message"),
@@ -1816,6 +1832,9 @@ let viennaMapSharedReady = loadSharedViennaMapData();
 let viennaSelectedDistrict = null;
 let viennaSelectedAttraction = null;
 let viennaDetailedDistrict = null;
+let viennaTravelerAttraction = null;
+let viennaTravelAnimationToken = 0;
+let viennaIsTraveling = false;
 let viennaAdminDistrict = 1;
 let viennaProjection = null;
 let viennaAudioKeys = new Set();
@@ -6380,6 +6399,158 @@ function viennaFeatureLabelPoint(feature) {
   return { x: x / (3 * twiceArea), y: y / (3 * twiceArea) };
 }
 
+function viennaStreetCoordinates(street) {
+  const scale = Number(viennaMainStreetData.scale) || 1;
+  const flatCoordinates = street[5] || [];
+  const coordinates = [];
+  for (let index = 0; index < flatCoordinates.length - 1; index += 2) {
+    coordinates.push([flatCoordinates[index] / scale, flatCoordinates[index + 1] / scale]);
+  }
+  return coordinates;
+}
+
+function viennaStreetMapPoints(street) {
+  return viennaStreetCoordinates(street).map(([longitude, latitude]) => viennaProjection(longitude, latitude));
+}
+
+function viennaMapPath(points) {
+  return points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+}
+
+function viennaMapPathLength(points) {
+  let length = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    length += Math.hypot(points[index].x - points[index - 1].x, points[index].y - points[index - 1].y);
+  }
+  return length;
+}
+
+function viennaStreetsForDistrict(number) {
+  return viennaMainStreetData.streets.filter((street) => street[0] === number);
+}
+
+function renderViennaStreetLayer(district) {
+  const svgNamespace = "http://www.w3.org/2000/svg";
+  elements.viennaStreetLayer.replaceChildren();
+  elements.viennaStreetLabelLayer.replaceChildren();
+  elements.viennaTravelRouteLayer.replaceChildren();
+  elements.viennaStreetClipPath.setAttribute("d", district ? viennaGeometryPath(district.feature.geometry) : "");
+  elements.viennaStreetLegend.classList.toggle("hidden", !district);
+  elements.viennaTravelStatus.classList.toggle("hidden", !district);
+  if (!district) {
+    elements.viennaTravelStatus.textContent = "";
+    return;
+  }
+
+  const namedStreets = new Map();
+  const streetPaths = [[], []];
+  viennaStreetsForDistrict(district.number).forEach((street) => {
+    const points = viennaStreetMapPoints(street);
+    if (points.length < 2) {
+      return;
+    }
+    streetPaths[street[1]].push(viennaMapPath(points));
+
+    const name = viennaMainStreetData.names[street[2]] || "";
+    if (!name) {
+      return;
+    }
+    const length = viennaMapPathLength(points);
+    const current = namedStreets.get(name) || { length: 0, longestLength: 0, points };
+    current.length += length;
+    if (length > current.longestLength) {
+      current.longestLength = length;
+      current.points = points;
+    }
+    namedStreets.set(name, current);
+  });
+  streetPaths.forEach((paths, category) => {
+    if (!paths.length) {
+      return;
+    }
+    const path = document.createElementNS(svgNamespace, "path");
+    path.setAttribute("d", paths.join(" "));
+    path.setAttribute("pathLength", "1");
+    path.setAttribute("class", `vienna-main-street${category === 1 ? " is-category-b" : ""}`);
+    path.style.animationDelay = `${category * 160}ms`;
+    elements.viennaStreetLayer.append(path);
+  });
+
+  const labelPositions = [];
+  [...namedStreets.entries()]
+    .sort((left, right) => right[1].length - left[1].length)
+    .some(([name, street]) => {
+      const point = street.points[Math.floor(street.points.length / 2)];
+      if (!point || labelPositions.some((placed) => Math.hypot(placed.x - point.x, placed.y - point.y) < 105)) {
+        return false;
+      }
+      const label = document.createElementNS(svgNamespace, "text");
+      label.setAttribute("x", point.x.toFixed(1));
+      label.setAttribute("y", point.y.toFixed(1));
+      label.setAttribute("class", "vienna-street-label");
+      label.style.animationDelay = `${720 + labelPositions.length * 90}ms`;
+      label.textContent = name;
+      elements.viennaStreetLabelLayer.append(label);
+      labelPositions.push(point);
+      return labelPositions.length >= 10;
+    });
+  if (!viennaIsTraveling) {
+    elements.viennaTravelStatus.textContent = t("pinReady");
+  }
+}
+
+function viennaAttractionsForDistrict(number) {
+  return viennaMapData.attractions.filter((item) => item.districtId === number && item.name.trim());
+}
+
+function viennaAttractionMapPoint(attraction, district, attractions = viennaAttractionsForDistrict(district.number)) {
+  if (Number.isFinite(attraction.latitude) && Number.isFinite(attraction.longitude)) {
+    return viennaProjection(attraction.longitude, attraction.latitude);
+  }
+  const center = viennaFeatureLabelPoint(district.feature);
+  const approximateAttractions = attractions.filter((item) => !Number.isFinite(item.latitude) || !Number.isFinite(item.longitude));
+  if (approximateAttractions.length <= 1) {
+    return center;
+  }
+  const approximateIndex = approximateAttractions.findIndex((item) => item.id === attraction.id);
+  const angle = -Math.PI / 2 + Math.max(0, approximateIndex) * (Math.PI * 2 / approximateAttractions.length);
+  const radius = Math.min(74, 34 + approximateAttractions.length * 6);
+  return { x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius };
+}
+
+function createViennaTraveler(point) {
+  const svgNamespace = "http://www.w3.org/2000/svg";
+  const traveler = document.createElementNS(svgNamespace, "g");
+  traveler.setAttribute("class", "vienna-traveler-pin");
+  traveler.setAttribute("transform", `translate(${point.x.toFixed(1)} ${point.y.toFixed(1)})`);
+  const title = document.createElementNS(svgNamespace, "title");
+  title.textContent = t("pinReady").replace("📍 ", "");
+  const pin = document.createElementNS(svgNamespace, "path");
+  pin.setAttribute("d", "M0 0C-6-9-21-20-21-35A21 21 0 1 1 21-35C21-20 6-9 0 0Z");
+  const center = document.createElementNS(svgNamespace, "circle");
+  center.setAttribute("cx", "0");
+  center.setAttribute("cy", "-35");
+  center.setAttribute("r", "9");
+  const star = document.createElementNS(svgNamespace, "text");
+  star.setAttribute("x", "0");
+  star.setAttribute("y", "-34");
+  star.textContent = "★";
+  traveler.append(title, pin, center, star);
+  return traveler;
+}
+
+function renderViennaTraveler(district) {
+  elements.viennaTravelerLayer.replaceChildren();
+  if (!district || !viennaTravelerAttraction) {
+    return;
+  }
+  const attraction = viennaMapData.attractions.find((item) => item.id === viennaTravelerAttraction);
+  if (!attraction || attraction.districtId !== district.number) {
+    return;
+  }
+  elements.viennaTravelerLayer.append(createViennaTraveler(viennaAttractionMapPoint(attraction, district)));
+}
+
 function renderViennaMap() {
   if (!elements.viennaDistrictLayer || !viennaDistrictGeoJson.features.length) {
     return;
@@ -6389,6 +6560,15 @@ function renderViennaMap() {
   const detailedDistrict = viennaDistrict(viennaDetailedDistrict);
   const displayedDistricts = detailedDistrict ? [detailedDistrict] : viennaDistricts();
   viennaProjection = createViennaProjection(detailedDistrict?.feature || null);
+  if (detailedDistrict) {
+    const districtAttractions = viennaAttractionsForDistrict(detailedDistrict.number);
+    const traveler = districtAttractions.find((item) => item.id === viennaTravelerAttraction);
+    if (!traveler) {
+      viennaTravelerAttraction = districtAttractions[0]?.id || null;
+    }
+  } else {
+    viennaTravelerAttraction = null;
+  }
   elements.viennaMapStage.classList.toggle("is-district-view", Boolean(detailedDistrict));
   elements.viennaMapDetailToolbar.classList.toggle("hidden", !detailedDistrict);
   if (detailedDistrict) {
@@ -6421,6 +6601,7 @@ function renderViennaMap() {
       elements.viennaDistrictLayer.append(label);
     }
   });
+  renderViennaStreetLayer(detailedDistrict);
 
   elements.viennaDistrictButtons.replaceChildren();
   viennaDistricts().forEach((district) => {
@@ -6434,6 +6615,7 @@ function renderViennaMap() {
     elements.viennaDistrictButtons.append(button);
   });
   renderViennaAttractionMarkers();
+  renderViennaTraveler(detailedDistrict);
   updateViennaMapSelection();
   renderViennaDistrictDetails();
 }
@@ -6454,17 +6636,11 @@ function renderViennaAttractionMarkers() {
     }
     return Number.isFinite(item.latitude) && Number.isFinite(item.longitude);
   });
-  const approximateAttractions = attractions.filter((item) => !Number.isFinite(item.latitude) || !Number.isFinite(item.longitude));
-  const districtCenter = detailedDistrict ? viennaFeatureLabelPoint(detailedDistrict.feature) : null;
   attractions.forEach((attraction, index) => {
       const hasExactPosition = Number.isFinite(attraction.latitude) && Number.isFinite(attraction.longitude);
-      let point = hasExactPosition ? viennaProjection(attraction.longitude, attraction.latitude) : districtCenter;
-      if (!hasExactPosition && point && approximateAttractions.length > 1) {
-        const approximateIndex = approximateAttractions.indexOf(attraction);
-        const angle = -Math.PI / 2 + approximateIndex * (Math.PI * 2 / approximateAttractions.length);
-        const radius = Math.min(74, 34 + approximateAttractions.length * 6);
-        point = { x: point.x + Math.cos(angle) * radius, y: point.y + Math.sin(angle) * radius };
-      }
+      const point = detailedDistrict
+        ? viennaAttractionMapPoint(attraction, detailedDistrict, attractions)
+        : viennaProjection(attraction.longitude, attraction.latitude);
       if (!point) {
         return;
       }
@@ -6499,10 +6675,199 @@ function updateViennaMapSelection() {
   });
 }
 
+function viennaQueuePush(queue, entry) {
+  queue.push(entry);
+  let index = queue.length - 1;
+  while (index > 0) {
+    const parent = Math.floor((index - 1) / 2);
+    if (queue[parent].distance <= entry.distance) {
+      break;
+    }
+    queue[index] = queue[parent];
+    index = parent;
+  }
+  queue[index] = entry;
+}
+
+function viennaQueuePop(queue) {
+  const first = queue[0];
+  const last = queue.pop();
+  if (!queue.length || !last) {
+    return first;
+  }
+  let index = 0;
+  while (true) {
+    const left = index * 2 + 1;
+    const right = left + 1;
+    if (left >= queue.length) {
+      break;
+    }
+    const smaller = right < queue.length && queue[right].distance < queue[left].distance ? right : left;
+    if (queue[smaller].distance >= last.distance) {
+      break;
+    }
+    queue[index] = queue[smaller];
+    index = smaller;
+  }
+  queue[index] = last;
+  return first;
+}
+
+function viennaStreetJourney(originPoint, destinationPoint, districtNumber) {
+  const adjacency = new Map();
+  const nodePoints = new Map();
+  const addEdge = (node, edge) => {
+    if (!adjacency.has(node)) {
+      adjacency.set(node, []);
+    }
+    adjacency.get(node).push(edge);
+  };
+  viennaStreetsForDistrict(districtNumber).forEach((street) => {
+    const points = viennaStreetMapPoints(street);
+    if (points.length < 2) {
+      return;
+    }
+    const from = street[3];
+    const to = street[4];
+    const weight = viennaMapPathLength(points);
+    nodePoints.set(from, points[0]);
+    nodePoints.set(to, points[points.length - 1]);
+    addEdge(from, { to, points, weight });
+    addEdge(to, { to: from, points: [...points].reverse(), weight });
+  });
+  const nearestNode = (point) => {
+    let nearest = null;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    nodePoints.forEach((nodePoint, node) => {
+      const distance = Math.hypot(nodePoint.x - point.x, nodePoint.y - point.y);
+      if (distance < nearestDistance) {
+        nearest = node;
+        nearestDistance = distance;
+      }
+    });
+    return nearest;
+  };
+  const start = nearestNode(originPoint);
+  const finish = nearestNode(destinationPoint);
+  if (start === null || finish === null) {
+    const lift = Math.min(78, Math.hypot(destinationPoint.x - originPoint.x, destinationPoint.y - originPoint.y) * 0.18);
+    return [originPoint, { x: (originPoint.x + destinationPoint.x) / 2, y: (originPoint.y + destinationPoint.y) / 2 - lift }, destinationPoint];
+  }
+
+  const distances = new Map([[start, 0]]);
+  const previous = new Map();
+  const queue = [];
+  viennaQueuePush(queue, { node: start, distance: 0 });
+  while (queue.length) {
+    const current = viennaQueuePop(queue);
+    if (!current || current.distance !== distances.get(current.node)) {
+      continue;
+    }
+    if (current.node === finish) {
+      break;
+    }
+    (adjacency.get(current.node) || []).forEach((edge) => {
+      const nextDistance = current.distance + edge.weight;
+      if (nextDistance < (distances.get(edge.to) ?? Number.POSITIVE_INFINITY)) {
+        distances.set(edge.to, nextDistance);
+        previous.set(edge.to, { node: current.node, edge });
+        viennaQueuePush(queue, { node: edge.to, distance: nextDistance });
+      }
+    });
+  }
+  if (!distances.has(finish)) {
+    const lift = Math.min(78, Math.hypot(destinationPoint.x - originPoint.x, destinationPoint.y - originPoint.y) * 0.18);
+    return [originPoint, { x: (originPoint.x + destinationPoint.x) / 2, y: (originPoint.y + destinationPoint.y) / 2 - lift }, destinationPoint];
+  }
+  const routeEdges = [];
+  let currentNode = finish;
+  while (currentNode !== start) {
+    const step = previous.get(currentNode);
+    if (!step) {
+      break;
+    }
+    routeEdges.push(step.edge);
+    currentNode = step.node;
+  }
+  routeEdges.reverse();
+  const route = [originPoint];
+  routeEdges.forEach((edge) => {
+    edge.points.forEach((point, index) => {
+      if (index || route.length === 1) {
+        route.push(point);
+      }
+    });
+  });
+  route.push(destinationPoint);
+  return route;
+}
+
+function finishViennaAttractionJourney(attraction, district, token) {
+  if (token !== viennaTravelAnimationToken) {
+    return;
+  }
+  viennaIsTraveling = false;
+  viennaTravelerAttraction = attraction.id;
+  viennaSelectedAttraction = attraction.id;
+  renderViennaTraveler(district);
+  updateViennaMapSelection();
+  renderViennaDistrictDetails();
+  elements.viennaTravelStatus.textContent = t("pinArrived", attraction.name);
+  elements.viennaTravelRouteLayer.querySelector(".vienna-travel-route")?.classList.add("is-arrived");
+  window.setTimeout(() => {
+    if (token === viennaTravelAnimationToken) {
+      elements.viennaTravelRouteLayer.replaceChildren();
+    }
+  }, 700);
+  revealViennaAttractionDetails(attraction.id);
+}
+
+function animateViennaAttractionJourney(origin, destination, district, token) {
+  if (token !== viennaTravelAnimationToken) {
+    return;
+  }
+  const svgNamespace = "http://www.w3.org/2000/svg";
+  const originPoint = viennaAttractionMapPoint(origin, district);
+  const destinationPoint = viennaAttractionMapPoint(destination, district);
+  const routePoints = viennaStreetJourney(originPoint, destinationPoint, district.number);
+  const route = document.createElementNS(svgNamespace, "path");
+  route.setAttribute("class", "vienna-travel-route");
+  route.setAttribute("d", viennaMapPath(routePoints));
+  elements.viennaTravelRouteLayer.replaceChildren(route);
+  const traveler = createViennaTraveler(originPoint);
+  traveler.classList.add("is-traveling");
+  elements.viennaTravelerLayer.replaceChildren(traveler);
+  const routeLength = route.getTotalLength();
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const duration = reduceMotion ? 0 : Math.min(4600, Math.max(1500, routeLength * 3.2));
+  const startedAt = performance.now();
+  const step = (now) => {
+    if (token !== viennaTravelAnimationToken) {
+      return;
+    }
+    const progress = duration ? Math.min(1, (now - startedAt) / duration) : 1;
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const point = route.getPointAtLength(routeLength * eased);
+    traveler.setAttribute("transform", `translate(${point.x.toFixed(1)} ${point.y.toFixed(1)})`);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      finishViennaAttractionJourney(destination, district, token);
+    }
+  };
+  window.requestAnimationFrame(step);
+}
+
 function selectViennaDistrict(number, options = {}) {
   const district = viennaDistrict(number);
   if (!district) {
     return;
+  }
+  const changedDistrict = viennaDetailedDistrict !== district.number;
+  if (changedDistrict) {
+    viennaTravelAnimationToken += 1;
+    viennaIsTraveling = false;
+    viennaTravelerAttraction = null;
   }
   viennaSelectedDistrict = district.number;
   if (options.zoom !== false) {
@@ -6522,12 +6887,35 @@ function selectViennaDistrict(number, options = {}) {
 
 function selectViennaAttraction(id) {
   const attraction = viennaMapData.attractions.find((item) => item.id === id);
-  if (!attraction) {
+  if (!attraction || viennaIsTraveling) {
     return;
   }
-  viennaSelectedAttraction = attraction.id;
-  selectViennaDistrict(attraction.districtId, { play: false, focus: false, keepAttraction: true });
-  revealViennaAttractionDetails(attraction.id);
+  const district = viennaDistrict(attraction.districtId);
+  if (!district) {
+    return;
+  }
+  if (viennaDetailedDistrict !== district.number) {
+    selectViennaDistrict(district.number, { play: false, focus: false });
+  }
+  const origin = viennaMapData.attractions.find((item) => item.id === viennaTravelerAttraction && item.districtId === district.number);
+  if (!origin || origin.id === attraction.id) {
+    viennaTravelerAttraction = attraction.id;
+    viennaSelectedAttraction = attraction.id;
+    renderViennaTraveler(district);
+    updateViennaMapSelection();
+    renderViennaDistrictDetails();
+    elements.viennaTravelStatus.textContent = t("pinArrived", attraction.name);
+    revealViennaAttractionDetails(attraction.id);
+    return;
+  }
+  const token = ++viennaTravelAnimationToken;
+  viennaIsTraveling = true;
+  viennaSelectedAttraction = null;
+  updateViennaMapSelection();
+  renderViennaDistrictDetails();
+  elements.viennaTravelStatus.textContent = t("pinTraveling", attraction.name);
+  elements.viennaMapStage.scrollIntoView({ behavior: viennaScrollBehavior(), block: "start" });
+  window.setTimeout(() => animateViennaAttractionJourney(origin, attraction, district, token), 420);
 }
 
 function viennaScrollBehavior() {
@@ -6554,8 +6942,11 @@ function returnToViennaDistrictMap() {
 }
 
 function showViennaOverview() {
+  viennaTravelAnimationToken += 1;
+  viennaIsTraveling = false;
   viennaDetailedDistrict = null;
   viennaSelectedAttraction = null;
+  viennaTravelerAttraction = null;
   renderViennaMap();
   elements.viennaDistrictName.focus({ preventScroll: true });
 }
@@ -6666,6 +7057,7 @@ function updateViennaMapLanguage() {
   setText("#vienna-roster-eyebrow", "allDistricts");
   setText("#vienna-roster-title", "allViennaDistricts");
   setText("#vienna-legend-district", "districtLegend");
+  setText("#vienna-legend-street", "streetLegend");
   setText("#vienna-legend-attraction", "attractionLegend");
   elements.viennaPlayDistrict.textContent = t("playDistrictName");
   elements.viennaMapOverview.textContent = t("showAllVienna");
@@ -6676,6 +7068,10 @@ function updateViennaMapLanguage() {
   const detailedDistrict = viennaDistrict(viennaDetailedDistrict);
   if (detailedDistrict) {
     elements.viennaMapViewLabel.textContent = t("districtMapLabel", detailedDistrict.number, detailedDistrict.name);
+    const selectedAttraction = viennaMapData.attractions.find((item) => item.id === viennaSelectedAttraction);
+    elements.viennaTravelStatus.textContent = selectedAttraction
+      ? t("pinArrived", selectedAttraction.name)
+      : t("pinReady");
   }
   renderViennaDistrictDetails();
 }

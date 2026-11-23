@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20261123-marker-details">
+    <link rel="stylesheet" href="styles.css?v=20261123-street-journey">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.23.2</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.23.3</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -516,13 +516,20 @@
                       <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"></stop>
                       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"></stop>
                     </radialGradient>
+                    <clipPath id="vienna-district-street-clip">
+                      <path id="vienna-district-street-clip-path"></path>
+                    </clipPath>
                   </defs>
                   <g class="vienna-map-backdrop" aria-hidden="true">
                     <circle cx="155" cy="165" r="90"></circle>
                     <circle cx="830" cy="590" r="125"></circle>
                   </g>
                   <g id="vienna-district-layer"></g>
+                  <g id="vienna-street-layer" clip-path="url(#vienna-district-street-clip)"></g>
+                  <g id="vienna-street-label-layer" clip-path="url(#vienna-district-street-clip)"></g>
+                  <g id="vienna-travel-route-layer" clip-path="url(#vienna-district-street-clip)"></g>
                   <g id="vienna-attraction-layer"></g>
+                  <g id="vienna-traveler-layer"></g>
                 </svg>
                 <div class="vienna-map-detail-toolbar hidden" id="vienna-map-detail-toolbar">
                   <strong id="vienna-map-view-label">1. Innere Stadt</strong>
@@ -530,8 +537,10 @@
                 </div>
                 <div class="vienna-map-legend">
                   <span><i class="district-key" aria-hidden="true"></i><b id="vienna-legend-district">District</b></span>
+                  <span class="vienna-street-legend hidden" id="vienna-street-legend"><i class="street-key" aria-hidden="true"></i><b id="vienna-legend-street">Main street</b></span>
                   <span><i class="attraction-key" aria-hidden="true">★</i><b id="vienna-legend-attraction">Attraction</b></span>
                 </div>
+                <p class="vienna-travel-status hidden" id="vienna-travel-status" aria-live="polite"></p>
               </section>
 
               <aside class="vienna-district-info" id="vienna-district-info" aria-live="polite">
@@ -983,8 +992,9 @@
       </div>
     </div>
 
-    <script src="data/vienna-districts.js?v=20261123-marker-details"></script>
-    <script src="data/verb-forms.js?v=20261123-marker-details"></script>
-    <script src="app.js?v=20261123-marker-details"></script>
+    <script src="data/vienna-districts.js?v=20261123-street-journey"></script>
+    <script src="data/vienna-main-streets.js?v=20261123-street-journey"></script>
+    <script src="data/verb-forms.js?v=20261123-street-journey"></script>
+    <script src="app.js?v=20261123-street-journey"></script>
   </body>
 </html>
