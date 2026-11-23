@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-23T18:29:26.190Z",
+  "updatedAt": "2026-11-23T18:51:34.711Z",
   "districts": {
     "1": {
       "name": "Innere Stadt"
@@ -89,22 +89,33 @@
       "districtId": 1,
       "name": "2. Die Wiener Staatsoper – Wo die Musik zaubert",
       "address": "Opernring 2, 1010 Wien",
-      "resolvedAddress": "",
+      "resolvedAddress": "Opernring 2, 1010 Wien",
       "details": "Die Wiener Staatsoper befindet sich am Opernring im 1. Wiener Gemeindebezirk. Sie wurde am 25. Mai 1869 mit der Oper „Don Giovanni“ von Wolfgang Amadeus Mozart eröffnet.\n\nDie Architekten August Sicard von Sicardsburg und Eduard van der Nüll planten das Gebäude.\n\nIn der Staatsoper werden Opern und Ballette aufgeführt. Auf der Bühne stehen Künstlerinnen und Künstler aus vielen Ländern.\n\nWährend des Zweiten Weltkriegs wurde das Gebäude schwer beschädigt. Nach dem Wiederaufbau wurde es 1955 erneut eröffnet.\n\nWusstest du schon? Jedes Jahr findet in der Staatsoper der berühmte Wiener Opernball statt.\n\nFrage: Wie heißt der berühmte Ball, der in der Staatsoper stattfindet?\n\nhttps://de.wikipedia.org/wiki/Wiener_Staatsoper?utm_source=chatgpt.com",
       "youtubeUrl": "https://www.youtube.com/watch?v=_wHXZ_u7-Jc",
-      "latitude": null,
-      "longitude": null
+      "latitude": 48.20285992964636,
+      "longitude": 16.36698983636687
     },
     {
       "id": "vienna-1795457883600-cvylvv",
       "districtId": 1,
       "name": "3. Das Parlament – Ein Tempel für die Demokratie",
       "address": "Dr.-Karl-Renner-Ring 3, 1010 Wien",
-      "resolvedAddress": "",
+      "resolvedAddress": "Dr.-Karl-Renner-Ring 3, 1010 Wien",
       "details": "Das österreichische Parlament steht am Dr.-Karl-Renner-Ring im 1. Bezirk. Es wurde zwischen 1874 und 1883 nach den Plänen des Architekten Theophil von Hansen gebaut.\n\nDer Architekt ließ sich von den Tempeln des antiken Griechenlands inspirieren. Das sollte an die Geschichte der Demokratie erinnern.\n\nVor dem Parlament befindet sich der Pallas-Athene-Brunnen. Die Statue der Göttin Athene trägt einen Helm und hält eine kleine Siegesgöttin in der Hand.\n\nIm Parlament arbeiten der Nationalrat und der Bundesrat. Sie beraten und beschließen Gesetze.\n\nVon 2017 bis 2023 wurde das Gebäude umfassend renoviert.\n\nWusstest du schon? Auch Kinder können das Parlament bei speziellen Führungen kennenlernen.\n\nFrage: Welche griechische Göttin steht vor dem Parlament?\n\nhttps://de.wikipedia.org/wiki/Parlamentsgeb%C3%A4ude_(Wien)?utm_source=chatgpt.com",
       "youtubeUrl": "https://www.youtube.com/watch?v=cFeUyGji3os",
-      "latitude": null,
-      "longitude": null
+      "latitude": 48.20753504541998,
+      "longitude": 16.359840628738166
+    },
+    {
+      "id": "vienna-1795459822607-b55864",
+      "districtId": 1,
+      "name": "4. Das Wiener Rathaus – Ein Schloss für die Stadt",
+      "address": "Friedrich-Schmidt-Platz 1, 1010 Wien",
+      "resolvedAddress": "Friedrich-Schmidt-Platz 1, 1010 Wien",
+      "details": "Das Wiener Rathaus befindet sich am Rathausplatz im 1. Bezirk, unmittelbar bei der Ringstraße.\n\nEs wurde zwischen 1872 und 1883 nach den Plänen von Friedrich von Schmidt errichtet.\n\nDas Gebäude ist im neugotischen Stil gebaut. Deshalb erinnert es an mittelalterliche Burgen und Kirchen.\n\nIm Rathaus arbeitet der Wiener Bürgermeister. Hier treffen sich auch der Gemeinderat und der Landtag, um wichtige Entscheidungen für Wien zu treffen.\n\nDer Hauptturm ist ungefähr 98 Meter hoch. Auf seiner Spitze steht der Rathausmann, eine etwa 3,4 Meter hohe Ritterfigur.\n\nWusstest du schon? Mit dem Rathausmann erreicht der Turm eine Höhe von über 100 Metern!\n\nFrage: Wie heißt die Ritterfigur auf dem Rathausturm?\n\nhttps://de.wikipedia.org/wiki/Wiener_Rathaus?utm_source=chatgpt.com",
+      "youtubeUrl": "https://www.youtube.com/watch?v=2ets-ORuFk4",
+      "latitude": 48.21106842143886,
+      "longitude": 16.355871768789434
     }
   ]
 }
