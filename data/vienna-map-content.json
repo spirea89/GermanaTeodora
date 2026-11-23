@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22T19:03:42.959Z",
+  "updatedAt": "2026-11-23T18:19:14.079Z",
   "districts": {
     "1": {
       "name": "Innere Stadt"
@@ -92,6 +92,17 @@
       "resolvedAddress": "",
       "details": "Die Wiener Staatsoper befindet sich am Opernring im 1. Wiener Gemeindebezirk. Sie wurde am 25. Mai 1869 mit der Oper „Don Giovanni“ von Wolfgang Amadeus Mozart eröffnet.\n\nDie Architekten August Sicard von Sicardsburg und Eduard van der Nüll planten das Gebäude.\n\nIn der Staatsoper werden Opern und Ballette aufgeführt. Auf der Bühne stehen Künstlerinnen und Künstler aus vielen Ländern.\n\nWährend des Zweiten Weltkriegs wurde das Gebäude schwer beschädigt. Nach dem Wiederaufbau wurde es 1955 erneut eröffnet.\n\nWusstest du schon? Jedes Jahr findet in der Staatsoper der berühmte Wiener Opernball statt.\n\nFrage: Wie heißt der berühmte Ball, der in der Staatsoper stattfindet?\n\nhttps://de.wikipedia.org/wiki/Wiener_Staatsoper?utm_source=chatgpt.com",
       "youtubeUrl": "https://www.youtube.com/watch?v=_wHXZ_u7-Jc",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "id": "vienna-1795457883600-cvylvv",
+      "districtId": 1,
+      "name": "3. Das Parlament – Ein Tempel für die Demokratie",
+      "address": "Dr.-Karl-Renner-Ring 3, 1010 Wien",
+      "resolvedAddress": "",
+      "details": "Das österreichische Parlament steht am Dr.-Karl-Renner-Ring im 1. Bezirk. Es wurde zwischen 1874 und 1883 nach den Plänen des Architekten Theophil von Hansen gebaut.\n\nDer Architekt ließ sich von den Tempeln des antiken Griechenlands inspirieren. Das sollte an die Geschichte der Demokratie erinnern.\n\nVor dem Parlament befindet sich der Pallas-Athene-Brunnen. Die Statue der Göttin Athene trägt einen Helm und hält eine kleine Siegesgöttin in der Hand.\n\nIm Parlament arbeiten der Nationalrat und der Bundesrat. Sie beraten und beschließen Gesetze.\n\nVon 2017 bis 2023 wurde das Gebäude umfassend renoviert.\n\nWusstest du schon? Auch Kinder können das Parlament bei speziellen Führungen kennenlernen.\n\nFrage: Welche griechische Göttin steht vor dem Parlament?\n\nhttps://de.wikipedia.org/wiki/Parlamentsgeb%C3%A4ude_(Wien)?utm_source=chatgpt.com",
+      "youtubeUrl": "https://www.youtube.com/watch?v=Kjn91e6FFD8",
       "latitude": null,
       "longitude": null
     }
