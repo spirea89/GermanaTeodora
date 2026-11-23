@@ -93,6 +93,52 @@
   overflow: visible;
 }
 
+.vienna-map-detail-toolbar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.vienna-map-detail-toolbar strong,
+.vienna-map-detail-toolbar button {
+  pointer-events: auto;
+}
+
+.vienna-map-detail-toolbar strong {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #173e5b;
+  box-shadow: 0 8px 22px rgba(23, 71, 83, 0.14);
+  font-size: 1rem;
+}
+
+#vienna-map-overview {
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid #9fc7c1;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #245b62;
+  font-weight: 900;
+  box-shadow: 0 8px 22px rgba(23, 71, 83, 0.12);
+}
+
+.vienna-map-stage.is-district-view #vienna-map-svg {
+  min-height: 520px;
+}
+
+.vienna-map-stage.is-district-view .vienna-map-backdrop {
+  opacity: 0.32;
+}
+
 .vienna-map-backdrop circle {
   fill: url(#vienna-map-glow);
   transform-origin: center;
@@ -161,6 +207,11 @@
   stroke-width: 4;
   vector-effect: non-scaling-stroke;
   filter: drop-shadow(0 6px 5px rgba(74, 38, 52, 0.28));
+}
+
+.vienna-attraction-marker.is-estimated circle {
+  fill: #fff8df;
+  stroke-dasharray: 7 5;
 }
 
 .vienna-attraction-marker text {
@@ -916,6 +967,24 @@
 
   .vienna-map-stage {
     padding: 6px;
+  }
+
+  .vienna-map-detail-toolbar {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vienna-map-detail-toolbar strong,
+  #vienna-map-overview {
+    width: 100%;
+    text-align: center;
+  }
+
+  .vienna-map-stage.is-district-view #vienna-map-svg {
+    min-height: 430px;
   }
 
   .vienna-map-legend {

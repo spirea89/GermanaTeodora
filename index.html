@@ -7,11 +7,11 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Deutsch und Mathe</title>
-    <link rel="stylesheet" href="styles.css?v=20261122-clickable-attraction-links">
+    <link rel="stylesheet" href="styles.css?v=20261123-district-map-zoom">
   </head>
   <body>
     <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">Deutsch</button>
-    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.22.5</div>
+    <div class="version-badge" id="version-badge" aria-live="polite">Version 2026.11.23.1</div>
     <main class="app-shell">
       <section class="screen home-screen" id="home-screen" aria-labelledby="home-title">
         <div class="home-header">
@@ -524,6 +524,10 @@
                   <g id="vienna-district-layer"></g>
                   <g id="vienna-attraction-layer"></g>
                 </svg>
+                <div class="vienna-map-detail-toolbar hidden" id="vienna-map-detail-toolbar">
+                  <strong id="vienna-map-view-label">1. Innere Stadt</strong>
+                  <button type="button" id="vienna-map-overview">Show all Vienna</button>
+                </div>
                 <div class="vienna-map-legend">
                   <span><i class="district-key" aria-hidden="true"></i><b id="vienna-legend-district">District</b></span>
                   <span><i class="attraction-key" aria-hidden="true">★</i><b id="vienna-legend-attraction">Attraction</b></span>
@@ -979,8 +983,8 @@
       </div>
     </div>
 
-    <script src="data/vienna-districts.js?v=20261122-clickable-attraction-links"></script>
-    <script src="data/verb-forms.js?v=20261122-clickable-attraction-links"></script>
-    <script src="app.js?v=20261122-clickable-attraction-links"></script>
+    <script src="data/vienna-districts.js?v=20261123-district-map-zoom"></script>
+    <script src="data/verb-forms.js?v=20261123-district-map-zoom"></script>
+    <script src="app.js?v=20261123-district-map-zoom"></script>
   </body>
 </html>

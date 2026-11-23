@@ -208,7 +208,7 @@ const viennaGithubTokenKey = "deutschUndMatheViennaGithubToken";
 const viennaGithubContentsApi = "https://api.github.com/repos/spirea89/GermanaTeodora/contents/data/vienna-map-content.json";
 const viennaGithubBranch = "main";
 const viennaDistrictGeoJson = window.VIENNA_DISTRICTS_GEOJSON || { type: "FeatureCollection", features: [] };
-const appVersion = "2026.11.22.5";
+const appVersion = "2026.11.23.1";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -716,7 +716,7 @@ const translations = {
     viennaDistricts: "Wiener Bezirke",
     viennaDistrictsSub: "Learn Vienna's 23 districts",
     discoverVienna: "Discover Vienna",
-    viennaMapIntro: "Tap a district to learn its number and name.",
+    viennaMapIntro: "Tap a district to open its map and discover its attractions.",
     viennaMapAria: "Interactive map of Vienna's 23 districts",
     viennaMapTitleAria: "Map of Vienna's districts",
     viennaMapDescription: "Select any colored district to hear and read its German name.",
@@ -730,6 +730,10 @@ const translations = {
     allViennaDistricts: "The 23 districts of Vienna",
     districtLegend: "District",
     attractionLegend: "Attraction",
+    showAllVienna: "Show all Vienna",
+    districtMapLabel: (number, name) => `${number}. ${name}`,
+    attractionCenterNote: "No exact position · shown near the district center",
+    approximateAttraction: (name) => `${name}, approximate position near the district center`,
     attractionReadPrompt: "Tap to watch and read the full story",
     attractionReadingTitle: "Read and discover",
     attractionDetailsMissing: "The detailed reading text will appear here soon.",
@@ -1075,7 +1079,7 @@ const translations = {
     viennaDistricts: "Wiener Bezirke",
     viennaDistrictsSub: "Die 23 Wiener Bezirke lernen",
     discoverVienna: "Wien entdecken",
-    viennaMapIntro: "Tippe auf einen Bezirk und lerne seine Nummer und seinen Namen.",
+    viennaMapIntro: "Tippe auf einen Bezirk, öffne seine Karte und entdecke seine Sehenswürdigkeiten.",
     viennaMapAria: "Interaktive Karte der 23 Wiener Bezirke",
     viennaMapTitleAria: "Karte der Wiener Bezirke",
     viennaMapDescription: "Wähle einen farbigen Bezirk aus, um seinen deutschen Namen zu hören und zu lesen.",
@@ -1089,6 +1093,10 @@ const translations = {
     allViennaDistricts: "Die 23 Bezirke Wiens",
     districtLegend: "Bezirk",
     attractionLegend: "Sehenswürdigkeit",
+    showAllVienna: "Ganz Wien anzeigen",
+    districtMapLabel: (number, name) => `${number}. ${name}`,
+    attractionCenterNote: "Keine genaue Position · nahe der Bezirksmitte angezeigt",
+    approximateAttraction: (name) => `${name}, ungefähre Position nahe der Bezirksmitte`,
     attractionReadPrompt: "Tippe, um das Video anzusehen und den ganzen Text zu lesen",
     attractionReadingTitle: "Lesen und entdecken",
     attractionDetailsMissing: "Der ausführliche Lesetext erscheint bald hier.",
@@ -1456,7 +1464,11 @@ const elements = {
   openBat: document.querySelector("#open-bat"),
   openViennaMap: document.querySelector("#open-vienna-map"),
   viennaMapApp: document.querySelector("#vienna-map-app"),
+  viennaMapStage: document.querySelector(".vienna-map-stage"),
   viennaMapSvg: document.querySelector("#vienna-map-svg"),
+  viennaMapDetailToolbar: document.querySelector("#vienna-map-detail-toolbar"),
+  viennaMapViewLabel: document.querySelector("#vienna-map-view-label"),
+  viennaMapOverview: document.querySelector("#vienna-map-overview"),
   viennaDistrictLayer: document.querySelector("#vienna-district-layer"),
   viennaAttractionLayer: document.querySelector("#vienna-attraction-layer"),
   viennaDistrictNumber: document.querySelector("#vienna-district-number"),
@@ -1801,6 +1813,7 @@ let viennaMapData = loadViennaMapData();
 let viennaMapSharedReady = loadSharedViennaMapData();
 let viennaSelectedDistrict = null;
 let viennaSelectedAttraction = null;
+let viennaDetailedDistrict = null;
 let viennaAdminDistrict = 1;
 let viennaProjection = null;
 let viennaAudioKeys = new Set();
@@ -4100,6 +4113,7 @@ function showOptionalMenu() {
   currentAnimalFactId = null;
   currentAnimalTestId = null;
   animalActivityMode = "explore";
+  viennaDetailedDistrict = null;
   elements.optionalHub.classList.remove("hidden");
   elements.animalApp.classList.add("hidden");
   elements.viennaMapApp.classList.add("hidden");
@@ -4127,15 +4141,21 @@ async function showViennaMapApp() {
   elements.animalApp.classList.add("hidden");
   elements.viennaMapApp.classList.remove("hidden");
   document.querySelector("#optional-title").textContent = t("viennaDistricts");
+  viennaDetailedDistrict = null;
   renderViennaMap();
   if (!viennaSelectedDistrict) {
     const firstDistrict = viennaDistricts()[0];
     if (firstDistrict) {
-      selectViennaDistrict(firstDistrict.number, { play: false, focus: false });
+      selectViennaDistrict(firstDistrict.number, { play: false, focus: false, zoom: false });
     }
   } else {
     renderViennaDistrictDetails();
   }
+  void resolveMissingViennaAttractionLocations().then((changed) => {
+    if (changed && !elements.viennaMapApp.classList.contains("hidden")) {
+      renderViennaMap();
+    }
+  });
   void refreshViennaAudioKeys().then(() => renderViennaDistrictDetails());
 }
 
@@ -6293,8 +6313,9 @@ function allViennaCoordinates(geometry) {
   return points;
 }
 
-function createViennaProjection() {
-  const allPoints = viennaDistrictGeoJson.features.flatMap((feature) => allViennaCoordinates(feature.geometry));
+function createViennaProjection(feature = null) {
+  const features = feature ? [feature] : viennaDistrictGeoJson.features;
+  const allPoints = features.flatMap((item) => allViennaCoordinates(item.geometry));
   if (!allPoints.length) {
     return (longitude, latitude) => ({ x: longitude, y: latitude });
   }
@@ -6305,7 +6326,7 @@ function createViennaProjection() {
   const maxX = Math.max(...projected.map((point) => point[0]));
   const minY = Math.min(...projected.map((point) => point[1]));
   const maxY = Math.max(...projected.map((point) => point[1]));
-  const padding = 42;
+  const padding = feature ? 82 : 42;
   const scale = Math.min((1000 - padding * 2) / (maxX - minX), (760 - padding * 2) / (maxY - minY));
   const offsetX = (1000 - (maxX - minX) * scale) / 2;
   const offsetY = (760 - (maxY - minY) * scale) / 2;
@@ -6363,13 +6384,20 @@ function renderViennaMap() {
   }
   const svgNamespace = "http://www.w3.org/2000/svg";
   const palette = ["#f5b83b", "#55b9d3", "#58bf8c", "#ee7b6f", "#9b82d1", "#42b8ae", "#f19b49"];
-  viennaProjection = createViennaProjection();
+  const detailedDistrict = viennaDistrict(viennaDetailedDistrict);
+  const displayedDistricts = detailedDistrict ? [detailedDistrict] : viennaDistricts();
+  viennaProjection = createViennaProjection(detailedDistrict?.feature || null);
+  elements.viennaMapStage.classList.toggle("is-district-view", Boolean(detailedDistrict));
+  elements.viennaMapDetailToolbar.classList.toggle("hidden", !detailedDistrict);
+  if (detailedDistrict) {
+    elements.viennaMapViewLabel.textContent = t("districtMapLabel", detailedDistrict.number, detailedDistrict.name);
+  }
   elements.viennaDistrictLayer.replaceChildren();
-  viennaDistricts().forEach((district, index) => {
+  displayedDistricts.forEach((district, index) => {
     const path = document.createElementNS(svgNamespace, "path");
     path.setAttribute("d", viennaGeometryPath(district.feature.geometry));
     path.setAttribute("class", "vienna-district-shape");
-    path.setAttribute("fill", palette[index % palette.length]);
+    path.setAttribute("fill", palette[(district.number - 1) % palette.length]);
     path.setAttribute("fill-rule", "evenodd");
     path.setAttribute("tabindex", "0");
     path.setAttribute("role", "button");
@@ -6381,13 +6409,15 @@ function renderViennaMap() {
     path.append(title);
     elements.viennaDistrictLayer.append(path);
 
-    const labelPoint = viennaFeatureLabelPoint(district.feature);
-    const label = document.createElementNS(svgNamespace, "text");
-    label.setAttribute("x", labelPoint.x.toFixed(1));
-    label.setAttribute("y", labelPoint.y.toFixed(1));
-    label.setAttribute("class", "vienna-district-label");
-    label.textContent = String(district.number);
-    elements.viennaDistrictLayer.append(label);
+    if (!detailedDistrict) {
+      const labelPoint = viennaFeatureLabelPoint(district.feature);
+      const label = document.createElementNS(svgNamespace, "text");
+      label.setAttribute("x", labelPoint.x.toFixed(1));
+      label.setAttribute("y", labelPoint.y.toFixed(1));
+      label.setAttribute("class", "vienna-district-label");
+      label.textContent = String(district.number);
+      elements.viennaDistrictLayer.append(label);
+    }
   });
 
   elements.viennaDistrictButtons.replaceChildren();
@@ -6412,16 +6442,39 @@ function renderViennaAttractionMarkers() {
     return;
   }
   const svgNamespace = "http://www.w3.org/2000/svg";
-  viennaMapData.attractions
-    .filter((item) => Number.isFinite(item.latitude) && Number.isFinite(item.longitude))
-    .forEach((attraction, index) => {
-      const point = viennaProjection(attraction.longitude, attraction.latitude);
+  const detailedDistrict = viennaDistrict(viennaDetailedDistrict);
+  const attractions = viennaMapData.attractions.filter((item) => {
+    if (!item.name.trim()) {
+      return false;
+    }
+    if (detailedDistrict) {
+      return item.districtId === detailedDistrict.number;
+    }
+    return Number.isFinite(item.latitude) && Number.isFinite(item.longitude);
+  });
+  const approximateAttractions = attractions.filter((item) => !Number.isFinite(item.latitude) || !Number.isFinite(item.longitude));
+  const districtCenter = detailedDistrict ? viennaFeatureLabelPoint(detailedDistrict.feature) : null;
+  attractions.forEach((attraction, index) => {
+      const hasExactPosition = Number.isFinite(attraction.latitude) && Number.isFinite(attraction.longitude);
+      let point = hasExactPosition ? viennaProjection(attraction.longitude, attraction.latitude) : districtCenter;
+      if (!hasExactPosition && point && approximateAttractions.length > 1) {
+        const approximateIndex = approximateAttractions.indexOf(attraction);
+        const angle = -Math.PI / 2 + approximateIndex * (Math.PI * 2 / approximateAttractions.length);
+        const radius = Math.min(74, 34 + approximateAttractions.length * 6);
+        point = { x: point.x + Math.cos(angle) * radius, y: point.y + Math.sin(angle) * radius };
+      }
+      if (!point) {
+        return;
+      }
       const marker = document.createElementNS(svgNamespace, "g");
-      marker.setAttribute("class", "vienna-attraction-marker");
+      marker.setAttribute("class", `vienna-attraction-marker${hasExactPosition ? "" : " is-estimated"}`);
       marker.setAttribute("tabindex", "0");
       marker.setAttribute("role", "button");
-      marker.setAttribute("aria-label", attraction.name || t("attractionDraft", index + 1));
+      const markerName = attraction.name || t("attractionDraft", index + 1);
+      marker.setAttribute("aria-label", hasExactPosition ? markerName : t("approximateAttraction", markerName));
       marker.dataset.viennaAttraction = attraction.id;
+      const title = document.createElementNS(svgNamespace, "title");
+      title.textContent = hasExactPosition ? markerName : t("approximateAttraction", markerName);
       const circle = document.createElementNS(svgNamespace, "circle");
       circle.setAttribute("cx", point.x.toFixed(1));
       circle.setAttribute("cy", point.y.toFixed(1));
@@ -6430,7 +6483,7 @@ function renderViennaAttractionMarkers() {
       star.setAttribute("x", point.x.toFixed(1));
       star.setAttribute("y", (point.y + 1).toFixed(1));
       star.textContent = "★";
-      marker.append(circle, star);
+      marker.append(title, circle, star);
       elements.viennaAttractionLayer.append(marker);
     });
 }
@@ -6450,11 +6503,13 @@ function selectViennaDistrict(number, options = {}) {
     return;
   }
   viennaSelectedDistrict = district.number;
+  if (options.zoom !== false) {
+    viennaDetailedDistrict = district.number;
+  }
   if (!options.keepAttraction) {
     viennaSelectedAttraction = null;
   }
-  updateViennaMapSelection();
-  renderViennaDistrictDetails();
+  renderViennaMap();
   if (options.focus !== false) {
     elements.viennaDistrictName.focus({ preventScroll: true });
   }
@@ -6470,8 +6525,13 @@ function selectViennaAttraction(id) {
   }
   viennaSelectedAttraction = attraction.id;
   selectViennaDistrict(attraction.districtId, { play: false, focus: false, keepAttraction: true });
-  updateViennaMapSelection();
-  renderViennaDistrictDetails();
+}
+
+function showViennaOverview() {
+  viennaDetailedDistrict = null;
+  viennaSelectedAttraction = null;
+  renderViennaMap();
+  elements.viennaDistrictName.focus({ preventScroll: true });
 }
 
 function renderViennaDistrictDetails() {
@@ -6510,7 +6570,7 @@ function renderViennaDistrictDetails() {
     const name = document.createElement("strong");
     name.textContent = attraction.name;
     const address = document.createElement("small");
-    address.textContent = attraction.resolvedAddress || attraction.address;
+    address.textContent = attraction.resolvedAddress || attraction.address || t("attractionCenterNote");
     select.append(name, address);
     if (attraction.id !== viennaSelectedAttraction) {
       const prompt = document.createElement("span");
@@ -6574,10 +6634,15 @@ function updateViennaMapLanguage() {
   setText("#vienna-legend-district", "districtLegend");
   setText("#vienna-legend-attraction", "attractionLegend");
   elements.viennaPlayDistrict.textContent = t("playDistrictName");
+  elements.viennaMapOverview.textContent = t("showAllVienna");
   elements.viennaMapMenu.textContent = t("optionalGames");
-  document.querySelector(".vienna-map-stage").setAttribute("aria-label", t("viennaMapAria"));
+  elements.viennaMapStage.setAttribute("aria-label", t("viennaMapAria"));
   document.querySelector("#vienna-map-svg-title").textContent = t("viennaMapTitleAria");
   document.querySelector("#vienna-map-svg-description").textContent = t("viennaMapDescription");
+  const detailedDistrict = viennaDistrict(viennaDetailedDistrict);
+  if (detailedDistrict) {
+    elements.viennaMapViewLabel.textContent = t("districtMapLabel", detailedDistrict.number, detailedDistrict.name);
+  }
   renderViennaDistrictDetails();
 }
 
@@ -6785,9 +6850,67 @@ async function saveViennaAttraction(id) {
   if (!attraction) {
     return;
   }
+  if (attraction.address && (!Number.isFinite(attraction.latitude) || !Number.isFinite(attraction.longitude))) {
+    try {
+      const feature = await findViennaAddressFeature(attraction.address);
+      if (feature) {
+        applyViennaAddressFeature(attraction, feature);
+        saveViennaMapData();
+      }
+    } catch {
+      // A written address can still be saved and shown near the district center.
+    }
+  }
   renderViennaMapAdmin();
   renderViennaMap();
   await publishViennaMapData();
+}
+
+async function findViennaAddressFeature(address) {
+  const url = new URL(viennaAddressService);
+  url.searchParams.set("Address", address);
+  url.searchParams.set("crs", "EPSG:4326");
+  const response = await fetch(url.toString(), { headers: { Accept: "application/json" } });
+  if (!response.ok) {
+    throw new Error(`Address service returned ${response.status}`);
+  }
+  const result = await response.json();
+  return (result.features || [])
+    .filter((item) => item.geometry?.type === "Point" && Array.isArray(item.geometry.coordinates))
+    .sort((left, right) => Number(left.properties?.Ranking || 0) - Number(right.properties?.Ranking || 0))[0] || null;
+}
+
+function applyViennaAddressFeature(attraction, feature) {
+  attraction.longitude = Number(feature.geometry.coordinates[0]);
+  attraction.latitude = Number(feature.geometry.coordinates[1]);
+  const serviceAddress = String(feature.properties?.Adresse || "").trim();
+  const serviceLabel = [serviceAddress, feature.properties?.PostalCode, "Wien"].filter(Boolean).join(", ");
+  attraction.resolvedAddress = serviceAddress && /\d/.test(serviceAddress) ? serviceLabel : attraction.address;
+  const locatedDistrict = Number(feature.properties?.Bezirk);
+  if (locatedDistrict >= 1 && locatedDistrict <= 23) {
+    attraction.districtId = locatedDistrict;
+  }
+  return locatedDistrict;
+}
+
+async function resolveMissingViennaAttractionLocations() {
+  const unresolved = viennaMapData.attractions.filter((item) => item.address && (!Number.isFinite(item.latitude) || !Number.isFinite(item.longitude)));
+  let changed = false;
+  for (const attraction of unresolved) {
+    try {
+      const feature = await findViennaAddressFeature(attraction.address);
+      if (feature) {
+        applyViennaAddressFeature(attraction, feature);
+        changed = true;
+      }
+    } catch {
+      // Keep the attraction near the district center when its address cannot be resolved.
+    }
+  }
+  if (changed) {
+    saveViennaMapData();
+  }
+  return changed;
 }
 
 async function locateViennaAttraction(id) {
@@ -6802,27 +6925,12 @@ async function locateViennaAttraction(id) {
     button.disabled = true;
   }
   try {
-    const url = new URL(viennaAddressService);
-    url.searchParams.set("Address", attraction.address);
-    url.searchParams.set("crs", "EPSG:4326");
-    const response = await fetch(url.toString(), { headers: { Accept: "application/json" } });
-    if (!response.ok) {
-      throw new Error(`Address service returned ${response.status}`);
-    }
-    const result = await response.json();
-    const feature = (result.features || [])
-      .filter((item) => item.geometry?.type === "Point" && Array.isArray(item.geometry.coordinates))
-      .sort((left, right) => Number(left.properties?.Ranking || 0) - Number(right.properties?.Ranking || 0))[0];
+    const feature = await findViennaAddressFeature(attraction.address);
     if (!feature) {
       throw new Error("Address not found");
     }
-    attraction.longitude = Number(feature.geometry.coordinates[0]);
-    attraction.latitude = Number(feature.geometry.coordinates[1]);
-    attraction.address = String(feature.properties?.Adresse || attraction.address);
-    attraction.resolvedAddress = [feature.properties?.Adresse, feature.properties?.PostalCode, "Wien"].filter(Boolean).join(", ");
-    const locatedDistrict = Number(feature.properties?.Bezirk);
+    const locatedDistrict = applyViennaAddressFeature(attraction, feature);
     if (locatedDistrict >= 1 && locatedDistrict <= 23) {
-      attraction.districtId = locatedDistrict;
       viennaAdminDistrict = locatedDistrict;
     }
     saveViennaMapData();
@@ -6979,6 +7087,7 @@ elements.openBat.addEventListener("click", () => showAnimalApp("bat"));
 elements.openViennaMap.addEventListener("click", showViennaMapApp);
 elements.optionalMenu.addEventListener("click", showOptionalMenu);
 elements.viennaMapMenu.addEventListener("click", showOptionalMenu);
+elements.viennaMapOverview.addEventListener("click", showViennaOverview);
 elements.viennaMapSvg.addEventListener("click", (event) => {
   const attraction = event.target.closest("[data-vienna-attraction]");
   if (attraction) {
