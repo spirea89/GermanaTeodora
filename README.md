@@ -27,6 +27,7 @@ After changing either file on GitHub, open Administration in the app and choose 
 - Full `http://` and `https://` addresses in an attraction's detailed reading text are displayed as safe, tappable links; Wikipedia addresses use a compact `Wikipedia` label.
 - Attraction addresses are located with the official Stadt Wien OGD address service and displayed as markers in their returned district.
 - Selecting a district opens a focused map of its exact boundary. Located attractions use their resolved coordinates; attractions without coordinates are grouped near the district center until their address is located.
+- Selecting an attraction marker switches the expanded attraction card and moves the tablet view directly to its YouTube video and reading text; a return button moves back to the district map.
 - District geometry and address lookup are credited to Stadt Wien – data.wien.gv.at under CC BY 4.0.
 
 ## Four Operations

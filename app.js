@@ -208,7 +208,7 @@ const viennaGithubTokenKey = "deutschUndMatheViennaGithubToken";
 const viennaGithubContentsApi = "https://api.github.com/repos/spirea89/GermanaTeodora/contents/data/vienna-map-content.json";
 const viennaGithubBranch = "main";
 const viennaDistrictGeoJson = window.VIENNA_DISTRICTS_GEOJSON || { type: "FeatureCollection", features: [] };
-const appVersion = "2026.11.23.1";
+const appVersion = "2026.11.23.2";
 const appVersionFile = "data/app-version.json";
 const appVersionReloadKey = "deutschUndMatheVersionReloaded";
 
@@ -734,6 +734,7 @@ const translations = {
     districtMapLabel: (number, name) => `${number}. ${name}`,
     attractionCenterNote: "No exact position · shown near the district center",
     approximateAttraction: (name) => `${name}, approximate position near the district center`,
+    backToDistrictMap: "Back to district map",
     attractionReadPrompt: "Tap to watch and read the full story",
     attractionReadingTitle: "Read and discover",
     attractionDetailsMissing: "The detailed reading text will appear here soon.",
@@ -1097,6 +1098,7 @@ const translations = {
     districtMapLabel: (number, name) => `${number}. ${name}`,
     attractionCenterNote: "Keine genaue Position · nahe der Bezirksmitte angezeigt",
     approximateAttraction: (name) => `${name}, ungefähre Position nahe der Bezirksmitte`,
+    backToDistrictMap: "Zurück zur Bezirkskarte",
     attractionReadPrompt: "Tippe, um das Video anzusehen und den ganzen Text zu lesen",
     attractionReadingTitle: "Lesen und entdecken",
     attractionDetailsMissing: "Der ausführliche Lesetext erscheint bald hier.",
@@ -6525,6 +6527,30 @@ function selectViennaAttraction(id) {
   }
   viennaSelectedAttraction = attraction.id;
   selectViennaDistrict(attraction.districtId, { play: false, focus: false, keepAttraction: true });
+  revealViennaAttractionDetails(attraction.id);
+}
+
+function viennaScrollBehavior() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+}
+
+function revealViennaAttractionDetails(id) {
+  window.requestAnimationFrame(() => {
+    const card = elements.viennaAttractionList.querySelector(`[data-vienna-attraction-card="${id}"]`);
+    if (!card) {
+      return;
+    }
+    card.scrollIntoView({ behavior: viennaScrollBehavior(), block: "start" });
+    card.focus({ preventScroll: true });
+  });
+}
+
+function returnToViennaDistrictMap() {
+  elements.viennaMapStage.scrollIntoView({ behavior: viennaScrollBehavior(), block: "start" });
+  window.requestAnimationFrame(() => {
+    const marker = elements.viennaAttractionLayer.querySelector(`[data-vienna-attraction="${viennaSelectedAttraction}"]`);
+    marker?.focus({ preventScroll: true });
+  });
 }
 
 function showViennaOverview() {
@@ -6562,6 +6588,7 @@ function renderViennaDistrictDetails() {
   attractions.forEach((attraction) => {
     const card = document.createElement("article");
     card.className = "vienna-attraction-card";
+    card.dataset.viennaAttractionCard = attraction.id;
     card.classList.toggle("is-selected", attraction.id === viennaSelectedAttraction);
     const select = document.createElement("button");
     select.type = "button";
@@ -6580,6 +6607,13 @@ function renderViennaDistrictDetails() {
     }
     card.append(select);
     if (attraction.id === viennaSelectedAttraction) {
+      card.tabIndex = -1;
+      const returnToMap = document.createElement("button");
+      returnToMap.type = "button";
+      returnToMap.className = "vienna-attraction-map-return";
+      returnToMap.dataset.returnViennaMap = "";
+      returnToMap.textContent = t("backToDistrictMap");
+      card.append(returnToMap);
       const videoId = youtubeVideoIdFromUrl(attraction.youtubeUrl);
       if (videoId) {
         const video = document.createElement("section");
@@ -7121,6 +7155,11 @@ elements.viennaDistrictButtons.addEventListener("click", (event) => {
   }
 });
 elements.viennaAttractionList.addEventListener("click", (event) => {
+  const returnToMap = event.target.closest("[data-return-vienna-map]");
+  if (returnToMap) {
+    returnToViennaDistrictMap();
+    return;
+  }
   const select = event.target.closest("[data-select-vienna-attraction]");
   if (select) {
     selectViennaAttraction(select.dataset.selectViennaAttraction);

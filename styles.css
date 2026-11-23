@@ -371,6 +371,7 @@
 .vienna-attraction-card.is-selected {
   border-color: #d9416f;
   box-shadow: 0 0 0 3px rgba(217, 65, 111, 0.1);
+  scroll-margin-top: 18px;
 }
 
 .vienna-attraction-select {
@@ -402,6 +403,22 @@
   color: #276d72;
   font-size: 0.88rem;
   font-weight: 850;
+}
+
+.vienna-attraction-map-return {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  border: 1px solid #a9cfca;
+  border-radius: 10px;
+  background: #edf8f6;
+  color: #245b62;
+  font-weight: 900;
+}
+
+.vienna-attraction-map-return:hover,
+.vienna-attraction-map-return:focus-visible {
+  background: #dff2ef;
 }
 
 .vienna-attraction-reading {
